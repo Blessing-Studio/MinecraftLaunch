@@ -21,8 +21,7 @@ public abstract class Account
 
 	public virtual AccountType Type { get; set; }
 
-	public static OfflineAccount Default { get; private set; } = new OfflineAccount
-	{
+	public static OfflineAccount Default { get; private set; } = new OfflineAccount {	
 		Name = "Steve",
 		Uuid = Guid.NewGuid(),
 		AccessToken = Guid.NewGuid().ToString("N"),
