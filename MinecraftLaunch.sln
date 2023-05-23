@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play", "..\Play\Play.csproj", "{6A4D0CB8-801C-4864-A787-80D056762603}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MLDemo", "..\MLDemo\MLDemo.csproj", "{F21AA348-0802-4E93-B5CB-2492BF6FE223}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "MinecraftLaunch.csproj", "{FF404FF4-2070-462B-89CF-54C893AA70D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A4D0CB8-801C-4864-A787-80D056762603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A4D0CB8-801C-4864-A787-80D056762603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A4D0CB8-801C-4864-A787-80D056762603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A4D0CB8-801C-4864-A787-80D056762603}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F21AA348-0802-4E93-B5CB-2492BF6FE223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21AA348-0802-4E93-B5CB-2492BF6FE223}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F21AA348-0802-4E93-B5CB-2492BF6FE223}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F21AA348-0802-4E93-B5CB-2492BF6FE223}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B9219E2-8670-4482-9D5D-25BEBF203F9B}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net6.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+	  <Title>MinecraftLaunch</Title>
+	  <Version>1.9.0</Version>
+	  <Authors>Xilu</Authors>
+	  <Company>BlessingLife Studio</Company>
+	  <Description>下一代全能高效化的 Minecraft 启动核心</Description>
+	  <PackageIcon>icon.png</PackageIcon>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.0.0-pre3" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+    <PackageReference Include="MinecraftLaunch.NPinyin" Version="1.0.0" />
+    <PackageReference Include="MinecraftLaunch.PinyinConverter" Version="1.0.0" />
+    <PackageReference Include="Natsurainko.Toolkits" Version="1.0.2" />
+    <PackageReference Include="NbtLib" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
