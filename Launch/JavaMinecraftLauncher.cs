@@ -12,7 +12,7 @@ using MinecraftLaunch.Modules.Toolkits;
 
 namespace MinecraftLaunch.Launch
 {
-    public sealed partial class JavaMinecraftLauncher : LauncherBase<JavaClientArgumentsBuilder, MinecraftLaunchResponse>
+    public sealed partial class JavaMinecraftLauncher : LauncherBase<JavaMinecraftArgumentsBuilder, MinecraftLaunchResponse>
     {
         public override async ValueTask<MinecraftLaunchResponse> LaunchTaskAsync(string id, Action<(float, string)> action)
         {
@@ -25,40 +25,45 @@ namespace MinecraftLaunch.Launch
             {
                 #region 预启动检查
                 GameCore core = GameCoreToolkit.GetGameCore(id);
+
                 progress.Report((0.2f, "正在查找游戏核心"));
                 if (core == null)
                 {
                     progress.Report((-1f, "启动失败，游戏核心不存在或已损坏"));
                     ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，游戏核心不存在或已损坏"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，游戏核心不存在或已损坏")));
                 }
+
                 progress.Report((0.4f, "正在检查 Jvm 配置"));
                 if (LaunchSetting.JvmConfig == null)
                 {
                     progress.Report((-1f, "启动失败，未配置 Jvm 信息"));
                     ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未配置 Jvm 信息"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未配置 Jvm 信息")));
                 }
+
                 if (!LaunchSetting.JvmConfig.JavaPath.Exists)
                 {
                     progress.Report((-1f, "启动失败，Java 路径不存在或已损坏"));
                     ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，Java 路径不存在或已损坏"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，Java 路径不存在或已损坏")));
                 }
+
                 progress.Report((0.5f, "正在验证账户信息"));
                 if (LaunchSetting.Account == null)
                 {
                     progress.Report((-1f, "启动失败，未设置账户"));
                     ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未设置账户"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未设置账户")));
                 }
+
                 progress.Report((0.6f, "正在检查游戏依赖文件"));
                 await new ResourceInstaller(core).DownloadAsync(delegate (string x, float a)
                 {
                     progress.Report((0.6f + a * 0.8f, "正在下载游戏依赖文件：" + x));
                 });
                 progress.Report((0.8f, "正在构建启动参数"));
-                ArgumentsBuilder = new JavaClientArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
+                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
                 args = ArgumentsBuilder.Build();
                 progress.Report((9f, "正在检查Natives"));
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
@@ -93,8 +98,10 @@ namespace MinecraftLaunch.Launch
                 };
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
+                await Task.Delay(500);
+
                 ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                return new MinecraftLaunchResponse(process, LaunchState.Succeess, args, core)
+                return new MinecraftLaunchResponse(process, LaunchState.Succeess, args)
                 {
                     RunTime = stopWatch
                 };
@@ -105,10 +112,10 @@ namespace MinecraftLaunch.Launch
                 if (ex.GetType() == typeof(OperationCanceledException))
                 {
                     ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return new MinecraftLaunchResponse(process, LaunchState.Cancelled, args, GameCoreToolkit.GetGameCore(id));
+                    return new MinecraftLaunchResponse(process, LaunchState.Cancelled, args);
                 }
                 ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                return new MinecraftLaunchResponse(process, LaunchState.Failed, args, ex, GameCoreToolkit.GetGameCore(id));
+                return new MinecraftLaunchResponse(process, LaunchState.Failed, args, ex);
             }
         }
 
@@ -120,17 +127,18 @@ namespace MinecraftLaunch.Launch
             {
                 GameCore core = GameCoreToolkit.GetGameCore(id);
                 if (core == null)
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，游戏核心不存在或已损坏"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，游戏核心不存在或已损坏")));
                 if (LaunchSetting.JvmConfig == null)
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未配置 Jvm 信息"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未配置 Jvm 信息")));
                 if (!LaunchSetting.JvmConfig.JavaPath.Exists)
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，Java 路径不存在或已损坏"), core));
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，Java 路径不存在或已损坏")));
                 if (LaunchSetting.Account == null)
-                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未设置账户"), core));
-                ArgumentsBuilder = new JavaClientArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
+                    return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未设置账户")));
+                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
                 args = ArgumentsBuilder.Build();
                 await new ResourceInstaller(core).DownloadAsync(delegate
                 {
+
                 });
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try
@@ -155,7 +163,7 @@ namespace MinecraftLaunch.Launch
                 };
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                return new MinecraftLaunchResponse(process, LaunchState.Succeess, args, core)
+                return new MinecraftLaunchResponse(process, LaunchState.Succeess, args)
                 {
                     RunTime = stopWatch
                 };
@@ -164,9 +172,9 @@ namespace MinecraftLaunch.Launch
             {
                 if (ex.GetType() == typeof(OperationCanceledException))
                 {
-                    return new MinecraftLaunchResponse(process, LaunchState.Cancelled, args, GameCoreToolkit.GetGameCore(id));
+                    return new MinecraftLaunchResponse(process, LaunchState.Cancelled, args);
                 }
-                return new MinecraftLaunchResponse(process, LaunchState.Failed, args, ex, GameCoreToolkit.GetGameCore(id));
+                return new MinecraftLaunchResponse(process, LaunchState.Failed, args, ex);
             }
         }
 
@@ -207,7 +215,7 @@ namespace MinecraftLaunch.Launch
     {
         public override LaunchConfig LaunchSetting { get; set; }
 
-        public override JavaClientArgumentsBuilder ArgumentsBuilder { get; set; }
+        public override JavaMinecraftArgumentsBuilder ArgumentsBuilder { get; set; }
 
         public GameCoreToolkit GameCoreToolkit { get; set; }
 

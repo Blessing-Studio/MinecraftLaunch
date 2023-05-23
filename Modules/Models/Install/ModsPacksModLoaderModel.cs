@@ -1,12 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ModsPacksModLoaderModel
 {
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonProperty("primary")]
+	[JsonPropertyName("primary")]
 	public bool IsPrimary { get; set; }
 }

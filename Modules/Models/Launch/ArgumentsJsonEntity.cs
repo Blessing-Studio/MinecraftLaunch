@@ -1,14 +1,14 @@
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class ArgumentsJsonEntity
 {
-	[JsonProperty("game")]
-	public List<JToken> Game { get; set; }
+	[JsonPropertyName("game")]
+	public List<object> Game { get; set; }
 
-	[JsonProperty("jvm")]
-	public List<JToken> Jvm { get; set; }
+	[JsonPropertyName("jvm")]
+	public List<object> Jvm { get; set; }
 }

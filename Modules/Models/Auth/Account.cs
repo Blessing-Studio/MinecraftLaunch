@@ -1,10 +1,14 @@
 using System;
 using MinecraftLaunch.Modules.Enum;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
+using JsonConverterAttribute = Newtonsoft.Json.JsonConverterAttribute;
 
 namespace MinecraftLaunch.Modules.Models.Auth;
 
-[JsonConverter(typeof(ConvertAccountJson))]
+[JsonConverter(typeof(AccountJsonConverter))]
 public abstract class Account
 {
 	public string Name { get; set; }
@@ -46,4 +50,57 @@ public abstract class Account
 			throw new ArgumentException("uuid或accesstoken或clienttoken的格式错误！");
 		}
 	}
+
+    public static implicit operator Account(string name) => new OfflineAccount(name);
 }
+
+public class AccountJsonConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType) => objectType == typeof(Account);
+
+    public override bool CanRead => true;
+
+    public override bool CanWrite => false;
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        var jobject = serializer.Deserialize<JObject>(reader);
+
+        if (jobject == null)
+            return null;
+
+        var accountType = (AccountType)jobject["Type"].Value<int>();
+
+        return accountType switch
+        {
+            AccountType.Offline => new OfflineAccount
+            {
+                AccessToken = jobject["AccessToken"].ToObject<string>(),
+                ClientToken = jobject["ClientToken"].ToObject<string>(),
+                Name = jobject["Name"].ToObject<string>(),
+                Uuid = jobject["Uuid"].ToObject<Guid>()
+            },
+            AccountType.Microsoft => new MicrosoftAccount
+            {
+                AccessToken = jobject["AccessToken"].ToObject<string>(),
+                ClientToken = jobject["ClientToken"].ToObject<string>(),
+                Name = jobject["Name"].ToObject<string>(),
+                Uuid = jobject["Uuid"].ToObject<Guid>(),
+                DateTime = jobject["DateTime"].ToObject<DateTime>(),
+                RefreshToken = jobject["RefreshToken"].ToObject<string>()
+            },
+            AccountType.Yggdrasil => new YggdrasilAccount
+            {
+                AccessToken = jobject["AccessToken"].ToObject<string>(),
+                ClientToken = jobject["ClientToken"].ToObject<string>(),
+                Name = jobject["Name"].ToObject<string>(),
+                Uuid = jobject["Uuid"].ToObject<Guid>(),
+                YggdrasilServerUrl = jobject["YggdrasilServerUrl"].ToObject<string>()
+            },
+            _ => null
+        };
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+}
+

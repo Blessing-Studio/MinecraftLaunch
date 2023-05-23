@@ -52,8 +52,8 @@ public sealed class JavaToolkit
                     end = true;
             }
 
-            string[] sres = tempinfo?.Split(".")!;
-			if (!sres.IsNull() && sres.Length != 0)
+            string[] sres = tempinfo.Split(".");
+			if (sres.Length != 0)
                 ires = ((int.Parse(sres[0]) == 1) ? new int?(int.Parse(sres[1])) : new int?(int.Parse(sres[0])));
 
             return new JavaInfo

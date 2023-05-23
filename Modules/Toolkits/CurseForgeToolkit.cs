@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
 using Natsurainko.Toolkits.Network;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MinecraftLaunch.Modules.Toolkits
@@ -82,7 +75,7 @@ namespace MinecraftLaunch.Modules.Toolkits
                 responseMessage.EnsureSuccessStatusCode();
 
                 var entity = JObject.Parse(await responseMessage.Content.ReadAsStringAsync());
-
+                
                 foreach (JObject jObject in ((JArray)entity["data"]["popular"]).Cast<JObject>())
                     result.Add(ParseCurseForgeModpack(jObject));
 
@@ -114,17 +107,18 @@ namespace MinecraftLaunch.Modules.Toolkits
                           .Append(string.IsNullOrEmpty(searchFilter) ? string.Empty : $"&searchFilter={searchFilter}")
                           .Append((int)modLoaderType == 8 ? $"&modLoaderType={(int)modLoaderType}" : string.Empty)
                           .Append(string.IsNullOrEmpty(gameVersion) ? string.Empty : $"&gameVersion={gameVersion}")
-                          .Append(category == -1 ? string.Empty : $"&categoryId={category}")
+                          .Append(category == -1 ? string.Empty : $"&categoryId={gameVersion}")
                           .Append($"&sortField=Featured&sortOrder=desc&classId={classId}");
+
             var result = new List<CurseForgeModpack>();
 
-            try {           
+            try
+            {
                 using var responseMessage = await HttpWrapper.HttpGetAsync(builder.ToString(), Headers);
                 responseMessage.EnsureSuccessStatusCode();
 
-                Trace.WriteLine($"{await responseMessage.Content.ReadAsStringAsync()}");
                 var entity = JObject.Parse(await responseMessage.Content.ReadAsStringAsync());
-                ((JArray)entity["data"]!).ToList().ForEach(x => result.Add(ParseCurseForgeModpack((JObject)x)));
+                ((JArray)entity["data"]).ToList().ForEach(x => result.Add(ParseCurseForgeModpack((JObject)x)));
 
                 result.Sort((a, b) => a.GamePopularityRank.CompareTo(b.GamePopularityRank));
 
@@ -132,7 +126,7 @@ namespace MinecraftLaunch.Modules.Toolkits
             }
             catch { }
 
-            return null!;
+            return null;
 
         }
 
@@ -146,7 +140,7 @@ namespace MinecraftLaunch.Modules.Toolkits
         {
             string reqUrl = $"{API}/{addonId}/files/{fileId}/download-url";
             using HttpResponseMessage res = await HttpWrapper.HttpGetAsync(reqUrl, Headers);
-            return JsonConvert.DeserializeObject<DataModel<string>>(await res.Content.ReadAsStringAsync())?.Data!;
+            return (await res.Content.ReadAsStringAsync()).ToNewtonJsonEntity<DataModel<string>>()?.Data!;
         }
 
         public async ValueTask<List<CurseForgeModpackCategory>> GetCategories()
@@ -172,7 +166,7 @@ namespace MinecraftLaunch.Modules.Toolkits
             {
                 using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync(url, Headers);
                 responseMessage.EnsureSuccessStatusCode();
-                return (await responseMessage.Content.ReadAsStringAsync()).ToJsonEntity<DataModel<string>>().Data;
+                return (await responseMessage.Content.ReadAsStringAsync()).ToNewtonJsonEntity<DataModel<string>>().Data;
             }
             catch
             {

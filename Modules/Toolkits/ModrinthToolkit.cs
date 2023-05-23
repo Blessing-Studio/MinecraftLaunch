@@ -6,16 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Models.Download;
 using Natsurainko.Toolkits.Network;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Toolkits;
 
 public class ModrinthToolkit
 {
-	public static async ValueTask<ModrinthSearchResponse> GetFeaturedsAsync()
+	public static async ValueTask<ModrinthSearchResponse> GetFeaturedModpacksAsync()
 	{
 		var res = await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/search");
-        return JsonConvert.DeserializeObject<ModrinthSearchResponse>(await res.Content.ReadAsStringAsync())!;
+        return JsonSerializer.Deserialize<ModrinthSearchResponse>(await res.Content.ReadAsStringAsync())!;
 	}
 
 	public static async ValueTask<ModrinthSearchResponse> SearchAsync(string searchFilter, string Category = "", string Index = "relevance", string ProjectType = "mod")
@@ -33,7 +34,7 @@ public class ModrinthToolkit
 		}
 		sb.Append(projType);
 		sb.Append(']');
-		return JsonConvert.DeserializeObject<ModrinthSearchResponse>(await (await HttpWrapper.HttpGetAsync($"{"https://api.modrinth.com/v2"}/search{sb}", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
+		return JsonSerializer.Deserialize<ModrinthSearchResponse>(await (await HttpWrapper.HttpGetAsync($"{"https://api.modrinth.com/v2"}/search{sb}", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
 	}
 
 	public static async ValueTask<ModrinthSearchResponse> SearchModpacksAsync(string searchFilter, string Category = "", string Index = "relevance", int? Offset = null, int? Limit = null)
@@ -71,23 +72,22 @@ public class ModrinthToolkit
 			handler.AppendFormatted(Limit);
 			stringBuilder4.Append(ref handler);
 		}
-		return JsonConvert.DeserializeObject<ModrinthSearchResponse>(await (await HttpWrapper.HttpGetAsync(obj, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
+		return JsonSerializer.Deserialize<ModrinthSearchResponse>(await (await HttpWrapper.HttpGetAsync(obj, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
 	}
 
-	public static async ValueTask<IEnumerable<string>> GetCategories()
+	public static async ValueTask<List<string>> GetCategories()
 	{
-		List<ModrinthCategoryInfo> resModel = JsonConvert.DeserializeObject<List<ModrinthCategoryInfo>>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/tag/category", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
-		return (resModel == null) ? new List<string>() : resModel.Select((ModrinthCategoryInfo c) => c.Name).Distinct();
+		List<ModrinthCategoryInfo> resModel = JsonSerializer.Deserialize<List<ModrinthCategoryInfo>>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/tag/category", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
+		return (resModel == null) ? new List<string>() : resModel.Select((ModrinthCategoryInfo c) => c.Name).ToList();
 	}
 
 	public static async ValueTask<ModrinthProjectInfo> GetProject(string projectId)
 	{
-		return JsonConvert.DeserializeObject<ModrinthProjectInfo>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/project/" + projectId, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
+		return JsonSerializer.Deserialize<ModrinthProjectInfo>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/project/" + projectId, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
 	}
 
 	public static async ValueTask<List<ModrinthProjectInfoItem>> GetProjectInfos(string projectId)
 	{
-		return JsonConvert.DeserializeObject<List<ModrinthProjectInfoItem>>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/project/" + projectId + "/version", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
+		return JsonSerializer.Deserialize<List<ModrinthProjectInfoItem>>(await (await HttpWrapper.HttpGetAsync("https://api.modrinth.com/v2/project/" + projectId + "/version", (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead)).Content.ReadAsStringAsync());
 	}
 }
-//resourcepack mod modpack shader

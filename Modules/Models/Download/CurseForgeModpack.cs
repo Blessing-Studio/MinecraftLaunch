@@ -1,8 +1,9 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
@@ -35,15 +36,10 @@ public class CurseForgeModpack
 	[JsonProperty("categories")]
 	public List<CurseForgeModpackCategory> Categories { get; set; }
 
-    [JsonProperty("authors")]
-    public List<Author> Authors { get; set; }
-
-    [JsonProperty("screenshots")]
-    public List<Screenshot> Screenshots { get; set; }
-
-    public string IconUrl { get; set; }
+	public string IconUrl { get; set; }
 
 	public Dictionary<string, List<CurseForgeModpackFileInfo>> Files { get; set; } = new Dictionary<string, List<CurseForgeModpackFileInfo>>();
+
 
 	public string[] SupportedVersions { get; set; }
 
@@ -95,35 +91,7 @@ public class CurseForgeModpack
 	}
 }
 
-public class Author
+public class CurseForgeResourcePack : CurseForgeModpack
 {
-    [JsonProperty("id")]
-    public int Id { get; set; }
 
-    [JsonProperty("name")]
-    public string Name { get; set; }
-
-    [JsonProperty("url")]
-    public string Url { get; set; }
-}
-
-public class Screenshot
-{
-    [JsonProperty("id")]
-    public int Id { get; set; }
-
-    [JsonProperty("modId")]
-    public int ModId { get; set; }
-
-    [JsonProperty("title")]
-    public string Title { get; set; }
-
-    [JsonProperty("thumbnailUrl")]
-    public string ThumbnailUrl { get; set; }
-
-    [JsonProperty("description")]
-    public string Description { get; set; }
-
-    [JsonProperty("url")]
-    public string Url { get; set; }
 }

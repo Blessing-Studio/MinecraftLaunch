@@ -1,29 +1,29 @@
 using System.Collections.Generic;
 using MinecraftLaunch.Modules.Models.Download;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class LibraryJsonEntity
 {
-	[JsonProperty("downloads")]
+	[JsonPropertyName("downloads")]
 	public DownloadsJsonEntity Downloads { get; set; }
 
-	[JsonProperty("name")]
+	[JsonPropertyName("name")]
 	public string Name { get; set; }
 
-	[JsonProperty("url")]
+	[JsonPropertyName("url")]
 	public string Url { get; set; }
 
-	[JsonProperty("natives")]
+	[JsonPropertyName("natives")]
 	public Dictionary<string, string> Natives { get; set; }
 
-	[JsonProperty("rules")]
+	[JsonPropertyName("rules")]
 	public IEnumerable<RuleEntity> Rules { get; set; }
 
-	[JsonProperty("checksums")]
+	[JsonPropertyName("checksums")]
 	public List<string> CheckSums { get; set; }
 
-	[JsonProperty("clientreq")]
+	[JsonPropertyName("clientreq")]
 	public bool? ClientReq { get; set; }
 }

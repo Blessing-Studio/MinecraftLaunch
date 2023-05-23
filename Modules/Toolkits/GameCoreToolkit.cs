@@ -1,5 +1,6 @@
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Modules.Toolkits;
 
@@ -9,14 +10,14 @@ public class GameCoreToolkit
 
 	public List<(string, Exception)> ErrorGameCores { get; private set; }
 
-	public GameCore GameCoreNameChange(string oldid, string newid)
+	public GameCore ReName(string oldid, string newid)
 	{
-		FileInfo gamejson = new FileInfo(Path.Combine(Root.FullName, "versions", oldid, oldid + ".json"));
-		FileInfo gameJar = new FileInfo(Path.Combine(Root.FullName, "versions", oldid, oldid + ".jar"));
-		DirectoryInfo gameFolder = new DirectoryInfo(Path.Combine(Root.FullName, "versions", oldid));
-		GameCoreJsonEntity entity = new GameCoreJsonEntity();
-		try
-		{
+		string versionsPath = Path.Combine(Root.FullName, "versions");
+        FileInfo gamejson = new(Path.Combine(versionsPath, oldid, oldid + ".json")), gameJar = new(Path.Combine(versionsPath, oldid, oldid + ".jar"));
+		DirectoryInfo gameFolder = new(Path.Combine(Root.FullName, "versions", oldid));
+		GameCoreJsonEntity entity = new();
+
+		try {		
 			entity = entity.ToJsonEntity(File.ReadAllText(gamejson.FullName));
 			entity.Id = newid;
 			foreach (GameCore i in GetGameCores(Root.FullName).ToList())
@@ -28,13 +29,19 @@ public class GameCoreToolkit
 				}
 			}
 			File.WriteAllText(gamejson.FullName, entity.ToJson());
-			File.Move(gameJar.FullName, Path.Combine(Root.FullName, "versions", oldid, newid + ".jar"));
+
+            if (Path.Combine(versionsPath, oldid, newid + ".jar").IsFile()) {
+                File.Move(gameJar.FullName, Path.Combine(Root.FullName, "versions", oldid, newid + ".jar"));
+            }
+
 			File.Move(gamejson.FullName, Path.Combine(Root.FullName, "versions", oldid, newid + ".json"));
 			Directory.Move(gameFolder.FullName, Path.Combine(Root.FullName, "versions", newid));
 		}
-		catch
-		{
+		catch (Exception ex) {
+			Trace.WriteLine($"[MinecraftLaunch][GameCoreToolkit/ReName]: {ex.Message}\n {ex.StackTrace}");
+			throw;
 		}
+
 		return GetGameCore(newid);
 	}
 
@@ -89,7 +96,7 @@ public class GameCoreToolkit
 			}
 		}
 		GameCoreParser parser = new GameCoreParser(Root, entities);
-		var gameCores = parser.GetGameCores().ToArray();
+		IEnumerable<GameCore> gameCores = parser.GetGameCores();
 		ErrorGameCores = parser.ErrorGameCores;
 		return gameCores;
 	}
@@ -148,33 +155,38 @@ public class GameCoreToolkit
 		return endCores.Distinct();
 	}
 
-	public static GameCore GameCoreNameChange(string root, string oldid, string newid)
+	public static GameCore ReName(string root, string oldid, string newid)
 	{
-		FileInfo gamejson = new FileInfo(Path.Combine(root, "versions", oldid, oldid + ".json"));
-		FileInfo gameJar = new FileInfo(Path.Combine(root, "versions", oldid, oldid + ".jar"));
-		DirectoryInfo gameFolder = new DirectoryInfo(Path.Combine(root, "versions", oldid));
-		GameCoreJsonEntity entity = new GameCoreJsonEntity();
+        string versionsPath = Path.Combine(root, "versions");
+        FileInfo gamejson = new(Path.Combine(versionsPath, oldid, oldid + ".json")), gameJar = new(Path.Combine(versionsPath, oldid, oldid + ".jar"));
+        DirectoryInfo gameFolder = new(Path.Combine(root, "versions", oldid));
+        GameCoreJsonEntity entity = new GameCoreJsonEntity();
 		try
 		{
 			entity = entity.ToJsonEntity(File.ReadAllText(gamejson.FullName));
 			entity.Id = newid;
-			foreach (GameCore i in GetGameCores(root).ToList())
-			{
-				if (i.InheritsFrom == oldid)
-				{
+			foreach (GameCore i in GetGameCores(root)) {			
+				if (i.InheritsFrom == oldid) {				
 					i.InheritsFrom = newid;
 					File.WriteAllText(Path.Combine(i.Root?.FullName, "versions", i.Id, i.Id + ".json"), GetGameCoreJsonEntity(root, i.Id, i.InheritsFrom).ToJson());
 				}
 			}
 			File.WriteAllText(gamejson.FullName, entity.ToJson());
-			File.Move(gameJar.FullName, Path.Combine(root, "versions", oldid, newid + ".jar"));
-			File.Move(gamejson.FullName, Path.Combine(root, "versions", oldid, newid + ".json"));
-			Directory.Move(gameFolder.FullName, Path.Combine(root, "versions", newid));
+
+			if(Path.Combine(versionsPath, oldid, newid + ".jar").IsFile()) {
+				File.Move(gameJar.FullName, Path.Combine(versionsPath, oldid, newid + ".jar"));
+            }
+
+            File.Move(gamejson.FullName, Path.Combine(versionsPath, oldid, newid + ".json"));
+			Directory.Move(gameFolder.FullName, Path.Combine(versionsPath, newid));
 		}
-		catch
+		catch(Exception ex)
 		{
-		}
-		return GetGameCore(root, newid);
+            Trace.WriteLine($"[MinecraftLaunch][GameCoreToolkit/ReName]: {ex.Message}\n {ex.StackTrace}");
+            throw;
+        }
+
+        return GetGameCore(root, newid);
 	}
 
 	public static GameCore GetGameCore(string root, string id)

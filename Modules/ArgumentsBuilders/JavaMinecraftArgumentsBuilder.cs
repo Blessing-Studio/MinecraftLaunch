@@ -9,7 +9,7 @@ using MinecraftLaunch.Modules.Toolkits;
 
 namespace MinecraftLaunch.Modules.ArgumentsBuilders;
 
-public sealed partial class JavaClientArgumentsBuilder : IArgumentsBuilder
+public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
 {
 	public static readonly IEnumerable<string> DefaultAdvancedArguments = new string[8] { "-XX:-OmitStackTraceInFastThrow", "-XX:-DontCompileHugeMethods", "-Dfile.encoding=GB18030", "-Dfml.ignoreInvalidMinecraftCertificates=true", "-Dfml.ignorePatchDiscrepancies=true", "-Djava.rmi.server.useCodebaseOnly=true", "-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", "-Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false" };
 
@@ -17,7 +17,7 @@ public sealed partial class JavaClientArgumentsBuilder : IArgumentsBuilder
 
 	public bool EnableIndependencyCore { get; init; }
 
-    public JavaClientArgumentsBuilder(GameCore? gameCore, LaunchConfig? launchConfig, bool enableIndependencyCore = true)
+    public JavaMinecraftArgumentsBuilder(GameCore? gameCore, LaunchConfig? launchConfig, bool enableIndependencyCore = true)
     {
         GameCore = gameCore;
         LaunchConfig = launchConfig;

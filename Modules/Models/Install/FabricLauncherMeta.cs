@@ -1,14 +1,14 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class FabricLauncherMeta
 {
-	[JsonProperty("mainClass")]
+	[JsonPropertyName("mainClass")]
 	public JToken MainClass { get; set; }
 
-	[JsonProperty("libraries")]
+	[JsonPropertyName("libraries")]
 	public Dictionary<string, List<FabricLibraryJsonEntity>> Libraries { get; set; }
 }

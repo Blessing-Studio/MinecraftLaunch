@@ -1,31 +1,31 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class FabricGameCoreJsonEntity
 {
-	[JsonProperty("arguments")]
+	[JsonPropertyName("arguments")]
 	public FabricArgumentsJsonEntity Arguments { get; set; }
 
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonProperty("libraries")]
+	[JsonPropertyName("libraries")]
 	public List<FabricLibraryJsonEntity>? Libraries { get; set; }
 
-	[JsonProperty("mainClass")]
+	[JsonPropertyName("mainClass")]
 	public string MainClass { get; set; }
 
-	[JsonProperty("inheritsFrom")]
+	[JsonPropertyName("inheritsFrom")]
 	public string InheritsFrom { get; set; }
 
-	[JsonProperty("releaseTime")]
+	[JsonPropertyName("releaseTime")]
 	public string ReleaseTime { get; set; }
 
-	[JsonProperty("time")]
+	[JsonPropertyName("time")]
 	public string Time { get; set; }
 
-	[JsonProperty("type")]
+	[JsonPropertyName("type")]
 	public string Type { get; set; }
 }

@@ -1,21 +1,21 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class FileJsonEntity
 {
-	[JsonProperty("path")]
+	[JsonPropertyName("path")]
 	public string Path { get; set; }
 
-	[JsonProperty("sha1")]
+	[JsonPropertyName("sha1")]
 	public string Sha1 { get; set; }
 
-	[JsonProperty("size")]
+	[JsonPropertyName("size")]
 	public int Size { get; set; }
 
-	[JsonProperty("url")]
+	[JsonPropertyName("url")]
 	public string Url { get; set; }
 
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; }
 }

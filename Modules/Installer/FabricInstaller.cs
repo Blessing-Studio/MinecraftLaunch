@@ -11,8 +11,9 @@ using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Toolkits;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer
 {
@@ -108,7 +109,7 @@ namespace MinecraftLaunch.Modules.Installer
             {
                 using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync("https://meta.fabricmc.net/v2/versions/loader");
                 responseMessage.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<FabricMavenItem[]>(await responseMessage.Content.ReadAsStringAsync());
+                return JsonSerializer.Deserialize<FabricMavenItem[]>(await responseMessage.Content.ReadAsStringAsync());
             }
             catch
             {
@@ -123,7 +124,7 @@ namespace MinecraftLaunch.Modules.Installer
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonConvert.DeserializeObject<List<FabricInstallBuild>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<FabricInstallBuild>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => new Version(a.Loader.Version.Replace(a.Loader.Separator, ".")).CompareTo(new Version(b.Loader.Version.Replace(b.Loader.Separator, "."))));
                 list.Reverse();

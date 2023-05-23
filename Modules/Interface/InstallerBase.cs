@@ -1,4 +1,5 @@
 using System;
+using MinecraftLaunch.Events;
 
 namespace MinecraftLaunch.Modules.Interface;
 

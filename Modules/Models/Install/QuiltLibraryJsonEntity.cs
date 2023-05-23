@@ -1,12 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class QuiltLibraryJsonEntity
 {
-	[JsonProperty("name")]
+	[JsonPropertyName("name")]
 	public string Name { get; set; }
 
-	[JsonProperty("url")]
+	[JsonPropertyName("url")]
 	public string Url { get; set; }
 }

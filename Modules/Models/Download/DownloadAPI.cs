@@ -9,9 +9,4 @@ public class DownloadAPI
 	public string Assets { get; set; }
 
 	public string Libraries { get; set; }
-
-    public override bool Equals(object? obj) {
-		var result = obj as DownloadAPI;
-		return (Host == result.Host && VersionManifest == result.VersionManifest && Assets == result.Assets && Libraries == result.Libraries);
-    }
 }

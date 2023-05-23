@@ -1,18 +1,18 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class OptiFineInstallEntity
 {
-	[JsonProperty("patch")]
+	[JsonPropertyName("patch")]
 	public string Patch { get; set; }
 
-	[JsonProperty("type")]
+	[JsonPropertyName("type")]
 	public string Type { get; set; }
 
-	[JsonProperty("mcversion")]
+	[JsonPropertyName("mcversion")]
 	public string McVersion { get; set; }
 
-	[JsonProperty("filename")]
+	[JsonPropertyName("filename")]
 	public string FileName { get; set; }
 }

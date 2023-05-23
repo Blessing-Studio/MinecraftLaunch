@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthFileInfo
 {
-	[JsonProperty("hashes")]
+	[JsonPropertyName("hashes")]
 	public Dictionary<string, string> Hashes { get; set; }
 
-	[JsonProperty("url")]
+	[JsonPropertyName("url")]
 	public string Url { get; set; }
 
-	[JsonProperty("filename")]
+	[JsonPropertyName("filename")]
 	public string FileName { get; set; }
 
-	[JsonProperty("primary")]
+	[JsonPropertyName("primary")]
 	public bool Primary { get; set; }
 }

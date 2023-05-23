@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Events;
 

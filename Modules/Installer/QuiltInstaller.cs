@@ -11,8 +11,9 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Toolkits;
 using Natsurainko.Toolkits.Network;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer
 {
@@ -233,7 +234,7 @@ namespace MinecraftLaunch.Modules.Installer
             {
                 using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync("https://meta.quiltmc.org/v3/versions/loader/" + mcVersion, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead);
                 responseMessage.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<List<QuiltInstallBuild>>(await responseMessage.Content.ReadAsStringAsync()).ToArray();
+                return JsonSerializer.Deserialize<List<QuiltInstallBuild>>(await responseMessage.Content.ReadAsStringAsync()).ToArray();
             }
             catch
             {

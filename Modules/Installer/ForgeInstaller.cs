@@ -16,8 +16,9 @@ using MinecraftLaunch.Modules.Toolkits;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer
 {
@@ -32,7 +33,7 @@ namespace MinecraftLaunch.Modules.Installer
             ZipArchiveEntry entry = archive.GetEntry("version.json");
             if (entry != null)
             {
-                return JsonConvert.DeserializeObject<GameCoreJsonEntity>(ZipExtension.GetString(entry));
+                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ZipExtension.GetString(entry));
             }
             return null;
         }
@@ -55,7 +56,7 @@ namespace MinecraftLaunch.Modules.Installer
             {
                 var downloadResponse = await DownForgeOfBuildAsync(this.ForgeBuild.Build, GameCoreLocator.Root, (progress, message) =>
                 {
-                InvokeStatusChangedEvent(0.1f * progress, "下载 Forge 安装包中");
+                    InvokeStatusChangedEvent(0.1f * progress, "下载 Forge 安装包中");
                 });
 
                 if (downloadResponse.HttpStatusCode != System.Net.HttpStatusCode.OK)
@@ -161,7 +162,7 @@ namespace MinecraftLaunch.Modules.Installer
             #endregion
 
             #region LegacyForgeInstaller Exit
-            if (installProfile.ContainsKey("versionInfo"))
+            if (installProfile.ContainsKey("versionInfo") || dataDictionary.Count == 0)
             {
                 InvokeStatusChangedEvent(1f, "安装完成");
                 return new InstallerResponse
@@ -301,7 +302,7 @@ namespace MinecraftLaunch.Modules.Installer
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonConvert.DeserializeObject<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => a.Build.CompareTo(b.Build));
                 list.Reverse();

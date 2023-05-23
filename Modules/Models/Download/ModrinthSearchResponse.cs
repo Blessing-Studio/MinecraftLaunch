@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthSearchResponse
 {
-	[JsonProperty("hits")]
+	[JsonPropertyName("hits")]
 	public List<ModrinthProjectInfoSearchResult> Hits { get; set; }
 
-	[JsonProperty("offset")]
+	[JsonPropertyName("offset")]
 	public int Offset { get; set; }
 
-	[JsonProperty("limit")]
+	[JsonPropertyName("limit")]
 	public int Limit { get; set; }
 
-	[JsonProperty("total_hits")]
+	[JsonPropertyName("total_hits")]
 	public int TotalHits { get; set; }
 }

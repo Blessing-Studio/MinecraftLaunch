@@ -15,7 +15,6 @@ public class JvmConfig
 
 	public int MinMemory { get; set; } = 512;
 
-
 	public IEnumerable<string> AdvancedArguments { get; set; }
 
 	public IEnumerable<string> GCArguments { get; set; }
@@ -33,4 +32,8 @@ public class JvmConfig
 	{
 		JavaPath = fileInfo;
 	}
+
+	public static implicit operator JvmConfig(string file) => new(file);
+
+    public static implicit operator JvmConfig(FileInfo fileInfo) => new(fileInfo);
 }

@@ -1,28 +1,28 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthProjectInfoSearchResult : ModrinthProjectInfoBase
 {
-	[JsonProperty("project_id")]
+	[JsonPropertyName("project_id")]
 	public string ProjectId { get; set; }
 
-	[JsonProperty("author")]
+	[JsonPropertyName("author")]
 	public string Author { get; set; }
 
-	[JsonProperty("follows")]
+	[JsonPropertyName("follows")]
 	public int Follows { get; set; }
 
-	[JsonProperty("date_created")]
+	[JsonPropertyName("date_created")]
 	public DateTime DateCreated { get; set; }
 
-	[JsonProperty("date_modified")]
+	[JsonPropertyName("date_modified")]
 	public DateTime DateModified { get; set; }
 
-	[JsonProperty("latest_version")]
+	[JsonPropertyName("latest_version")]
 	public string LatestVersion { get; set; }
 
-	[JsonProperty("license")]
+	[JsonPropertyName("license")]
 	public string License { get; set; }
 }

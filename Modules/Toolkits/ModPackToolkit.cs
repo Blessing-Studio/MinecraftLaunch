@@ -140,7 +140,7 @@ public class ModPackToolkit : IPackToolkit<ModPack>
 		string authors = ((fabricMod?.authors != null) ? string.Join(", ", authorList) : null);
 		return new ModPack
 		{
-			Id = fabricMod?.Name,
+			Id = fabricMod?.name,
 			Description = ((fabricMod != null) ? fabricMod.description.Split('.')[0] : null),
 			Version = fabricMod?.version,
 			Url = fabricMod?.contact?.homepage,

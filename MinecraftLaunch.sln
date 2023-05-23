@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MLDemo", "..\MLDemo\MLDemo.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "MinecraftLaunch.csproj", "{FF404FF4-2070-462B-89CF-54C893AA70D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftLaunch.Wpf", "..\MinecraftLaunch.Wpf\MinecraftLaunch.Wpf.csproj", "{6B0721F2-3932-4801-8646-82BAE2C02655}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B0721F2-3932-4801-8646-82BAE2C02655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B0721F2-3932-4801-8646-82BAE2C02655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B0721F2-3932-4801-8646-82BAE2C02655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B0721F2-3932-4801-8646-82BAE2C02655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
