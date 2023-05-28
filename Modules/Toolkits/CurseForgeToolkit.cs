@@ -136,7 +136,7 @@ namespace MinecraftLaunch.Modules.Toolkits
         /// <param name="addonId"></param>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public async ValueTask<string> GetModpackDownloadUrl(long addonId, long fileId)
+        public async ValueTask<string> GetModpackDownloadUrlAsync(long addonId, long fileId)
         {
             string reqUrl = $"{API}/{addonId}/files/{fileId}/download-url";
             using HttpResponseMessage res = await HttpWrapper.HttpGetAsync(reqUrl, Headers);
