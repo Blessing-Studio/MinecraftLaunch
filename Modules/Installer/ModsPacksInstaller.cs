@@ -77,7 +77,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 			_ = 1;
 			try
 			{
-				string url = await new CurseForgeToolkit(CurseForgeToolkit.Key).GetModpackDownloadUrl(t.Item1, t.Item2);
+				string url = await new CurseForgeToolkit(CurseForgeToolkit.Key).GetModpackDownloadUrlAsync(t.Item1, t.Item2);
 				if ((await HttpWrapper.HttpDownloadAsync(new HttpDownloadRequest
 				{
 					Url = url,

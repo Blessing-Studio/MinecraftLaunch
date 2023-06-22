@@ -51,8 +51,7 @@ public class ResourceInstaller
             }            
         }
 
-        var manyBlock = new TransformManyBlock<List<IResource>, IResource>(x => x.Where(x =>
-        {
+        var manyBlock = new TransformManyBlock<List<IResource>, IResource>(x => x.Where(x => {       
             if (string.IsNullOrEmpty(x.CheckSum) && x.Size == 0) { 
                 return false;
             }
@@ -66,16 +65,15 @@ public class ResourceInstaller
 
         int post = 0, output = 0;
 
-        var actionBlock = new ActionBlock<IResource>(async resource =>
-        {
+        var actionBlock = new ActionBlock<IResource>(async resource => {       
             post++;
             var request = resource.ToDownloadRequest();
 
-            if (!request.Directory.Exists)
+            if (!request.Directory.Exists) {
                 request.Directory.Create();
+            }
 
-            try
-            {
+            try {           
                 var info = request.Directory.FullName.Substring(request.Directory.FullName.IndexOf(".minecraft"));
                 var text = Path.Combine(root, info, request.FileName);
                 //先尝试使用缓存，不行就下一遍
@@ -99,8 +97,7 @@ public class ResourceInstaller
                     }
                 }
             }
-            catch
-            {
+            catch {           
                 this.FailedResources.Add(resource);
             }
 
