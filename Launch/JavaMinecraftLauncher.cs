@@ -54,7 +54,7 @@ namespace MinecraftLaunch.Launch {
                     progress.Report((0.6f + a * 0.8f, "正在下载游戏依赖文件：" + x));
                 });
                 progress.Report((0.8f, "正在构建启动参数"));
-                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
+                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting);
                 args = ArgumentsBuilder.Build();
                 progress.Report((9f, "正在检查Natives"));
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
@@ -78,7 +78,9 @@ namespace MinecraftLaunch.Launch {
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
-                        WorkingDirectory = ((EnableIndependencyCore && LaunchSetting.WorkingFolder != null) ? ((EnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) ? LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
+                        WorkingDirectory = ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder != null) ? 
+                        ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) ?
+                        LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
                     },
                     EnableRaisingEvents = true
                 };
@@ -115,7 +117,7 @@ namespace MinecraftLaunch.Launch {
                     return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，Java 路径不存在或已损坏")));
                 if (LaunchSetting.Account == null)
                     return await Task.FromResult(new MinecraftLaunchResponse(null, LaunchState.Failed, null, new Exception("启动失败，未设置账户")));
-                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting, EnableIndependencyCore);
+                ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting);
                 args = ArgumentsBuilder.Build();
                 await new ResourceInstaller(core).DownloadAsync(delegate {
 
@@ -133,7 +135,9 @@ namespace MinecraftLaunch.Launch {
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
-                        WorkingDirectory = ((EnableIndependencyCore && LaunchSetting.WorkingFolder != null) ? ((EnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) ? LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
+                        WorkingDirectory = ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder != null)
+                        ? ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) 
+                        ? LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
                     },
                     EnableRaisingEvents = true
                 };
@@ -169,14 +173,6 @@ namespace MinecraftLaunch.Launch {
             if (LaunchSetting.Account == null)
                 throw new ArgumentNullException("LaunchSetting.Account");
         }
-
-        public JavaMinecraftLauncher(LaunchConfig launchSetting, GameCoreToolkit gameCoreToolkit, bool EnableIndependencyCore) {
-            LaunchSetting = launchSetting;
-            GameCoreToolkit = gameCoreToolkit;
-            this.EnableIndependencyCore = EnableIndependencyCore;
-            if (LaunchSetting.Account == null)
-                throw new ArgumentNullException("LaunchSetting.Account");
-        }
     }
 
     partial class JavaMinecraftLauncher {
@@ -185,7 +181,5 @@ namespace MinecraftLaunch.Launch {
         public override JavaMinecraftArgumentsBuilder ArgumentsBuilder { get; set; }
 
         public GameCoreToolkit GameCoreToolkit { get; set; }
-
-        public bool EnableIndependencyCore { get; set; } = false;
     }
 }

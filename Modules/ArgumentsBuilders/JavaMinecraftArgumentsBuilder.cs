@@ -15,13 +15,10 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
 
 	public static readonly IEnumerable<string> DefaultGCArguments = new string[7] { "-XX:+UseG1GC", "-XX:+UnlockExperimentalVMOptions", "-XX:G1NewSizePercent=20", "-XX:G1ReservePercent=20", "-XX:MaxGCPauseMillis=50", "-XX:G1HeapRegionSize=16m", "-XX:-UseAdaptiveSizePolicy" };
 
-	public bool EnableIndependencyCore { get; init; }
-
-    public JavaMinecraftArgumentsBuilder(GameCore? gameCore, LaunchConfig? launchConfig, bool enableIndependencyCore = true)
+    public JavaMinecraftArgumentsBuilder(GameCore? gameCore, LaunchConfig? launchConfig)
     {
         GameCore = gameCore;
         LaunchConfig = launchConfig;
-        EnableIndependencyCore = enableIndependencyCore;
     }
 
     public GameCore? GameCore { get; private set; }
@@ -54,7 +51,7 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
             { "${user_properties}" , "{}" },
             { "${game_assets}" , Path.Combine(this.GameCore.Root.FullName, "assets").ToPath() },
             { "${auth_session}" , this.LaunchConfig.Account.AccessToken },
-			{ "${game_directory}" , this.EnableIndependencyCore ? Path.Combine(GameCore.Root.FullName,"versions",GameCore.Id) : GameCore.Root.FullName },
+			{ "${game_directory}" , LaunchConfig.IsEnableIndependencyCore ? Path.Combine(GameCore.Root.FullName,"versions",GameCore.Id) : GameCore.Root.FullName },
         };
 
         List<string> list = GameCore.BehindArguments.ToList();
