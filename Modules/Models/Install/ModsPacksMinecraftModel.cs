@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ModsPacksMinecraftModel
 {
-	[JsonPropertyName("version")]
+	[JsonProperty("version")]
 	public string Version { get; set; }
 
-	[JsonPropertyName("modLoaders")]
+	[JsonProperty("modLoaders")]
 	public List<ModsPacksModLoaderModel> ModLoaders { get; set; }
 }

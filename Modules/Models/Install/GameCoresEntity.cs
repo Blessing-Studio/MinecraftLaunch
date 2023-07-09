@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class GameCoresEntity
 {
-	[JsonPropertyName("latest")]
+	[JsonProperty("latest")]
 	public Dictionary<string, string> Latest { get; set; }
 
-	[JsonPropertyName("versions")]
+	[JsonProperty("versions")]
 	public IEnumerable<GameCoreEmtity> Cores { get; set; }
 }

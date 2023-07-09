@@ -1,26 +1,15 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Toolkits;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using System.Text.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using System.Text.Json;
+using Newtonsoft.Json;
 
-namespace MinecraftLaunch.Modules.Installer
-{
+namespace MinecraftLaunch.Modules.Installer {
     public class OptiFineInstaller : InstallerBase<InstallerResponse>
     {
         public string CustomId { get; private set; }
@@ -118,7 +107,7 @@ namespace MinecraftLaunch.Modules.Installer
                     {
                         versionJsonFile.Directory.Create();
                     }
-                    File.WriteAllText(versionJsonFile.FullName, entity.ToJson(IsIndented: true));
+                    File.WriteAllText(versionJsonFile.FullName, entity.ToJson());
                 }
                 FileInfo launchwrapperFile = new LibraryResource
                 {
@@ -222,7 +211,7 @@ namespace MinecraftLaunch.Modules.Installer
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonSerializer.Deserialize<List<OptiFineInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonConvert.DeserializeObject<List<OptiFineInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 var preview = list!.Where(x => x.Patch.StartsWith("pre")).ToList();
                 var release = list!.Where(x => !x.Patch.StartsWith("pre")).ToList();

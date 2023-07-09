@@ -1,6 +1,6 @@
 using System;
 using MinecraftLaunch.Modules.Enum;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using JsonConverter = Newtonsoft.Json.JsonConverter;

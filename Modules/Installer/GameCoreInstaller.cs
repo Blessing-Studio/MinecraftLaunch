@@ -7,7 +7,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Toolkits;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer
@@ -19,7 +19,7 @@ namespace MinecraftLaunch.Modules.Installer
             try
             {
                 InvokeStatusChangedEvent(0.1f, "正在获取 游戏核心Json");
-                GameCoreJsonEntity entity = JsonSerializer.Deserialize<GameCoreJsonEntity>(await HttpToolkit.GetStringAsync(CoreInfo.Url))!;
+                GameCoreJsonEntity entity = JsonConvert.DeserializeObject<GameCoreJsonEntity>(await HttpToolkit.GetStringAsync(CoreInfo.Url))!;
                 if (!string.IsNullOrEmpty(Id)) {               
                     entity.Id = Id;
                 }

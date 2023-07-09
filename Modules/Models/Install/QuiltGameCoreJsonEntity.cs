@@ -1,31 +1,31 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class QuiltGameCoreJsonEntity
 {
-	[JsonPropertyName("arguments")]
+	[JsonProperty("arguments")]
 	public QuiltArgumentsJsonEntity Arguments { get; set; }
 
-	[JsonPropertyName("id")]
+	[JsonProperty("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("mainClass")]
+	[JsonProperty("mainClass")]
 	public string MainClass { get; set; }
 
-	[JsonPropertyName("inheritsFrom")]
+	[JsonProperty("inheritsFrom")]
 	public string InheritsFrom { get; set; }
 
-	[JsonPropertyName("releaseTime")]
+	[JsonProperty("releaseTime")]
 	public string ReleaseTime { get; set; }
 
-	[JsonPropertyName("time")]
+	[JsonProperty("time")]
 	public string Time { get; set; }
 
-	[JsonPropertyName("type")]
+	[JsonProperty("type")]
 	public string Type { get; set; }
 
-	[JsonPropertyName("libraries")]
+	[JsonProperty("libraries")]
 	public List<QuiltLibraryJsonEntity>? Libraries { get; set; }
 }

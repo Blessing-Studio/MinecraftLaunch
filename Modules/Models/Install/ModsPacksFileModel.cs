@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ModsPacksFileModel
 {
-	[JsonPropertyName("projectID")]
+	[JsonProperty("projectID")]
 	public long ProjectId { get; set; }
 
-	[JsonPropertyName("fileID")]
+	[JsonProperty("fileID")]
 	public long FileId { get; set; }
 
-	[JsonPropertyName("required")]
+	[JsonProperty("required")]
 	public bool Required { get; set; }
 }

@@ -1,18 +1,18 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class QuiltInstallBuild
 {
-	[JsonPropertyName("intermediary")]
+	[JsonProperty("intermediary")]
 	public QuiltMavenItem Intermediary { get; set; }
 
-	[JsonPropertyName("loader")]
+	[JsonProperty("loader")]
 	public QuiltMavenItem Loader { get; set; }
 
-	[JsonPropertyName("launcherMeta")]
+	[JsonProperty("launcherMeta")]
 	public QuiltLauncherMeta LauncherMeta { get; set; }
 
-	[JsonPropertyName("hashed")]
+	[JsonProperty("hashed")]
 	public QuiltMavenItem Hashed { get; set; }
 }

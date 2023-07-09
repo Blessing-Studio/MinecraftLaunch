@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class LibraryJsonEntity
 {
-	[JsonPropertyName("name")]
+	[JsonProperty("name")]
 	public string Name { get; set; }
 }

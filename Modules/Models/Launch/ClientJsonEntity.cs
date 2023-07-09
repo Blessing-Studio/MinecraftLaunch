@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class ClientJsonEntity
 {
-	[JsonPropertyName("argument")]
+	[JsonProperty("argument")]
 	public string Argument { get; set; }
 
-	[JsonPropertyName("file")]
+	[JsonProperty("file")]
 	public FileJsonEntity File { get; set; }
 
-	[JsonPropertyName("type")]
+	[JsonProperty("type")]
 	public string Type { get; set; }
 }

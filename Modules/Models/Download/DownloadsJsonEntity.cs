@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using MinecraftLaunch.Modules.Models.Launch;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class DownloadsJsonEntity
 {
-	[JsonPropertyName("artifact")]
+	[JsonProperty("artifact")]
 	public FileJsonEntity Artifact { get; set; }
 
-	[JsonPropertyName("classifiers")]
+	[JsonProperty("classifiers")]
 	public Dictionary<string, FileJsonEntity> Classifiers { get; set; }
 }

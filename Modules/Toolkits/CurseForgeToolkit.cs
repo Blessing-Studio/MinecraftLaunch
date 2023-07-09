@@ -140,7 +140,7 @@ namespace MinecraftLaunch.Modules.Toolkits
         {
             string reqUrl = $"{API}/{addonId}/files/{fileId}/download-url";
             using HttpResponseMessage res = await HttpWrapper.HttpGetAsync(reqUrl, Headers);
-            return (await res.Content.ReadAsStringAsync()).ToNewtonJsonEntity<DataModel<string>>()?.Data!;
+            return (await res.Content.ReadAsStringAsync()).ToJsonEntity<DataModel<string>>()?.Data!;
         }
 
         public async ValueTask<List<CurseForgeModpackCategory>> GetCategories()
@@ -166,7 +166,7 @@ namespace MinecraftLaunch.Modules.Toolkits
             {
                 using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync(url, Headers);
                 responseMessage.EnsureSuccessStatusCode();
-                return (await responseMessage.Content.ReadAsStringAsync()).ToNewtonJsonEntity<DataModel<string>>().Data;
+                return (await responseMessage.Content.ReadAsStringAsync()).ToJsonEntity<DataModel<string>>().Data;
             }
             catch
             {

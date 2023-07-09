@@ -16,7 +16,7 @@ using MinecraftLaunch.Modules.Toolkits;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
 
@@ -33,7 +33,7 @@ namespace MinecraftLaunch.Modules.Installer
             ZipArchiveEntry entry = archive.GetEntry("version.json");
             if (entry != null)
             {
-                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ZipExtension.GetString(entry));
+                return JsonConvert.DeserializeObject<GameCoreJsonEntity>(ZipExtension.GetString(entry));
             }
             return null;
         }
@@ -302,7 +302,7 @@ namespace MinecraftLaunch.Modules.Installer
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonSerializer.Deserialize<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonConvert.DeserializeObject<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => a.Build.CompareTo(b.Build));
                 list.Reverse();

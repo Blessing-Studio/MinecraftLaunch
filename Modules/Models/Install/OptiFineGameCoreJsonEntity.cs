@@ -1,32 +1,32 @@
 using System.Collections.Generic;
 using MinecraftLaunch.Modules.Models.Launch;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class OptiFineGameCoreJsonEntity
 {
-	[JsonPropertyName("arguments")]
+	[JsonProperty("arguments")]
 	public ArgumentsJsonEntity Arguments { get; set; }
 
-	[JsonPropertyName("id")]
+	[JsonProperty("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("libraries")]
+	[JsonProperty("libraries")]
 	public List<MinecraftLaunch.Modules.Models.Launch.LibraryJsonEntity> Libraries { get; set; }
 
-	[JsonPropertyName("mainClass")]
+	[JsonProperty("mainClass")]
 	public string MainClass { get; set; }
 
-	[JsonPropertyName("inheritsFrom")]
+	[JsonProperty("inheritsFrom")]
 	public string InheritsFrom { get; set; }
 
-	[JsonPropertyName("releaseTime")]
+	[JsonProperty("releaseTime")]
 	public string ReleaseTime { get; set; }
 
-	[JsonPropertyName("time")]
+	[JsonProperty("time")]
 	public string Time { get; set; }
 
-	[JsonPropertyName("type")]
+	[JsonProperty("type")]
 	public string Type { get; set; }
 }

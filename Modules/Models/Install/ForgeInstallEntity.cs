@@ -1,22 +1,22 @@
 using System;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ForgeInstallEntity
 {
-	[JsonPropertyName("branch")]
+	[JsonProperty("branch")]
 	public string Branch { get; set; }
 
-	[JsonPropertyName("build")]
+	[JsonProperty("build")]
 	public int Build { get; set; }
 
-	[JsonPropertyName("mcversion")]
+	[JsonProperty("mcversion")]
 	public string McVersion { get; set; }
 
-	[JsonPropertyName("version")]
+	[JsonProperty("version")]
 	public string ForgeVersion { get; set; }
 
-	[JsonPropertyName("modified")]
+	[JsonProperty("modified")]
 	public DateTime ModifiedTime { get; set; }
 }

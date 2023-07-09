@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthDependency
 {
-	[JsonPropertyName("version_id")]
+	[JsonProperty("version_id")]
 	public string VersionId { get; set; }
 
-	[JsonPropertyName("project_id")]
+	[JsonProperty("project_id")]
 	public string ProjectId { get; set; }
 
-	[JsonPropertyName("dependency_type")]
+	[JsonProperty("dependency_type")]
 	public string DependencyType { get; set; }
 }

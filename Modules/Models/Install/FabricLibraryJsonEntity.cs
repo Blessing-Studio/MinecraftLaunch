@@ -1,12 +1,12 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class FabricLibraryJsonEntity
 {
-	[JsonPropertyName("name")]
+	[JsonProperty("name")]
 	public string Name { get; set; }
 
-	[JsonPropertyName("url")]
+	[JsonProperty("url")]
 	public string Url { get; set; }
 }

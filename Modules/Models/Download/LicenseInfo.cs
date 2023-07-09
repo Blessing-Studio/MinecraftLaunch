@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class LicenseInfo
 {
-	[JsonPropertyName("id")]
+	[JsonProperty("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("name")]
+	[JsonProperty("name")]
 	public string Name { get; set; }
 
-	[JsonPropertyName("url")]
+	[JsonProperty("url")]
 	public string Url { get; set; }
 }

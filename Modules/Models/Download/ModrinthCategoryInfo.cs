@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthCategoryInfo
 {
-	[JsonPropertyName("icon")]
+	[JsonProperty("icon")]
 	public string Icon { get; set; }
 
-	[JsonPropertyName("name")]
+	[JsonProperty("name")]
 	public string Name { get; set; }
 
-	[JsonPropertyName("project_type")]
+	[JsonProperty("project_type")]
 	public string ProjectType { get; set; }
 }

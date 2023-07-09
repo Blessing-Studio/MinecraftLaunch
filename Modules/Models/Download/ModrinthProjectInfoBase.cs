@@ -1,40 +1,40 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthProjectInfoBase
 {
-	[JsonPropertyName("project_type")]
+	[JsonProperty("project_type")]
 	public string ProjectType { get; set; }
 
-	[JsonPropertyName("slug")]
+	[JsonProperty("slug")]
 	public string Slug { get; set; }
 
-	[JsonPropertyName("title")]
+	[JsonProperty("title")]
 	public string Title { get; set; }
 
-	[JsonPropertyName("description")]
+	[JsonProperty("description")]
 	public string Description { get; set; }
 
-	[JsonPropertyName("categories")]
+	[JsonProperty("categories")]
 	public List<string> Categories { get; set; }
 
-	[JsonPropertyName("versions")]
+	[JsonProperty("versions")]
 	public List<string> Versions { get; set; }
 
-	[JsonPropertyName("downloads")]
+	[JsonProperty("downloads")]
 	public int Downloads { get; set; }
 
-	[JsonPropertyName("icon_url")]
+	[JsonProperty("icon_url")]
 	public string IconUrl { get; set; }
 
-	[JsonPropertyName("client_side")]
+	[JsonProperty("client_side")]
 	public string ClientSide { get; set; }
 
-	[JsonPropertyName("server_side")]
+	[JsonProperty("server_side")]
 	public string ServerSide { get; set; }
 
-	[JsonPropertyName("gallery")]
+	[JsonProperty("gallery")]
 	public List<object> Gallery { get; set; }
 }

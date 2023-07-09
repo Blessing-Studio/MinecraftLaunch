@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ResourcePackInfo
 {
-	[JsonPropertyName("pack")]
+	[JsonProperty("pack")]
 	public ResourcePackDetailed pack { get; set; }
 }

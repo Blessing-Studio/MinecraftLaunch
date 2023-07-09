@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class FabricInstallBuild
 {
-	[JsonPropertyName("intermediary")]
+	[JsonProperty("intermediary")]
 	public FabricMavenItem Intermediary { get; set; }
 
-	[JsonPropertyName("loader")]
+	[JsonProperty("loader")]
 	public FabricMavenItem Loader { get; set; }
 
-	[JsonPropertyName("launcherMeta")]
+	[JsonProperty("launcherMeta")]
 	public FabricLauncherMeta LauncherMeta { get; set; }
 }

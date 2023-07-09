@@ -1,18 +1,18 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class PaginationModel
 {
-	[JsonPropertyName("index")]
+	[JsonProperty("index")]
 	public int Index { get; set; }
 
-	[JsonPropertyName("pageSize")]
+	[JsonProperty("pageSize")]
 	public int PageSize { get; set; }
 
-	[JsonPropertyName("resultCount")]
+	[JsonProperty("resultCount")]
 	public int ResultCount { get; set; }
 
-	[JsonPropertyName("totalCount")]
+	[JsonProperty("totalCount")]
 	public int TotalCount { get; set; }
 }

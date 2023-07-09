@@ -1,12 +1,12 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class JavaVersionJsonEntity
 {
-	[JsonPropertyName("component")]
+	[JsonProperty("component")]
 	public string Component { get; set; }
 
-	[JsonPropertyName("majorVersion")]
+	[JsonProperty("majorVersion")]
 	public int MajorVersion { get; set; }
 }

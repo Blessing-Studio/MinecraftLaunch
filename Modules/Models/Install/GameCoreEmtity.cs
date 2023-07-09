@@ -1,22 +1,22 @@
 using System;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class GameCoreEmtity
 {
-	[JsonPropertyName("id")]
+	[JsonProperty("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("type")]
+	[JsonProperty("type")]
 	public string Type { get; set; }
 
-	[JsonPropertyName("url")]
+	[JsonProperty("url")]
 	public string Url { get; set; }
 
-	[JsonPropertyName("time")]
+	[JsonProperty("time")]
 	public DateTime Time { get; set; }
 
-	[JsonPropertyName("releaseTime")]
+	[JsonProperty("releaseTime")]
 	public DateTime ReleaseTime { get; set; }
 }

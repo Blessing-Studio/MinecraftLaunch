@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class RuleEntity
 {
-	[JsonPropertyName("action")]
+	[JsonProperty("action")]
 	public string Action { get; set; }
 
-	[JsonPropertyName("os")]
+	[JsonProperty("os")]
 	public Dictionary<string, string> System { get; set; }
 }

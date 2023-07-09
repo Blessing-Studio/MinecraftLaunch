@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Parser;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class AssetJsonEntity : IJsonEntity
 {
-	[JsonPropertyName("objects")]
+	[JsonProperty("objects")]
 	public Dictionary<string, AssetsJsonEntity> Objects { get; set; }
 }
