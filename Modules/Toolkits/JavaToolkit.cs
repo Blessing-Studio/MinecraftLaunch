@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -34,60 +35,94 @@ public sealed class JavaToolkit {
         return null!;
     }
 
-    public static JavaInfo GetJavaInfo(string javapath) {
-        FileInfo info = new(javapath);
+    public static JavaInfo GetJavaInfo(string javaPath) {
+        FileInfo info = new(javaPath);
 
-        if (javapath.IsDirectory()) {
-            info = new(Path.Combine(javapath,EnvironmentToolkit.IsWindow ? "java.exe" : "java"));
+        if (javaPath.IsDirectory()) {
+            info = new(Path.Combine(javaPath, EnvironmentToolkit.IsWindow ? "java.exe" : "java"));
         }
 
-        try {
-            int? ires = null;
-            string tempinfo = null;
-            string pattern = "java version \"\\s*(?<version>\\S+)\\s*\"";
+        if (EnvironmentToolkit.IsWindow) {
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(info.FullName);
 
-            using Process Program = new Process {
-                StartInfo = new() {
-                    Arguments = "-version",
-                    FileName = info.FullName,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true
-                }
-            };
-
-            Program.Start();
-            Program.WaitForExit(8000);
-            StreamReader res = Program.StandardError;
-            bool end = false;
-            while (res.Peek() != -1) {
-                string temp = res.ReadLine();
-                if (temp.Contains("java version")) {
-                    tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
-                } else if (temp.Contains("openjdk version")) {
-                    pattern = pattern.Replace("java", "openjdk");
-                    tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
-                } else if (temp.Contains("64-Bit")) {
-                    end = true;
-                }
-            }
-
-            string[] sres = tempinfo.Split(".");
-            if (sres.Length != 0) {
-                ires = ((int.Parse(sres[0]) == 1) ? new int?(int.Parse(sres[1])) : new int?(int.Parse(sres[0])));
-            }
-
-            return new JavaInfo {
-                Is64Bit = end,
+            return new() {
+                Is64Bit = GetIs64Bit(),
                 JavaDirectoryPath = info.Directory!.FullName,
-                JavaSlugVersion = Convert.ToInt32(ires),
-                JavaVersion = tempinfo,
+                JavaSlugVersion = fileVersionInfo.ProductMajorPart,
+                JavaVersion = fileVersionInfo.ProductVersion,
                 JavaPath = info.FullName,
             };
+        } else {
+            try {
+                int? ires = null;
+                string tempinfo = null;
+                string pattern = "java version \"\\s*(?<version>\\S+)\\s*\"";
+
+                using Process Program = new Process {
+                    StartInfo = new() {
+                        Arguments = "-version",
+                        FileName = info.FullName,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true
+                    }
+                };
+
+                Program.Start();
+                Program.WaitForExit(8000);
+                StreamReader res = Program.StandardError;
+                bool end = false;
+                while (res.Peek() != -1) {
+                    string temp = res.ReadLine();
+                    if (temp.Contains("java version")) {
+                        tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
+                    } else if (temp.Contains("openjdk version")) {
+                        pattern = pattern.Replace("java", "openjdk");
+                        tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
+                    } else if (temp.Contains("64-Bit")) {
+                        end = true;
+                    }
+                }
+
+                string[] sres = tempinfo.Split(".");
+                if (sres.Length != 0) {
+                    ires = ((int.Parse(sres[0]) == 1) ? new int?(int.Parse(sres[1])) : new int?(int.Parse(sres[0])));
+                }
+
+                return new JavaInfo {
+                    Is64Bit = end,
+                    JavaDirectoryPath = info.Directory!.FullName,
+                    JavaSlugVersion = Convert.ToInt32(ires),
+                    JavaVersion = tempinfo,
+                    JavaPath = info.FullName,
+                };
+            }
+            catch (Exception) {
+                return null!;
+            }
         }
-        catch (Exception) {
-            return null!;
+
+        bool GetIs64Bit() {
+            ushort architecture = 0;
+
+            try {
+                using var fStream = new FileStream(info.FullName, FileMode.Open, FileAccess.Read);
+                using var bReader = new BinaryReader(fStream);
+
+                if (bReader.ReadUInt16() == 23117) {
+                    fStream.Seek(0x3A, SeekOrigin.Current);
+                    fStream.Seek(bReader.ReadUInt32(), SeekOrigin.Begin);
+
+                    if (bReader.ReadUInt32() == 17744) {
+                        fStream.Seek(20, SeekOrigin.Current);
+                        architecture = bReader.ReadUInt16();
+                    }
+                }
+            }
+            catch { }
+
+            return architecture is 523 || architecture is 267;
         }
     }
 
