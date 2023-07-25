@@ -5,9 +5,9 @@ using System.IO.Compression;
 using System.Linq;
 using MinecraftLaunch.Modules.Models.Download;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class ZipToolkit
+public class ZipUtil
 {
 	public static void GameNativesDecompress(DirectoryInfo directory, IEnumerable<LibraryResource> libraryResources)
 	{

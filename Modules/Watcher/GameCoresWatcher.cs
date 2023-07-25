@@ -1,5 +1,5 @@
 ﻿using MinecraftLaunch.Modules.Interface;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +15,11 @@ namespace MinecraftLaunch.Modules.Watcher
     {
         public event EventHandler<GameCoresChangedArgs>? GameCoresChanged;
 
-        public GameCoresWatcher(GameCoreToolkit toolkit) {       
+        public GameCoresWatcher(GameCoreUtil toolkit) {       
             Toolkit = toolkit;
         }
 
-        public GameCoreToolkit Toolkit { get; private set; }
+        public GameCoreUtil Toolkit { get; private set; }
 
         public void StartWatch() {
             FileSystemWatcher watcher = new(Path.Combine(Toolkit.Root.FullName, "versions"));

@@ -5,7 +5,7 @@ using System.Linq;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace MinecraftLaunch.Modules.Parser;

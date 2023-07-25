@@ -4,9 +4,9 @@ using MinecraftLaunch.Modules.Models.Download;
 using Natsurainko.Toolkits.Network;
 using Newtonsoft.Json.Linq;
 
-namespace MinecraftLaunch.Modules.Toolkits
+namespace MinecraftLaunch.Modules.Utils
 {
-    public partial class CurseForgeToolkit
+    public partial class CurseForgeUtil
     {
         /// <summary>
         /// 模组搜索方法
@@ -199,7 +199,7 @@ namespace MinecraftLaunch.Modules.Toolkits
         }
     }
 
-    partial class CurseForgeToolkit
+    partial class CurseForgeUtil
     {
         private const string API = "https://api.curseforge.com/v1/mods";
 
@@ -207,7 +207,7 @@ namespace MinecraftLaunch.Modules.Toolkits
 
         private Dictionary<string, string> Headers => new Dictionary<string, string> { { "x-api-key", Key } };
 
-        public CurseForgeToolkit(string accesskey) {       
+        public CurseForgeUtil(string accesskey) {       
             Key = accesskey;
         }
     }

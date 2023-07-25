@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using NbtLib;
 
-namespace MinecraftLaunch.Modules.Toolkits {
-    public class NbtToolkit {   
+namespace MinecraftLaunch.Modules.Utils {
+    public class NbtUtil {   
         /// <summary>
         /// Load the Nbt file
         /// </summary>

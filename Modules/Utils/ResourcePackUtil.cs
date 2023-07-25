@@ -13,9 +13,9 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class ResourcePackToolkit : IPackToolkit<ResourcePack> {
+public class ResourcePackUtil : IPackToolkit<ResourcePack> {
     public static readonly string X = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "\\" : "/");
 
     private static GameCore? GameCore = null;
@@ -136,7 +136,7 @@ public class ResourcePackToolkit : IPackToolkit<ResourcePack> {
             }
         }
         try {
-            ResourcePackInfo info = JsonSerializer.Deserialize<ResourcePackInfo>(CryptoToolkit.Remove(infoMemStream.ToArray(), 1));
+            ResourcePackInfo info = JsonSerializer.Deserialize<ResourcePackInfo>(CryptoUtil.Remove(infoMemStream.ToArray(), 1));
             return new ResourcePack {
                 Id = id,
                 Path = path,
@@ -161,7 +161,7 @@ public class ResourcePackToolkit : IPackToolkit<ResourcePack> {
         return true;
     }
 
-    public ResourcePackToolkit(GameCore? Id, bool isEnabled, bool Isolate = true) {
+    public ResourcePackUtil(GameCore? Id, bool isEnabled, bool Isolate = true) {
         GameCore = Id;
         IsCopy = true;
         IsOlate = Isolate;

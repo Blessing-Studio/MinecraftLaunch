@@ -3,9 +3,9 @@ using Natsurainko.Toolkits.Network;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class ModrinthToolkit
+public class ModrinthUtil
 {
 	public static async ValueTask<ModrinthSearchResponse> GetFeaturedModpacksAsync()
 	{

@@ -10,7 +10,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
@@ -82,7 +82,7 @@ public class ResourceInstaller
                 }
                 else if (!resource.ToFileInfo().Exists)//缓存和实际目录都没有此依赖的情况
                 {
-                    var httpDownloadResponse = await HttpToolkit.HttpDownloadAsync(request);
+                    var httpDownloadResponse = await HttpUtil.HttpDownloadAsync(request);
 
                     if (httpDownloadResponse.HttpStatusCode != HttpStatusCode.OK)
                         this.FailedResources.Add(resource);

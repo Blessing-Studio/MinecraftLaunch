@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
 using Newtonsoft.Json;
@@ -142,11 +142,11 @@ namespace MinecraftLaunch.Modules.Installer
     {
         public FabricInstallBuild FabricBuild { get; private set; }
 
-        public GameCoreToolkit GameCoreLocator { get; private set; }
+        public GameCoreUtil GameCoreLocator { get; private set; }
 
         public string CustomId { get; private set; }
 
-        public FabricInstaller(GameCoreToolkit coreLocator, FabricInstallBuild build, string customId = null)
+        public FabricInstaller(GameCoreUtil coreLocator, FabricInstallBuild build, string customId = null)
         {
             FabricBuild = build;
             GameCoreLocator = coreLocator;

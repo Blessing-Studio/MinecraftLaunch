@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftLaunch.Modules.Toolkits
+namespace MinecraftLaunch.Modules.Utils
 {
-    public class StringToolkit
+    public class StringUtil
     {
         /// <summary>
         /// 获取中文拼音

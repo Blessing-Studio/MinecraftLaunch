@@ -3,7 +3,7 @@ using System.IO.Compression;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
@@ -14,7 +14,7 @@ namespace MinecraftLaunch.Modules.Installer {
     {
         public string CustomId { get; private set; }
 
-        public GameCoreToolkit GameCoreLocator { get; private set; }
+        public GameCoreUtil GameCoreLocator { get; private set; }
 
         public string JavaPath { get; private set; }
 
@@ -124,7 +124,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 }
                 else if (!launchwrapperFile.Exists)
                 {
-                    await HttpToolkit.HttpDownloadAsync(new LibraryResource
+                    await HttpUtil.HttpDownloadAsync(new LibraryResource
                     {
                         Name = entity.Libraries[1].Name,
                         Root = GameCoreLocator.Root
@@ -233,14 +233,14 @@ namespace MinecraftLaunch.Modules.Installer {
         public static ValueTask<HttpDownloadResponse> DownloadOptiFinePackageFromBuildAsync(OptiFineInstallEntity build, DirectoryInfo directory, Action<float, string> progressChangedAction)
         {
             string downloadUrl = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{build.McVersion}/{build.Type}/{build.Patch}";
-            return HttpToolkit.HttpDownloadAsync(new HttpDownloadRequest
+            return HttpUtil.HttpDownloadAsync(new HttpDownloadRequest
             {
                 Url = downloadUrl,
                 Directory = directory
             }, progressChangedAction);
         }
 
-        public OptiFineInstaller(GameCoreToolkit coreLocator, OptiFineInstallEntity build, string javaPath, string packageFile = null!, string customId = null!)
+        public OptiFineInstaller(GameCoreUtil coreLocator, OptiFineInstallEntity build, string javaPath, string packageFile = null!, string customId = null!)
         {
             OptiFineBuild = build;
             JavaPath = javaPath;

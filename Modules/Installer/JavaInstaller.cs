@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
 
@@ -102,7 +102,7 @@ namespace MinecraftLaunch.Modules.Installer
                 {
                     Success = true,
                     Exception = null,
-                    JavaInfo = JavaToolkit.GetJavaInfo(Path.Combine(Directory.GetDirectories(StorageFolder)[0], "bin"))
+                    JavaInfo = JavaUtil.GetJavaInfo(Path.Combine(Directory.GetDirectories(StorageFolder)[0], "bin"))
                 };
             }
             catch (Exception ex)

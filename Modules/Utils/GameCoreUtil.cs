@@ -4,9 +4,9 @@ using MinecraftLaunch.Modules.Parser;
 using System.Diagnostics;
 using System.Text;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class GameCoreToolkit {
+public class GameCoreUtil {
     public DirectoryInfo? Root { get; private set; }
 
     public List<(string, Exception)>? ErrorGameCores { get; private set; }
@@ -102,7 +102,7 @@ public class GameCoreToolkit {
             endCores.AddRange(gameCores.Where(x =>//全拼筛查
             {
                 try {
-                    var spell = StringToolkit.GetSpell(x.Id!).ToLower();
+                    var spell = StringUtil.GetSpell(x.Id!).ToLower();
 
                     if (spell.Contains(text.ToLower())) {
                         return true;
@@ -118,7 +118,7 @@ public class GameCoreToolkit {
             endCores.AddRange(gameCores.Where(x =>//首字母筛查
             {
                 try {
-                    var firstspell = StringToolkit.GetFirstSpell(x.Id!).ToLower();
+                    var firstspell = StringUtil.GetFirstSpell(x.Id!).ToLower();
 
                     if (firstspell.Contains(text.ToLower())) {
                         foreach (var c in endCores) { //mlgb，与标准筛查冲突了，手动检测是否有相同的游戏核心
@@ -227,7 +227,7 @@ public class GameCoreToolkit {
             string java = string.Empty;
             StringBuilder builder = new();
             JavaMinecraftArgumentsBuilder argumentsBuilder = new(core, config);
-            if (EnvironmentToolkit.IsWindow) {
+            if (EnvironmentUtil.IsWindow) {
                 java = Path.Combine(config.JvmConfig.JavaPath.Directory!.FullName, "java.exe");
                 builder.AppendLine($"@echo off");
                 builder.AppendLine($"title Launch - {core.Id}");
@@ -240,7 +240,7 @@ public class GameCoreToolkit {
                 builder.AppendLine($"cd /D {core.Root.FullName}");
                 builder.AppendLine($"\"{java}\" {string.Join(' '.ToString(), argumentsBuilder.Build())}");
                 builder.AppendLine($"pause");
-            } else if (EnvironmentToolkit.IsMac) {
+            } else if (EnvironmentUtil.IsMac) {
                 builder.AppendLine($"export INST_NAME={core.Id}");
                 builder.AppendLine($"export INST_ID={core.Id}");
                 builder.AppendLine($"export INST_DIR=\"{core.GetGameCorePath(config.IsEnableIndependencyCore)}\"");
@@ -248,7 +248,7 @@ public class GameCoreToolkit {
                 builder.AppendLine($"export INST_JAVA=\"{java}\"");
                 builder.AppendLine($"cd \"{core.Root!.FullName}\"");
                 builder.AppendLine($"\"{java}\" {string.Join(' '.ToString(), argumentsBuilder.Build())}");
-            } else if (EnvironmentToolkit.IsLinux) {
+            } else if (EnvironmentUtil.IsLinux) {
                 builder.AppendLine($"export INST_JAVA={java}");
                 builder.AppendLine($"export INST_MC_DIR={core.Root!.FullName}");
                 builder.AppendLine($"export INST_NAME={core.Id}");
@@ -325,21 +325,21 @@ public class GameCoreToolkit {
         return null;
     }
 
-    public GameCoreToolkit() {
+    public GameCoreUtil() {
         Root = new DirectoryInfo(".minecraft");
     }
 
-    public GameCoreToolkit(string path) {
+    public GameCoreUtil(string path) {
         Root = new DirectoryInfo(path);
     }
 
-    public GameCoreToolkit(DirectoryInfo root) {
+    public GameCoreUtil(DirectoryInfo root) {
         Root = root;
     }
 
-    public static implicit operator GameCoreToolkit(string path) => new GameCoreToolkit(path);
+    public static implicit operator GameCoreUtil(string path) => new GameCoreUtil(path);
 
-    public static implicit operator GameCoreToolkit(DirectoryInfo path) => new GameCoreToolkit(path);
+    public static implicit operator GameCoreUtil(DirectoryInfo path) => new GameCoreUtil(path);
 
-    public static implicit operator GameCoreToolkit(GameCore path) => new GameCoreToolkit(path.Root!);
+    public static implicit operator GameCoreUtil(GameCore path) => new GameCoreUtil(path.Root!);
 }

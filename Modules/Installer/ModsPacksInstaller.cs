@@ -10,7 +10,7 @@ using System.Threading.Tasks.Dataflow;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
@@ -69,7 +69,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 				}
 			}
 		}
-		GameCoreToolkit.GetGameCore(GamePath, GameId);
+		GameCoreUtil.GetGameCore(GamePath, GameId);
         InvokeStatusChangedEvent(0.45f, "开始下载整合包模组");
 
 		ActionBlock<(long, long)> actionBlock = new ActionBlock<(long, long)>(async delegate((long, long) t)
@@ -77,7 +77,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 			_ = 1;
 			try
 			{
-				string url = await new CurseForgeToolkit(CurseForgeToolkit.Key).GetModpackDownloadUrlAsync(t.Item1, t.Item2);
+				string url = await new CurseForgeUtil(CurseForgeUtil.Key).GetModpackDownloadUrlAsync(t.Item1, t.Item2);
 				if ((await HttpWrapper.HttpDownloadAsync(new HttpDownloadRequest
 				{
 					Url = url,
@@ -122,7 +122,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 		return new InstallerResponse
 		{
 			Exception = null,
-			GameCore = new GameCoreToolkit(GamePath).GetGameCore(GameId),
+			GameCore = new GameCoreUtil(GamePath).GetGameCore(GameId),
 			Success = true
 		};
 	}

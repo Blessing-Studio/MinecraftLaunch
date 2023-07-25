@@ -10,9 +10,9 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class ModPackToolkit : IPackToolkit<ModPack> {
+public class ModPackUtil : IPackToolkit<ModPack> {
     private static GameCore? GameCore = null;
 
     private static bool IsNewOptionFormat = false;
@@ -110,7 +110,7 @@ public class ModPackToolkit : IPackToolkit<ModPack> {
     private static ModPack LoadFabricMod(Stream infoStream) {
         using MemoryStream memoryStream = new MemoryStream();
         infoStream.CopyTo(memoryStream);
-        FabricMod fabricMod = JsonSerializer.Deserialize<FabricMod>(CryptoToolkit.Remove(memoryStream.ToArray(), 0))!;
+        FabricMod fabricMod = JsonSerializer.Deserialize<FabricMod>(CryptoUtil.Remove(memoryStream.ToArray(), 0))!;
         IEnumerable<string> authorList = fabricMod?.authors.Select(delegate (JsonElement element) {
             if (element.ValueKind == JsonValueKind.String) {
                 return element.GetString();
@@ -130,7 +130,7 @@ public class ModPackToolkit : IPackToolkit<ModPack> {
     private static ModPack LoadForgeMod(Stream infoStream) {
         using MemoryStream memoryStream = new MemoryStream();
         infoStream.CopyTo(memoryStream);
-        ForgeMod forgeMod = JsonSerializer.Deserialize<ForgeMod[]>(CryptoToolkit.Remove(memoryStream.ToArray(), 1))[0];
+        ForgeMod forgeMod = JsonSerializer.Deserialize<ForgeMod[]>(CryptoUtil.Remove(memoryStream.ToArray(), 1))[0];
         if (forgeMod?.modList != null) {
             forgeMod = forgeMod.modList[0];
         }
@@ -146,7 +146,7 @@ public class ModPackToolkit : IPackToolkit<ModPack> {
         };
     }
 
-    public ModPackToolkit(GameCore? Id, bool Isolate) {
+    public ModPackUtil(GameCore? Id, bool Isolate) {
         GameCore = Id;
         IsCopy = true;
         IsOlate = Isolate;
@@ -154,7 +154,7 @@ public class ModPackToolkit : IPackToolkit<ModPack> {
         WorkingDirectory = Id.GetGameCorePath();
     }
 
-    public ModPackToolkit(GameCore? Id) {
+    public ModPackUtil(GameCore? Id) {
         GameCore = Id;
         IsCopy = true;
         IsOlate = true;

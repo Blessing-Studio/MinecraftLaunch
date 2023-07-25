@@ -9,7 +9,7 @@ using System.Threading.Tasks.Dataflow;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.Network;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,7 +21,7 @@ namespace MinecraftLaunch.Modules.Installer
     {
         public QuiltInstallBuild QuiltBuild { get; private set; }
 
-        public GameCoreToolkit GameCoreLocator { get; private set; }
+        public GameCoreUtil GameCoreLocator { get; private set; }
 
         public string CustomId { get; private set; }
 
@@ -242,7 +242,7 @@ namespace MinecraftLaunch.Modules.Installer
             }
         }
 
-        public QuiltInstaller(GameCoreToolkit coreLocator, QuiltInstallBuild build, string customId = null)
+        public QuiltInstaller(GameCoreUtil coreLocator, QuiltInstallBuild build, string customId = null)
         {
             QuiltBuild = build;
             GameCoreLocator = coreLocator;

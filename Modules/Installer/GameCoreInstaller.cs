@@ -6,7 +6,7 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Newtonsoft.Json;
 using System.Text.Json;
 
@@ -19,7 +19,7 @@ namespace MinecraftLaunch.Modules.Installer
             try
             {
                 InvokeStatusChangedEvent(0.1f, "正在获取 游戏核心Json");
-                GameCoreJsonEntity entity = JsonConvert.DeserializeObject<GameCoreJsonEntity>(await HttpToolkit.GetStringAsync(CoreInfo.Url))!;
+                GameCoreJsonEntity entity = JsonConvert.DeserializeObject<GameCoreJsonEntity>(await HttpUtil.GetStringAsync(CoreInfo.Url))!;
                 if (!string.IsNullOrEmpty(Id)) {               
                     entity.Id = Id;
                 }
@@ -58,13 +58,13 @@ namespace MinecraftLaunch.Modules.Installer
         }
 
         public static async ValueTask<GameCoresEntity> GetGameCoresAsync() {       
-            return (await HttpToolkit.GetStringAsync(APIManager.Current.VersionManifest)).ToJsonEntity<GameCoresEntity>();
+            return (await HttpUtil.GetStringAsync(APIManager.Current.VersionManifest)).ToJsonEntity<GameCoresEntity>();
         }
     }
 
     partial class GameCoreInstaller
     {
-        public GameCoreInstaller(GameCoreToolkit gameCoreToolkit, string Id)
+        public GameCoreInstaller(GameCoreUtil gameCoreToolkit, string Id)
         {
             GameCoreToolkit = gameCoreToolkit;
             this.Id = Id;
@@ -74,7 +74,7 @@ namespace MinecraftLaunch.Modules.Installer
             });
         }
 
-        public GameCoreToolkit GameCoreToolkit { get; set; }
+        public GameCoreUtil GameCoreToolkit { get; set; }
 
         public GameCoreEmtity CoreInfo { get; set; }
 

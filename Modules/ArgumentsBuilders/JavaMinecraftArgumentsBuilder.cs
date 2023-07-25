@@ -5,7 +5,7 @@ using System.Linq;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 
 namespace MinecraftLaunch.Modules.ArgumentsBuilders;
 
@@ -144,7 +144,7 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
 
 	internal static IEnumerable<string> GetEnvironmentJvmArguments()
 	{
-		string platformName = EnvironmentToolkit.GetPlatformName();
+		string platformName = EnvironmentUtil.GetPlatformName();
 		if (!(platformName == "windows"))
 		{
 			if (platformName == "osx")
@@ -159,7 +159,7 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
 				yield return "-Dos.version=10.0";
 			}
 		}
-		if (EnvironmentToolkit.Arch == "32")
+		if (EnvironmentUtil.Arch == "32")
             yield return "-Xss1M";
     }
 }

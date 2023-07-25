@@ -1,8 +1,8 @@
 using System;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class TimeToolkit
+public class TimeUtil
 {
 	public static int LocalYear => DateTime.Now.Year;
 

@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class CryptoToolkit
+public class CryptoUtil
 {
 	private static readonly char[] _hexTable = new char[16]
 	{

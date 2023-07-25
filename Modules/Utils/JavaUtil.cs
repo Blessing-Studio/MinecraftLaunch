@@ -10,9 +10,9 @@ using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
 using MinecraftLaunch.Modules.Models.Launch;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public sealed class JavaToolkit {
+public sealed class JavaUtil {
     [SupportedOSPlatform("OSX")]
     private const string MacJavaHomePath = "/Library/Java/JavaVirtualMachines";
 
@@ -21,9 +21,9 @@ public sealed class JavaToolkit {
 
     public static IEnumerable<JavaInfo> GetJavas() {
         try {
-            if (EnvironmentToolkit.IsWindow) {
+            if (EnvironmentUtil.IsWindow) {
                 return GetWindowsJavas();
-            } else if (EnvironmentToolkit.IsMac) {
+            } else if (EnvironmentUtil.IsMac) {
                 return GetMacJava();
             } else {
                 return GetLinuxJava();
@@ -39,10 +39,10 @@ public sealed class JavaToolkit {
         FileInfo info = new(javaPath);
 
         if (javaPath.IsDirectory()) {
-            info = new(Path.Combine(javaPath, EnvironmentToolkit.IsWindow ? "java.exe" : "java"));
+            info = new(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "java.exe" : "java"));
         }
 
-        if (EnvironmentToolkit.IsWindow) {
+        if (EnvironmentUtil.IsWindow) {
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(info.FullName);
 
             return new() {

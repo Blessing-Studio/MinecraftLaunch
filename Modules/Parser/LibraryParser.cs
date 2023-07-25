@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 
 namespace MinecraftLaunch.Modules.Parser;
 
@@ -53,19 +53,19 @@ public class LibraryParser
 			LibraryResource libraryResource = obj;
 			if (libraryJsonEntity.Rules != null)
 			{
-				libraryResource.IsEnable = GetAblility(libraryJsonEntity, EnvironmentToolkit.GetPlatformName());
+				libraryResource.IsEnable = GetAblility(libraryJsonEntity, EnvironmentUtil.GetPlatformName());
 			}
 			if (libraryJsonEntity.Natives != null)
 			{
 				libraryResource.IsNatives = true;
-				if (!libraryJsonEntity.Natives.ContainsKey(EnvironmentToolkit.GetPlatformName()))
+				if (!libraryJsonEntity.Natives.ContainsKey(EnvironmentUtil.GetPlatformName()))
 				{
 					libraryResource.IsEnable = false;
 				}
 				if (libraryResource.IsEnable)
 				{
 					libraryResource.Name = libraryResource.Name + ":" + GetNativeName(libraryJsonEntity);
-					FileJsonEntity file = libraryJsonEntity.Downloads.Classifiers[libraryJsonEntity.Natives[EnvironmentToolkit.GetPlatformName()].Replace("${arch}", EnvironmentToolkit.Arch)];
+					FileJsonEntity file = libraryJsonEntity.Downloads.Classifiers[libraryJsonEntity.Natives[EnvironmentUtil.GetPlatformName()].Replace("${arch}", EnvironmentUtil.Arch)];
 					libraryResource.CheckSum = file.Sha1;
 					libraryResource.Size = file.Size;
 					libraryResource.Url = file.Url;
@@ -77,7 +77,7 @@ public class LibraryParser
 
 	private string GetNativeName(LibraryJsonEntity libraryJsonEntity)
 	{
-		return libraryJsonEntity.Natives[EnvironmentToolkit.GetPlatformName()].Replace("${arch}", EnvironmentToolkit.Arch);
+		return libraryJsonEntity.Natives[EnvironmentUtil.GetPlatformName()].Replace("${arch}", EnvironmentUtil.Arch);
 	}
 
 	private bool GetAblility(LibraryJsonEntity libraryJsonEntity, string platform)

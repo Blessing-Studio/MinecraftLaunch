@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class EnvironmentToolkit {
+public class EnvironmentUtil {
     public static string Arch
     {
         get

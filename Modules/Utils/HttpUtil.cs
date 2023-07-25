@@ -12,9 +12,9 @@ using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
 using Natsurainko.Toolkits.Values;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public class HttpToolkit
+public class HttpUtil
 {
 	private static readonly HttpClient HttpClient = new HttpClient();
 

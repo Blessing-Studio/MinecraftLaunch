@@ -8,7 +8,7 @@ using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Installer;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 
 namespace MinecraftLaunch.Launch {
     public sealed partial class JavaMinecraftLauncher : LauncherBase<JavaMinecraftArgumentsBuilder, MinecraftLaunchResponse> {
@@ -59,7 +59,7 @@ namespace MinecraftLaunch.Launch {
                 progress.Report((9f, "正在检查Natives"));
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try {
-                    ZipToolkit.GameNativesDecompress(natives, core.LibraryResources);
+                    ZipUtil.GameNativesDecompress(natives, core.LibraryResources);
                 }
                 catch (Exception ex2) when (ex2.Message.Contains("The process cannot access the file")) {
                     progress.Report((0.95f, "Natives文件情况：已解压，无需再次解压"));
@@ -124,7 +124,7 @@ namespace MinecraftLaunch.Launch {
                 });
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try {
-                    ZipToolkit.GameNativesDecompress(natives, core.LibraryResources);
+                    ZipUtil.GameNativesDecompress(natives, core.LibraryResources);
                 }
                 catch (Exception ex2) when (ex2.Message.Contains("The process cannot access the file")) { }
                 catch { throw; }
@@ -167,7 +167,7 @@ namespace MinecraftLaunch.Launch {
     partial class JavaMinecraftLauncher {
         public JavaMinecraftLauncher() { }
 
-        public JavaMinecraftLauncher(LaunchConfig launchSetting, GameCoreToolkit gameCoreToolkit) {
+        public JavaMinecraftLauncher(LaunchConfig launchSetting, GameCoreUtil gameCoreToolkit) {
             LaunchSetting = launchSetting;
             GameCoreToolkit = gameCoreToolkit;
             if (LaunchSetting.Account == null)
@@ -180,6 +180,6 @@ namespace MinecraftLaunch.Launch {
 
         public override JavaMinecraftArgumentsBuilder ArgumentsBuilder { get; set; }
 
-        public GameCoreToolkit GameCoreToolkit { get; set; }
+        public GameCoreUtil GameCoreToolkit { get; set; }
     }
 }

@@ -9,12 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftLaunch.Modules.Toolkits
+namespace MinecraftLaunch.Modules.Utils
 {
     /// <summary>
     /// 存档操作工具箱
     /// </summary>
-    public partial class SavesToolkit {   
+    public partial class SavesUtil {   
         public async ValueTask<ImmutableArray<Saves>> LoadAllAsync(GameCore core) {       
             List<Saves> res = new();
             var saves = Path.Combine(core.Root.FullName, "versions", core.Id, "saves");
@@ -27,7 +27,7 @@ namespace MinecraftLaunch.Modules.Toolkits
                     var currentsaves = new Saves();
 
                     if (File.Exists(mainFile)) {                    
-                        var tags = NbtToolkit.Load(mainFile);
+                        var tags = NbtUtil.Load(mainFile);
                         var tag = (tags["Data"] as NbtCompoundTag)!;
                         
                         var saveName = ((NbtStringTag)tag["LevelName"]).Payload;
@@ -55,7 +55,7 @@ namespace MinecraftLaunch.Modules.Toolkits
 
                     if (playerData.IsDirectory()) {
                         foreach (var p in playerData.FindAllFile().AsParallel()) {
-                            var tags = NbtToolkit.Load(p.FullName);
+                            var tags = NbtUtil.Load(p.FullName);
 
                             players.Add(new()
                             {
@@ -77,13 +77,13 @@ namespace MinecraftLaunch.Modules.Toolkits
         }
     }
 
-    partial class SavesToolkit {   
-        public SavesToolkit(GameCoreToolkit core) {       
+    partial class SavesUtil {   
+        public SavesUtil(GameCoreUtil core) {       
             Toolkit = core;
         }
     }
 
-    partial class SavesToolkit {   
-        public GameCoreToolkit Toolkit { get; set; }
+    partial class SavesUtil {   
+        public GameCoreUtil Toolkit { get; set; }
     }
 }

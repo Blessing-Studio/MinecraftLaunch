@@ -12,7 +12,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
-using MinecraftLaunch.Modules.Toolkits;
+using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
@@ -336,12 +336,12 @@ namespace MinecraftLaunch.Modules.Installer
 
         public string PackageFile { get; private set; }
 
-        public GameCoreToolkit GameCoreLocator { get; private set; }
+        public GameCoreUtil GameCoreLocator { get; private set; }
     }
 
     partial class ForgeInstaller
     {
-        public ForgeInstaller(GameCoreToolkit coreLocator, ForgeInstallEntity build, string javaPath, string customId = null, string packageFile = null)
+        public ForgeInstaller(GameCoreUtil coreLocator, ForgeInstallEntity build, string javaPath, string customId = null, string packageFile = null)
         {
             ForgeBuild = build;
             JavaPath = javaPath;

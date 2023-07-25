@@ -18,9 +18,9 @@ using System.Text.Json;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace MinecraftLaunch.Modules.Toolkits;
+namespace MinecraftLaunch.Modules.Utils;
 
-public static class ExtendToolkit {
+public static class ExtendUtil {
     public static string ToPath(this string raw) {
         if (!Enumerable.Contains(raw, ' ')) {
             return raw;
@@ -151,7 +151,7 @@ public static class ExtendToolkit {
     }
 
     public static async ValueTask<HttpDownloadResponse> InstallLatestVersion(this List<CurseForgeModpackFileInfo> raw, string folder) {
-        HttpDownloadResponse res = await HttpToolkit.HttpDownloadAsync(raw.First().DownloadUrl, folder);
+        HttpDownloadResponse res = await HttpUtil.HttpDownloadAsync(raw.First().DownloadUrl, folder);
         if (res.HttpStatusCode == HttpStatusCode.OK) {
             return res;
         }
