@@ -3,8 +3,8 @@
 ![](https://img.shields.io/github/repo-size/Blessing-Studio/MinecraftLaunch)
 ![](https://img.shields.io/github/stars/Blessing-Studio/MinecraftLaunch)
 ![](https://img.shields.io/github/commit-activity/y/Blessing-Studio/MinecraftLaunch)
-![](https://img.shields.io/nuget/v/MinecraftLaunch?logo=nuget&label=NuGet版本&style=for-the-badge)
-![](https://img.shields.io/nuget/dt/MinecraftLaunch?logo=nuget&label=NuGet下载量&style=for-the-badge)
+![](https://img.shields.io/nuget/v/MinecraftLaunch?logo=nuget&label=NuGet版本)
+![](https://img.shields.io/nuget/dt/MinecraftLaunch?logo=nuget&label=NuGet下载量)
 
 下一代全能模块化的 Minecraft 启动核心
 ---------------------------------------------------------
