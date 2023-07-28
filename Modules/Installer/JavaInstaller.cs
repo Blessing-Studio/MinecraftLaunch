@@ -12,10 +12,8 @@ using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
 
-namespace MinecraftLaunch.Modules.Installer
-{
-    public partial class JavaInstaller : InstallerBase<JavaInstallerResponse>
-    {
+namespace MinecraftLaunch.Modules.Installer {
+    public partial class JavaInstaller : InstallerBase<JavaInstallerResponse> {
         public static (string, string, PcType) ActiveJdk;
 
         public static Dictionary<string, KeyValuePair<string, string>[]> OpenJdkDownloadSourcesForWindows
@@ -72,67 +70,56 @@ namespace MinecraftLaunch.Modules.Installer
 
         public static string StorageFolder => ActiveJdk.Item2;
 
-        public override async ValueTask<JavaInstallerResponse> InstallAsync()
-        {
-            try
-            {
+        public override async ValueTask<JavaInstallerResponse> InstallAsync() {
+            try {
                 string item = ActiveJdk.Item1;
                 _ = ActiveJdk;
-                //progress.Report((0.1f, "开始下载 Jdk"));
-                HttpDownloadResponse res = await HttpWrapper.HttpDownloadAsync(item, Path.GetTempPath(), (Action<float, string>)delegate (float e, string a)
-                {
-                    //progress.Report((0.1f + e * 0.8f, "下载中：" + a));
-                }, (string)null);
-                if (res.HttpStatusCode != HttpStatusCode.OK)
-                {
-                    return new JavaInstallerResponse
-                    {
+
+                InvokeStatusChangedEvent(0.1f, "开始下载 Jdk");
+                HttpDownloadResponse res = await HttpWrapper.HttpDownloadAsync(item, Path.GetTempPath(), (e, a) => {
+                    InvokeStatusChangedEvent(0.1f + e * 0.8f, "下载中：" + a);
+                }, null);
+                if (res.HttpStatusCode != HttpStatusCode.OK) {
+                    return new JavaInstallerResponse {
                         Success = false,
-                        Exception = null,
-                        JavaInfo = null
+                        Exception = null!,
+                        JavaInfo = null!
                     };
                 }
-                //progress.Report((0.8f, "开始解压 Jdk"));
+
+                InvokeStatusChangedEvent(0.8f, "开始解压 Jdk");
                 await Task.Delay(1000);
                 ZipFile.ExtractToDirectory(res.FileInfo.FullName, StorageFolder);
-                //progress.Report((0.95f, "开始删除 下载缓存"));
+                InvokeStatusChangedEvent(0.95f, "开始删除 下载缓存");
                 res.FileInfo.Delete();
-                //progress.Report((1f, "安装完成"));
-                return new JavaInstallerResponse
-                {
+                InvokeStatusChangedEvent(1f, "安装完成");
+                return new JavaInstallerResponse {
                     Success = true,
-                    Exception = null,
+                    Exception = null!,
                     JavaInfo = JavaUtil.GetJavaInfo(Path.Combine(Directory.GetDirectories(StorageFolder)[0], "bin"))
                 };
             }
-            catch (Exception ex)
-            {
-                return new JavaInstallerResponse
-                {
+            catch (Exception ex) {
+                return new JavaInstallerResponse {
                     Success = false,
                     Exception = ex,
-                    JavaInfo = null
+                    JavaInfo = null!
                 };
             }
         }
     }
 
-    partial class JavaInstaller
-    {
+    partial class JavaInstaller {
         public JavaInstaller() { }
 
-        public JavaInstaller(JdkDownloadSource jdkDownloadSource, OpenJdkType openJdkType, string SavePath, PcType pcType = PcType.Windows)
-        {
-            if (jdkDownloadSource != 0 && jdkDownloadSource != JdkDownloadSource.Microsoft)
-            {
+        public JavaInstaller(JdkDownloadSource jdkDownloadSource, OpenJdkType openJdkType, string SavePath, PcType pcType = PcType.Windows) {
+            if (jdkDownloadSource != 0 && jdkDownloadSource != JdkDownloadSource.Microsoft) {
                 throw new ArgumentException("选择了错误的下载源");
             }
-            if (openJdkType != 0 && openJdkType != OpenJdkType.OpenJdk11 && openJdkType != OpenJdkType.OpenJdk17 && openJdkType != OpenJdkType.OpenJdk18)
-            {
+            if (openJdkType != 0 && openJdkType != OpenJdkType.OpenJdk11 && openJdkType != OpenJdkType.OpenJdk17 && openJdkType != OpenJdkType.OpenJdk18) {
                 throw new ArgumentException("选择了错误的Jdk版本");
             }
-            if (!Directory.Exists(SavePath))
-            {
+            if (!Directory.Exists(SavePath)) {
                 Directory.CreateDirectory(SavePath);
             }
             ActiveJdk = (openJdkType.ToDownloadLink(jdkDownloadSource), openJdkType.ToFullJavaPath(SavePath), pcType);

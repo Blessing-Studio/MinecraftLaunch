@@ -1,8 +1,6 @@
-using System;
 using MinecraftLaunch.Modules.Enum;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using JsonConverter = Newtonsoft.Json.JsonConverter;
 using JsonConverterAttribute = Newtonsoft.Json.JsonConverterAttribute;
 
@@ -60,31 +58,31 @@ public class AccountJsonConverter : JsonConverter {
         if (jobject == null)
             return null;
 
-        var accountType = (AccountType)jobject["Type"].Value<int>();
+        var accountType = (AccountType)jobject["Type"]!.Value<int>();
 
         return accountType switch {
             AccountType.Offline => new OfflineAccount {
-                AccessToken = jobject["AccessToken"].ToObject<string>(),
-                ClientToken = jobject["ClientToken"].ToObject<string>(),
-                Name = jobject["Name"].ToObject<string>(),
-                Uuid = jobject["Uuid"].ToObject<Guid>()
+                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
+                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
+                Name = jobject["Name"]!.ToObject<string>()!,
+                Uuid = jobject["Uuid"]!.ToObject<Guid>()
             },
             AccountType.Microsoft => new MicrosoftAccount {
-                AccessToken = jobject["AccessToken"].ToObject<string>(),
-                ClientToken = jobject["ClientToken"].ToObject<string>(),
-                Name = jobject["Name"].ToObject<string>(),
-                Uuid = jobject["Uuid"].ToObject<Guid>(),
-                DateTime = jobject["DateTime"].ToObject<DateTime>(),
-                RefreshToken = jobject["RefreshToken"].ToObject<string>()
+                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
+                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
+                Name = jobject["Name"]!.ToObject<string>()!,
+                Uuid = jobject["Uuid"]!.ToObject<Guid>(),
+                DateTime = jobject["DateTime"]!.ToObject<DateTime>(),
+                RefreshToken = jobject["RefreshToken"]!.ToObject<string>()
             },
             AccountType.Yggdrasil => new YggdrasilAccount {
-                AccessToken = jobject["AccessToken"].ToObject<string>(),
-                ClientToken = jobject["ClientToken"].ToObject<string>(),
-                Name = jobject["Name"].ToObject<string>(),
-                Uuid = jobject["Uuid"].ToObject<Guid>(),
-                YggdrasilServerUrl = jobject["YggdrasilServerUrl"].ToObject<string>()
+                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
+                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
+                Name = jobject["Name"]!.ToObject<string>()!,
+                Uuid = jobject["Uuid"]!.ToObject<Guid>(),
+                YggdrasilServerUrl = jobject["YggdrasilServerUrl"]!.ToObject<string>()!
             },
-            _ => null
+            _ => default!
         };
     }
 

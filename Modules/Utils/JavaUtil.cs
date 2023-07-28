@@ -40,6 +40,10 @@ public sealed class JavaUtil {
 
         if (javaPath.IsDirectory()) {
             info = new(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "java.exe" : "java"));
+
+            if (!info.Exists) {
+                info = new(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "javaw.exe" : "java"));
+            }
         }
 
         if (EnvironmentUtil.IsWindow) {
