@@ -257,7 +257,7 @@ public class GameCoreUtil {
                 builder.AppendLine($"cd {core.Root!.FullName}");
                 builder.AppendLine($"{java} {string.Join(' '.ToString(), argumentsBuilder.Build())}");
             }
-            
+
             await File.WriteAllTextAsync(scriptPath, builder.ToString());
             return true;
         }
