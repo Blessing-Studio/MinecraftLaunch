@@ -52,7 +52,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 		}
         InvokeStatusChangedEvent(0.4f, "开始解析整合包模组链接");
 
-		TransformManyBlock<IEnumerable<ModsPacksFileModel>, (long, long)> urlBlock = new TransformManyBlock<IEnumerable<ModsPacksFileModel>, (long, long)>((IEnumerable<ModsPacksFileModel> urls) => urls.Select((ModsPacksFileModel file) => (file.ProjectId, file.FileId)));
+		TransformManyBlock<IEnumerable<ModsPacksFileModel>, (long, long)> urlBlock = new TransformManyBlock<IEnumerable<ModsPacksFileModel>, (long, long)>(urls => urls.Select(file => (file.ProjectId, file.FileId)));
 		using (ZipArchive subPath = ZipFile.OpenRead(ModPacksPath))
 		{
 			foreach (ZipArchiveEntry i in subPath.Entries)
