@@ -266,7 +266,7 @@ namespace MinecraftLaunch.Modules.Installer {
             try {
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
-
+                await Console.Out.WriteLineAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
                 var list = JsonConvert.DeserializeObject<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => a.Build.CompareTo(b.Build));
