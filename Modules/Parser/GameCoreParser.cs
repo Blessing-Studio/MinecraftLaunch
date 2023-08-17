@@ -186,9 +186,10 @@ public class GameCoreParser {
             lowerName.StartsWith("net.minecraftforge:fmlloader:") ||
             lowerName.StartsWith("net.fabricmc:fabric-loader") ||
             lowerName.StartsWith("com.mumfrey:liteloader:") ||
-            lowerName.StartsWith("org.quiltmc:quilt-loader");
+            lowerName.StartsWith("org.quiltmc:quilt-loader:") ||
+            lowerName.StartsWith("net.neoforged.fancymodloader");
         });
-
+       
         foreach (var lib in libFind) {
             var lowerName = lib.Name.ToLower();
             var id = lib.Name.Split(':')[2];
@@ -204,6 +205,8 @@ public class GameCoreParser {
                 yield return new() { ModLoaderType = ModLoaderType.LiteLoader, Version = id };
             else if (lowerName.StartsWith("org.quiltmc:quilt-loader"))
                 yield return new() { ModLoaderType = ModLoaderType.Quilt, Version = id };
+            else if (lowerName.StartsWith("net.neoforged.fancymodloader"))
+                yield return new() { ModLoaderType = ModLoaderType.NeoForged, Version = id };
         }
     }
 
