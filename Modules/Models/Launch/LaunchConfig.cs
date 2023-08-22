@@ -6,7 +6,7 @@ namespace MinecraftLaunch.Modules.Models.Launch;
 public class LaunchConfig {
     public DirectoryInfo? NativesFolder { get; set; }
 
-    public DirectoryInfo WorkingFolder { get; set; }
+    public DirectoryInfo WorkingFolder { get; private set; }
 
     public Account Account { get; set; }
 

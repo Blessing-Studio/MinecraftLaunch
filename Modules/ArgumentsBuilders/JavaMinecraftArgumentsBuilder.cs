@@ -51,7 +51,7 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder
             { "${user_properties}" , "{}" },
             { "${game_assets}" , Path.Combine(this.GameCore.Root.FullName, "assets").ToPath() },
             { "${auth_session}" , this.LaunchConfig.Account.AccessToken },
-			{ "${game_directory}" , LaunchConfig.IsEnableIndependencyCore ? Path.Combine(GameCore.Root.FullName,"versions",GameCore.Id) : GameCore.Root.FullName },
+			{ "${game_directory}" , GameCore.GetGameCorePath(LaunchConfig.IsEnableIndependencyCore) },
         };
 
         List<string> list = GameCore.BehindArguments.ToList();

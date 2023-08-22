@@ -78,9 +78,7 @@ namespace MinecraftLaunch.Launch {
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
-                        WorkingDirectory = ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder != null) ? 
-                        ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) ?
-                        LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
+                        WorkingDirectory = core.GetGameCorePath(LaunchSetting.IsEnableIndependencyCore)
                     },
                     EnableRaisingEvents = true
                 };
@@ -135,9 +133,7 @@ namespace MinecraftLaunch.Launch {
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
-                        WorkingDirectory = ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder != null)
-                        ? ((LaunchSetting.IsEnableIndependencyCore && LaunchSetting.WorkingFolder.Exists) 
-                        ? LaunchSetting.WorkingFolder.FullName : core.Root.FullName) : core.Root.FullName)
+                        WorkingDirectory = core.GetGameCorePath(LaunchSetting.IsEnableIndependencyCore),
                     },
                     EnableRaisingEvents = true
                 };
