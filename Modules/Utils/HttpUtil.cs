@@ -19,7 +19,6 @@ public class HttpUtil {
 
     public static int BufferSize { get; set; } = 1048576;
 
-
     public static async ValueTask<string> GetStringAsync(string Uri) {
         return await HttpClient.GetStringAsync(Uri);
     }

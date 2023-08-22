@@ -5,7 +5,7 @@
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
 	  <Title>MinecraftLaunch</Title>
-	  <Version>1.9.6-preview1</Version>
+	  <Version>1.9.6-preview3</Version>
 	  <Authors>Xilu</Authors>
 	  <Company>BlessingLife Studio</Company>
 	  <Description>下一代全能高效化的 Minecraft 启动核心</Description>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="C:\Users\w\Desktop\icon.png">
+    <None Include="C:\Users\w\Desktop\总整包\素材库\图片素材\杂项\icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

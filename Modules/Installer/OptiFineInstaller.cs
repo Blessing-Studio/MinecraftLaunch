@@ -10,8 +10,7 @@ using Natsurainko.Toolkits.Network.Model;
 using Newtonsoft.Json;
 
 namespace MinecraftLaunch.Modules.Installer {
-    public class OptiFineInstaller : InstallerBase<InstallerResponse>
-    {
+    public class OptiFineInstaller : InstallerBase<InstallerResponse> {
         public string CustomId { get; private set; }
 
         public GameCoreUtil GameCoreLocator { get; private set; }
@@ -22,14 +21,11 @@ namespace MinecraftLaunch.Modules.Installer {
 
         public string PackageFile { get; private set; }
 
-        public override async ValueTask<InstallerResponse> InstallAsync()
-        {
+        public override async ValueTask<InstallerResponse> InstallAsync() {
             #region Download PackageFile
             InvokeStatusChangedEvent(0f, "开始下载 OptiFine 安装包");
-            if (string.IsNullOrEmpty(PackageFile) || !File.Exists(PackageFile))
-            {
-                var downloadResponse = await DownloadOptiFinePackageFromBuildAsync(this.OptiFineBuild, GameCoreLocator.Root, (progress, message) =>
-                {
+            if (string.IsNullOrEmpty(PackageFile) || !File.Exists(PackageFile)) {
+                var downloadResponse = await DownloadOptiFinePackageFromBuildAsync(this.OptiFineBuild, GameCoreLocator.Root, (progress, message) => {
                     InvokeStatusChangedEvent(0.15f * progress, "下载 OptiFine 安装包中 " + message);
                 });
 
@@ -41,16 +37,13 @@ namespace MinecraftLaunch.Modules.Installer {
             #endregion
 
             InvokeStatusChangedEvent(0.45f, "开始解析 OptiFine 安装包");
-            using (ZipArchive archive = ZipFile.OpenRead(PackageFile))
-            {
+            using (ZipArchive archive = ZipFile.OpenRead(PackageFile)) {
                 string launchwrapper = "1.12";
-                if (archive.GetEntry("launchwrapper-of.txt") != null)
-                {
+                if (archive.GetEntry("launchwrapper-of.txt") != null) {
                     launchwrapper = ZipExtension.GetString(archive.GetEntry("launchwrapper-of.txt"));
                 }
                 InvokeStatusChangedEvent(0.55f, "开始检查继承的核心");
-                if (GameCoreLocator.GetGameCore(OptiFineBuild.McVersion) == null)
-                {
+                if (GameCoreLocator.GetGameCore(OptiFineBuild.McVersion) == null) {
                     var installer = new GameCoreInstaller(GameCoreLocator, OptiFineBuild.McVersion);
                     installer.ProgressChanged += (_, e) => {
                         InvokeStatusChangedEvent(0.45f + 0.15000004f * e.Progress, "正在下载继承的游戏核心：" + e.ProgressDescription);
@@ -59,94 +52,84 @@ namespace MinecraftLaunch.Modules.Installer {
                     await installer.InstallAsync();
                 }
 
-                OptiFineGameCoreJsonEntity entity = new OptiFineGameCoreJsonEntity
-                {
+                OptiFineGameCoreJsonEntity entity = new OptiFineGameCoreJsonEntity {
                     Id = (string.IsNullOrEmpty(CustomId) ? $"{OptiFineBuild.McVersion}-OptiFine_{OptiFineBuild.Type}_{OptiFineBuild.Patch}" : CustomId),
                     InheritsFrom = OptiFineBuild.McVersion,
                     Time = DateTime.Now.ToString("O"),
                     ReleaseTime = DateTime.Now.ToString("O"),
                     Type = "release",
-                    Libraries = new List<MinecraftLaunch.Modules.Models.Launch.LibraryJsonEntity>
-                {
-                    new MinecraftLaunch.Modules.Models.Launch.LibraryJsonEntity
-                    {
+                    Libraries = new List<Models.Launch.LibraryJsonEntity> {
+                    new Models.Launch.LibraryJsonEntity {
                         Name = $"optifine:Optifine:{OptiFineBuild.McVersion}_{OptiFineBuild.Type}_{OptiFineBuild.Patch}"
                     },
-                    new MinecraftLaunch.Modules.Models.Launch.LibraryJsonEntity
-                    {
+                    new Models.Launch.LibraryJsonEntity {
                         Name = (launchwrapper.Equals("1.12") ? "net.minecraft:launchwrapper:1.12" : ("optifine:launchwrapper-of:" + launchwrapper))
                     }
                 },
                     MainClass = "net.minecraft.launchwrapper.Launch",
-                    Arguments = new MinecraftLaunch.Modules.Models.Install.ArgumentsJsonEntity
-                    {
-                        Game = new()
-                    {
-                        "--tweakClass",
-                        "optifine.OptiFineTweaker"
-                    }
+                    Arguments = new ArgumentsJsonEntity {
+                        Game = new() {
+                            "--tweakClass",
+                            "optifine.OptiFineTweaker"
+                        }
                     }
                 };
                 InvokeStatusChangedEvent(0.7f, "开始写入文件");
                 InvokeStatusChangedEvent(0.75f, "开始分析是否安装模组加载器");
-                string id = (string.IsNullOrEmpty(CustomId) ? $"{OptiFineBuild.McVersion}-OptiFine-{OptiFineBuild.Type}_{OptiFineBuild.Patch}" : CustomId);
+                string id = (string.IsNullOrEmpty(CustomId) ? $"{OptiFineBuild.McVersion}-OptiFine_{OptiFineBuild.Type}_{OptiFineBuild.Patch}" : CustomId);
+
                 bool flag;
-                try
-                {
-                    flag = GameCoreLocator.GetGameCore(id)?.HasModLoader ?? false;
+                try {
+                    var gameCore = GameCoreLocator.GetGameCore(id);
+                    flag = gameCore?.HasModLoader ?? false;
                 }
-                catch (Exception)
-                {
+                catch (Exception) {
                     flag = false;
                 }
 
-                if (!flag)
-                {
-                    FileInfo versionJsonFile = new FileInfo(Path.Combine(GameCoreLocator.Root.FullName, "versions", entity.Id, entity.Id + ".json"));
-                    if (!versionJsonFile.Directory!.Exists)
-                    {
+                if (!flag) {
+                    FileInfo versionJsonFile = new(Path.Combine(GameCoreLocator.Root.FullName, "versions", entity.Id, entity.Id + ".json"));
+                    if (!versionJsonFile.Directory!.Exists) {
                         versionJsonFile.Directory.Create();
                     }
-                    File.WriteAllText(versionJsonFile.FullName, entity.ToJson());
+
+                    await File.WriteAllTextAsync(versionJsonFile.FullName, entity.ToJson());
                 }
-                FileInfo launchwrapperFile = new LibraryResource
-                {
+
+                FileInfo launchwrapperFile = new LibraryResource {
                     Name = entity.Libraries[1].Name,
                     Root = GameCoreLocator.Root
                 }.ToFileInfo();
-                if (!launchwrapper.Equals("1.12"))
-                {
-                    if (!launchwrapperFile.Directory!.Exists)
-                    {
+
+                if (!launchwrapper.Equals("1.12")) {
+                    if (!launchwrapperFile.Directory!.Exists) {
                         launchwrapperFile.Directory.Create();
                     }
                     archive.GetEntry("launchwrapper-of-" + launchwrapper + ".jar")!.ExtractToFile(launchwrapperFile.FullName, overwrite: true);
-                }
-                else if (!launchwrapperFile.Exists)
-                {
-                    await HttpUtil.HttpDownloadAsync(new LibraryResource
-                    {
+                } else if (!launchwrapperFile.Exists) {
+                    await HttpUtil.HttpDownloadAsync(new LibraryResource {
                         Name = entity.Libraries[1].Name,
                         Root = GameCoreLocator.Root
                     }.ToDownloadRequest());
                 }
+
                 string inheritsFromFile = Path.Combine(GameCoreLocator.Root.FullName, "versions", OptiFineBuild.McVersion, OptiFineBuild.McVersion + ".jar");
                 string v = Path.Combine(GameCoreLocator.Root.FullName, "versions", id);
-                File.Copy(inheritsFromFile, Path.Combine(v, entity.Id + ".jar"), overwrite: true);
-                FileInfo optiFineLibraryFiles = new LibraryResource
-                {
+
+                var path = Path.Combine(v, entity.Id + ".jar");
+                File.Copy(inheritsFromFile, path, overwrite: true);
+
+                FileInfo optiFineLibraryFiles = new LibraryResource {
                     Name = entity.Libraries[0].Name,
                     Root = GameCoreLocator.Root
                 }.ToFileInfo();
                 string optiFineLibraryFile = optiFineLibraryFiles.FullName;
-                if (!optiFineLibraryFiles.Directory!.Exists)
-                {
+                if (!optiFineLibraryFiles.Directory!.Exists) {
                     optiFineLibraryFiles.Directory.Create();
                 }
 
-                InvokeStatusChangedEvent(0.85f,"运行安装程序处理器中");
-                using Process process = Process.Start(new ProcessStartInfo(JavaPath)
-                {
+                InvokeStatusChangedEvent(0.85f, "运行安装程序处理器中");
+                using Process process = Process.Start(new ProcessStartInfo(JavaPath) {
                     UseShellExecute = false,
                     WorkingDirectory = GameCoreLocator.Root.FullName,
                     RedirectStandardError = true,
@@ -155,48 +138,40 @@ namespace MinecraftLaunch.Modules.Installer {
                 })!;
                 List<string> outputs = new List<string>();
                 List<string> errorOutputs = new List<string>();
-                process.OutputDataReceived += delegate (object _, DataReceivedEventArgs args)
-                {
-                    if (!string.IsNullOrEmpty(args.Data))
-                    {
+                process.OutputDataReceived += delegate (object _, DataReceivedEventArgs args) {
+                    if (!string.IsNullOrEmpty(args.Data)) {
                         outputs.Add(args.Data);
                     }
                 };
-                process.ErrorDataReceived += delegate (object _, DataReceivedEventArgs args)
-                {
-                    if (!string.IsNullOrEmpty(args.Data))
-                    {
+                process.ErrorDataReceived += delegate (object _, DataReceivedEventArgs args) {
+                    if (!string.IsNullOrEmpty(args.Data)) {
                         outputs.Add(args.Data);
                         errorOutputs.Add(args.Data);
                     }
                 };
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                await Task.Run((Func<bool>)process.WaitForInputIdle);
+                await Task.Run(process.WaitForInputIdle);
 
-                if (flag) {               
+                if (flag) {
                     FileInfo fileInfo = new(optiFineLibraryFile);
-                    Console.WriteLine(fileInfo.FullName);
                     string mods = Path.Combine(GameCoreLocator.Root.FullName, "versions", id, "mods");
                     if (!Directory.Exists(mods)) {
-                   
                         Directory.CreateDirectory(mods);
                     }
 
                     Path.Combine(mods, fileInfo.Name);
 
-                    try {                   
+                    try {
                         fileInfo.CopyTo(Path.Combine(mods, fileInfo.Name), overwrite: true);
                     }
-                    finally
-                    {
+                    finally {
                         fileInfo.Directory!.Delete(recursive: true);
                     }
                 }
-                
+
                 InvokeStatusChangedEvent(1f, "安装完成");
-                return new InstallerResponse
-                {
+                return new InstallerResponse {
                     Success = true,
                     GameCore = GameCoreLocator.GetGameCore(id),
                     Exception = null!
@@ -204,10 +179,8 @@ namespace MinecraftLaunch.Modules.Installer {
             }
         }
 
-        public static async ValueTask<OptiFineInstallEntity[]> GetOptiFineBuildsFromMcVersionAsync(string mcVersion)
-        {
-            try
-            {
+        public static async ValueTask<OptiFineInstallEntity[]> GetOptiFineBuildsFromMcVersionAsync(string mcVersion) {
+            try {
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
@@ -224,24 +197,20 @@ namespace MinecraftLaunch.Modules.Installer {
 
                 return builds.ToArray();
             }
-            catch
-            {
+            catch {
                 return Array.Empty<OptiFineInstallEntity>();
             }
         }
 
-        public static ValueTask<HttpDownloadResponse> DownloadOptiFinePackageFromBuildAsync(OptiFineInstallEntity build, DirectoryInfo directory, Action<float, string> progressChangedAction)
-        {
+        public static ValueTask<HttpDownloadResponse> DownloadOptiFinePackageFromBuildAsync(OptiFineInstallEntity build, DirectoryInfo directory, Action<float, string> progressChangedAction) {
             string downloadUrl = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{build.McVersion}/{build.Type}/{build.Patch}";
-            return HttpUtil.HttpDownloadAsync(new HttpDownloadRequest
-            {
+            return HttpUtil.HttpDownloadAsync(new HttpDownloadRequest {
                 Url = downloadUrl,
                 Directory = directory
             }, progressChangedAction);
         }
 
-        public OptiFineInstaller(GameCoreUtil coreLocator, OptiFineInstallEntity build, string javaPath, string packageFile = null!, string customId = null!)
-        {
+        public OptiFineInstaller(GameCoreUtil coreLocator, OptiFineInstallEntity build, string javaPath, string packageFile = null!, string customId = null!) {
             OptiFineBuild = build;
             JavaPath = javaPath;
             PackageFile = packageFile;
