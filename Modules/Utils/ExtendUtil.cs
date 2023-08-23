@@ -132,7 +132,7 @@ public static class ExtendUtil {
         string obj = (Save.EndsWith('\\') ? (Save + javapath) : (Save.EndsWith("/") ? (Save + javapath) : (Save + "\\" + javapath)));
         Directory.CreateDirectory(obj);
         return obj;
-    }
+    }   
 
     public static List<ModrinthFileInfo> GetModInfoToVersion(this List<ModrinthProjectInfoItem> ms, string version) {
         string version2 = version;
@@ -160,6 +160,14 @@ public static class ExtendUtil {
     }
 
     public static bool IsDirectory(this string path) => Directory.Exists(path);
+
+    public static bool IsDirectory(this string path, bool isCreate) {
+        if (isCreate) {
+            Directory.CreateDirectory(path);
+        }
+
+        return Directory.Exists(path);
+    }
 
     public static bool IsDirectory(this DirectoryInfo path) => path!.Exists;
 

@@ -53,7 +53,7 @@ public sealed class JavaUtil {
                 Is64Bit = GetIs64Bit(),
                 JavaDirectoryPath = info.Directory!.FullName,
                 JavaSlugVersion = fileVersionInfo.ProductMajorPart,
-                JavaVersion = fileVersionInfo.ProductVersion,
+                JavaVersion = fileVersionInfo.ProductVersion!,
                 JavaPath = info.FullName,
             };
         } else {
@@ -62,7 +62,7 @@ public sealed class JavaUtil {
                 string tempinfo = null;
                 string pattern = "java version \"\\s*(?<version>\\S+)\\s*\"";
 
-                using Process Program = new Process {
+                using var Program = new Process {
                     StartInfo = new() {
                         Arguments = "-version",
                         FileName = info.FullName,
