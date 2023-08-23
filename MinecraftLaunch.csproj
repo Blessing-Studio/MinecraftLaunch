@@ -5,7 +5,7 @@
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
 	  <Title>MinecraftLaunch</Title>
-	  <Version>1.9.6-preview3</Version>
+	  <Version>1.9.6-preview4</Version>
 	  <Authors>Xilu</Authors>
 	  <Company>Blessing Studio</Company>
 	  <Description>下一代全能高效化的 Minecraft 启动核心</Description>

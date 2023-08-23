@@ -53,6 +53,9 @@ namespace MinecraftLaunch.Launch {
                 await new ResourceInstaller(core).DownloadAsync(delegate (string x, float a) {
                     progress.Report((0.6f + a * 0.8f, "正在下载游戏依赖文件：" + x));
                 });
+
+                await LangSwitchAsync(core);
+
                 progress.Report((0.8f, "正在构建启动参数"));
                 ArgumentsBuilder = new JavaMinecraftArgumentsBuilder(core, LaunchSetting);
                 args = ArgumentsBuilder.Build();
@@ -94,11 +97,11 @@ namespace MinecraftLaunch.Launch {
             }
             catch (Exception ex) {
                 if (ex.GetType() == typeof(OperationCanceledException)) {
-                    ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                    return new MinecraftLaunchResponse(process, LaunchState.Cancelled, args);
+                    ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged!;
+                    return new MinecraftLaunchResponse(process!, LaunchState.Cancelled, args);
                 }
-                ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged;
-                return new MinecraftLaunchResponse(process, LaunchState.Failed, args, ex);
+                ((Progress<(float, string)>)progress).ProgressChanged -= ProgressChanged!;
+                return new MinecraftLaunchResponse(process!, LaunchState.Failed, args, ex);
             }
         }
 
@@ -120,12 +123,16 @@ namespace MinecraftLaunch.Launch {
                 await new ResourceInstaller(core).DownloadAsync(delegate {
 
                 });
+
+                await LangSwitchAsync(core);
+
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try {
                     ZipUtil.GameNativesDecompress(natives, core.LibraryResources);
                 }
                 catch (Exception ex2) when (ex2.Message.Contains("The process cannot access the file")) { }
                 catch { throw; }
+
                 process = new Process {
                     StartInfo = new ProcessStartInfo {
                         FileName = LaunchSetting.JvmConfig.JavaPath.FullName,
@@ -157,6 +164,20 @@ namespace MinecraftLaunch.Launch {
 
         public MinecraftLaunchResponse Launch(string id) {
             return LaunchTaskAsync(id).GetAwaiter().GetResult();
+        }
+
+        private async ValueTask LangSwitchAsync(GameCore core) {            
+            if (LaunchSetting.IsChinese) {
+                var filePath = core.GetOptionsFilePath();
+
+                if (!filePath.IsFile()) {
+                    await File.WriteAllTextAsync(filePath, "lang:zh_cn");
+                    return;
+                }
+
+                string content = await File.ReadAllTextAsync(filePath);
+                await File.WriteAllTextAsync(filePath, content.Replace("lang:en_us", "lang:zh_cn"));
+            }
         }
     }
 

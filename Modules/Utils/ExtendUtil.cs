@@ -185,6 +185,8 @@ public static class ExtendUtil {
 
     public static string GetGameCorePath(this GameCore row, bool Isolate = true) => Path.Combine(Isolate ? row.GetVersionsPath() : row.Root.FullName, Isolate ? row.Id! : string.Empty);
 
+    public static string GetOptionsFilePath(this GameCore row, bool Isolate = true) => Path.Combine(GetGameCorePath(row, Isolate), "options.txt");
+
     public static string GetResourcePacksPath(this GameCore row, bool Isolate = true) => Path.Combine(row.Root!.FullName, Isolate ? Path.Combine("versions", row.Id) : "", "resourcepacks");
 
     public static string Join(this HttpDownloadRequest request) {

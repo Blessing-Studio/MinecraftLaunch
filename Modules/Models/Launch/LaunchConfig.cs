@@ -1,26 +1,27 @@
-using System.IO;
 using MinecraftLaunch.Modules.Models.Auth;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class LaunchConfig {
-    public DirectoryInfo? NativesFolder { get; set; }
-
-    public DirectoryInfo WorkingFolder { get; private set; }
-
     public Account Account { get; set; }
 
     public JvmConfig JvmConfig { get; set; }
 
-    public ServerConfig ServerConfig { get; set; }
-
-    public GameWindowConfig GameWindowConfig { get; set; } = new GameWindowConfig();
-
-    public string LauncherName { get; set; } = "MinecraftLaunch";
-
     public bool IsServer { get; set; } = true;
 
+    public bool IsChinese { get; set; } = false;
+
+    public ServerConfig ServerConfig { get; set; }
+
+    public DirectoryInfo? NativesFolder { get; set; }
+
+    public string LauncherName { get; set; } = "release";
+
+    public DirectoryInfo WorkingFolder { get; private set; }
+
     public bool IsEnableIndependencyCore { get; set; } = true;
+
+    public GameWindowConfig GameWindowConfig { get; set; } = new();
 
     public LaunchConfig() {
     }
