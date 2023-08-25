@@ -39,5 +39,5 @@
 + LobeCraft Launcher
 + Lemon Launcher
 + Rain s Minecraft Launcher
-
++ [BadMcen Launcher](https://github.com/BadMC-Studio/BadMcen-launcher)
 # [使用文档](https://baka_hs.gitee.io/xilu-baka/)
