@@ -3,32 +3,26 @@ using MinecraftLaunch.Modules.Interface;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace MinecraftLaunch.Modules.Analyzers
-{
+namespace MinecraftLaunch.Modules.Analyzers {
     /// <summary>
     /// 游戏崩溃分析器
     /// </summary>
-    public partial class GameCrashAnalyzer : IAnalyzer<Dictionary<CrashReason, List<string>>>
-    {
+    public partial class GameCrashAnalyzer : IAnalyzer<Dictionary<CrashReason, List<string>>> {
         /// <summary>
         /// 崩溃分析方法
         /// </summary>
-        public Dictionary<CrashReason, List<string>> AnalyseAsync()
-        {
+        public async ValueTask<Dictionary<CrashReason, List<string>>> AnalyseAsync() {
             Trace.WriteLine("[Crash] 开始分析崩溃原因");
             var log = Log.ToLower();
 
             RoughLogMatching();
             if (CrashReason.Count > 0) goto Done;
 
-            if (log.Contains("forge") || log.Contains("fabric") || log.Contains("liteloader"))
-            {
-                if (!string.IsNullOrEmpty(Log))
-                {
+            if (log.Contains("forge") || log.Contains("fabric") || log.Contains("liteloader")) {
+                if (!string.IsNullOrEmpty(Log)) {
                     var stacks = Log.Replace("System Details", "¨").Split("¨").First();
                     var keywords = AnalyzeStackKeyword(stacks);
-                    if (keywords.Count > 0)
-                    {
+                    if (keywords.Count > 0) {
                         var names = TryAnalyzeModOfCrash(keywords);
                         if (names is not null && names.Count > 0)
                             AddPossibleCauses(Enum.CrashReason.崩溃日志堆栈分析发现关键字, keywords);
@@ -38,14 +32,12 @@ namespace MinecraftLaunch.Modules.Analyzers
                 }
 
                 var fatals = Regex.Matches(Log, @"/FATAL] [\w\W]+?(?=[\n]+\[)").Select(x => x.Value).ToList();
-                if (fatals.Count > 0)
-                {
+                if (fatals.Count > 0) {
                     var keywords = new List<string>();
                     foreach (var item in fatals)
                         keywords.AddRange(AnalyzeStackKeyword(item));
 
-                    if (keywords.Count > 0)
-                    {
+                    if (keywords.Count > 0) {
                         AddPossibleCauses(Enum.CrashReason.MC日志堆栈分析发现关键字, fatals.Distinct().ToList());
                         goto Done;
                     }
@@ -53,9 +45,8 @@ namespace MinecraftLaunch.Modules.Analyzers
             }
 
             AccurateLogMatching();
-            Done:
-            if(CrashReason.Count != 0)
-            {
+        Done:
+            if (CrashReason.Count != 0) {
                 CrashReason.Keys.ToList().ForEach(x => Trace.WriteLine($"[Crash]  - {x}"));
                 return CrashReason;
             }
@@ -65,8 +56,7 @@ namespace MinecraftLaunch.Modules.Analyzers
         /// <summary>
         /// 日志精准匹配方法
         /// </summary>
-        private void AccurateLogMatching()
-        {
+        private void AccurateLogMatching() {
             if (Log.Contains("]: Warnings were found!"))
                 AddPossibleCauses(Enum.CrashReason.Fabric报错);
 
@@ -86,8 +76,7 @@ namespace MinecraftLaunch.Modules.Analyzers
         /// <summary>
         /// 日志粗略匹配方法
         /// </summary>
-        private void RoughLogMatching()
-        {
+        private void RoughLogMatching() {
             if (string.IsNullOrEmpty(Log))
                 throw new ArgumentNullException("没有任何日志，已中止崩溃分析");
 
@@ -148,8 +137,7 @@ namespace MinecraftLaunch.Modules.Analyzers
             if (Log.Contains("DuplicateModsFoundException") || Log.Contains("Found a duplicate mod") || Log.Contains("ModResolutionException: Duplicate"))
                 AddPossibleCauses(Enum.CrashReason.Mod重复安装);
 
-            if (Regex.IsMatch(Log, "(?<=in )[^./ ]+(?=.mixins.json.+failed injection check)") || Log.Contains("mixin.injection.throwables.") || Log.Contains(".mixins.json] FAILED during )"))
-            {
+            if (Regex.IsMatch(Log, "(?<=in )[^./ ]+(?=.mixins.json.+failed injection check)") || Log.Contains("mixin.injection.throwables.") || Log.Contains(".mixins.json] FAILED during )")) {
                 var mod = Regex.Match(Log, "(?<=in )[^./ ]+(?=.mixins.json.+failed injection check)").Value;
                 if (string.IsNullOrEmpty(mod))
                     mod = Regex.Match(Log, "(?<= failed .+ in )[^./ ]+(?=.mixins.json)").Value;
@@ -177,8 +165,7 @@ namespace MinecraftLaunch.Modules.Analyzers
             if (Log.Contains("Manually triggered debug crash"))
                 AddPossibleCauses(Enum.CrashReason.玩家手动触发调试崩溃);
 
-            if (Log.Contains("-- MOD "))
-            {
+            if (Log.Contains("-- MOD ")) {
                 var loglast = Log.Split("-- MOD").Last();
                 if (loglast.Contains("Failure message: MISSING"))
                     AddPossibleCauses(Enum.CrashReason.Mod导致游戏崩溃);
@@ -189,8 +176,7 @@ namespace MinecraftLaunch.Modules.Analyzers
         /// <summary>
         /// 尝试分析导致崩溃的模组列表
         /// </summary>
-        private List<string> TryAnalyzeModOfCrash(List<string> keywords)
-        {
+        private List<string> TryAnalyzeModOfCrash(List<string> keywords) {
             var mods = new List<string>();
 
             //预处理关键字，也就是分割括号
@@ -214,14 +200,12 @@ namespace MinecraftLaunch.Modules.Analyzers
             //by xilu
             var modIdlines = new List<string>();
             foreach (var item in details.Split('\n'))
-                if(item.ToLower().Contains(".jar") || isfabricmod && item.StartsWith("\t" + "\t") && !Regex.IsMatch(item,@"\t\tfabric[\w-]*: Fabric"))
+                if (item.ToLower().Contains(".jar") || isfabricmod && item.StartsWith("\t" + "\t") && !Regex.IsMatch(item, @"\t\tfabric[\w-]*: Fabric"))
                     modIdlines.Add(item);
 
             var hintlines = new List<string>();
-            foreach (var item in keywords)
-            {
-                foreach (var i in modIdlines)
-                {
+            foreach (var item in keywords) {
+                foreach (var i in modIdlines) {
                     var realmod = i.ToLower().Replace("_", "");
                     if (!realmod.Contains(item.ToLower().Replace("_", ""))) continue;
                     if (realmod.Contains("minecraft.jar") || realmod.Contains(" forge-"))
@@ -234,12 +218,11 @@ namespace MinecraftLaunch.Modules.Analyzers
             hintlines.ForEach(x => Trace.WriteLine($"[Crash] - {x}"));
 
             //fuck the regex 正则我日你仙人
-            foreach (var line in hintlines)
-            {
+            foreach (var line in hintlines) {
                 var name = string.Empty;
                 if (isfabricmod)
                     name = Regex.Match(line, @"(?<=: )[^\n]+(?= [^\n]+)").Value;
-                else name = Regex.Match(line,@"(?<=\()[^\t]+.jar(?=\))|(?<=(\t\t)|(\| ))[^\t\|]+.jar", RegexOptions.IgnoreCase).Value;
+                else name = Regex.Match(line, @"(?<=\()[^\t]+.jar(?=\))|(?<=(\t\t)|(\| ))[^\t\|]+.jar", RegexOptions.IgnoreCase).Value;
                 if (!string.IsNullOrEmpty(name)) mods.Add(name);
             }
 
@@ -250,12 +233,10 @@ namespace MinecraftLaunch.Modules.Analyzers
         /// 尝试从堆栈中提取 Mod Id 关键字
         /// </summary>
         /// <returns></returns>
-        private List<string> AnalyzeStackKeyword(string errorstack)
-        {
+        private List<string> AnalyzeStackKeyword(string errorstack) {
             var stacksearchres = Regex.Matches((string.IsNullOrEmpty(errorstack) ? string.Empty : errorstack) + "\r\n", @"(?<=\n[^{]+)[a-zA-Z]+\w+\.[a-zA-Z]+[\w\.]+(?=\.[\w\.$]+\.)").Select(x => x.Value).ToList();
             var Possiblestacks = new List<string>();
-            foreach (var i in stacksearchres)
-            {
+            foreach (var i in stacksearchres) {
                 foreach (var stack in new string[] { "java", "sun", "javax", "jdk", "oolloo",
                 "org.lwjgl", "com.sun", "net.minecraftforge", "com.mojang", "net.minecraft", "cpw.mods", "com.google", "org.apache", "org.spongepowered", "net.fabricmc", "com.mumfrey",
                 "com.electronwill.nightconfig", "it.unimi.dsi",
@@ -271,11 +252,9 @@ namespace MinecraftLaunch.Modules.Analyzers
             Possiblestacks.ForEach(x => Trace.WriteLine($"[Crash] - {x}"));
 
             var possiblewords = new List<string>();
-            foreach (var item in Possiblestacks)
-            {
+            foreach (var item in Possiblestacks) {
                 var splited = item.Split('.');
-                for (int i = 0; i< Math.Min(3,splited.Count()-1); i++)
-                {
+                for (int i = 0; i < Math.Min(3, splited.Count() - 1); i++) {
                     var word = splited[i];
                     if (word.Length <= 2 || word.StartsWith("func_")) continue;
                     if (new string[] {"com", "org", "net", "asm", "fml", "mod", "jar", "sun", "lib", "map", "gui", "dev", "nio", "api", "dsi",
@@ -292,28 +271,22 @@ namespace MinecraftLaunch.Modules.Analyzers
             Trace.WriteLine($"[Crash] 从堆栈信息中找到 {possiblewords.Count} 个可能的 Mod ID 关键词");
             if (possiblewords.Count > 0)
                 Trace.WriteLine($"[Crash] - {string.Join(", ", possiblewords)}");
-            if (possiblewords.Count > 10)
-            {
+            if (possiblewords.Count > 10) {
                 Trace.WriteLine("[Crash] 关键词过多，考虑匹配出错，不纳入考虑");
                 return new();
-            }
-            else return possiblewords;
+            } else return possiblewords;
         }
 
         /// <summary>
         /// 向集合插入一个可能的崩溃原因，如果已有将不会插入
         /// </summary>
-        private void AddPossibleCauses(CrashReason reason , ICollection<string> strings = null)
-        {
-            if (CrashReason.ContainsKey(reason))
-            {
-                if (strings is not null)
-                {
+        private void AddPossibleCauses(CrashReason reason, ICollection<string> strings = null) {
+            if (CrashReason.ContainsKey(reason)) {
+                if (strings is not null) {
                     CrashReason[reason].AddRange(strings);
                     CrashReason[reason].Distinct();
                 }
-            }
-            else CrashReason.Add(reason, new List<string>());               
+            } else CrashReason.Add(reason, new List<string>());
         }
 
         /// <summary>
@@ -321,16 +294,14 @@ namespace MinecraftLaunch.Modules.Analyzers
         /// </summary>
         /// <param name="keymods"></param>
         /// <returns></returns>
-        private List<string> TryAnalyModName(string keymods)
-        {
-            var raw = new List<string>() { keymods }; 
-            if(string.IsNullOrEmpty(keymods)) return raw;
-            return TryAnalyzeModOfCrash(raw) is not null ? TryAnalyzeModOfCrash(raw) : raw; 
+        private List<string> TryAnalyModName(string keymods) {
+            var raw = new List<string>() { keymods };
+            if (string.IsNullOrEmpty(keymods)) return raw;
+            return TryAnalyzeModOfCrash(raw) is not null ? TryAnalyzeModOfCrash(raw) : raw;
         }
     }
 
-    partial class GameCrashAnalyzer
-    {
+    partial class GameCrashAnalyzer {
         /// <summary>
         /// 崩溃日志
         /// </summary>
@@ -341,11 +312,9 @@ namespace MinecraftLaunch.Modules.Analyzers
         public Dictionary<CrashReason, List<string>> CrashReason { get; set; } = new();
     }
 
-    partial class GameCrashAnalyzer
-    {
-        public GameCrashAnalyzer(List<string> log)
-        {
-            Log = string.Join(' ', log);  
+    partial class GameCrashAnalyzer {
+        public GameCrashAnalyzer(List<string> log) {
+            Log = string.Join(' ', log);
         }
     }
 }

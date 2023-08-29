@@ -43,7 +43,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 	{
 		InvokeStatusChangedEvent(0.1f, "开始获取整合包信息");
 
-		ModsPacksModel info = await GetModsPacksInfo();
+		ModsPacksModel info = await GetModsPacksInfoAsync();
 		_needToDownload = info.Files.Count;
 		string idpath = Path.Combine(Path.GetFullPath(GamePath), "versions", string.IsNullOrEmpty(GameId) ? info.Name : GameId);
 		DirectoryInfo di = new DirectoryInfo(Path.Combine(idpath, "mods"));
@@ -127,7 +127,7 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 		};
 	}
 
-	public async ValueTask<ModsPacksModel> GetModsPacksInfo()
+	public async ValueTask<ModsPacksModel> GetModsPacksInfoAsync()
 	{
 		string json = string.Empty;
 		using ZipArchive zipinfo = ZipFile.OpenRead(ModPacksPath);
@@ -147,4 +147,3 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse>
 	}
 
 }
-//CurseForgeToolkit
