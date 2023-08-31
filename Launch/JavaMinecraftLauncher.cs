@@ -85,6 +85,7 @@ namespace MinecraftLaunch.Launch {
                     },
                     EnableRaisingEvents = true
                 };
+
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 await Task.Delay(500);

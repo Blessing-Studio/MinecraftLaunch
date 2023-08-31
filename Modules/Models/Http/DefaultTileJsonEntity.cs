@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,16 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace MinecraftLaunch.Modules.Models.Http {
     public class DefaultTileJsonEntity {
-        [JsonProperty("image")]
+        [JsonPropertyName("image")]
         public object image { get; set; }
 
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        [JsonProperty("tile_size")]
+        [JsonPropertyName("tile_size")]
         public string TileSize { get; set; }
 
-        [JsonProperty("sub_header")]
+        [JsonPropertyName("sub_header")]
         public string SubHeader { get; set; }
     }
 }

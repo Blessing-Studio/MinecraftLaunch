@@ -1,9 +1,9 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class AssetIndexJsonEntity : FileJsonEntity
 {
-	[JsonProperty("totalSize")]
+	[JsonPropertyName("totalSize")]
 	public int TotalSize { get; set; }
 }

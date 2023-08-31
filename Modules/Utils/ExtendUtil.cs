@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Installer;
 using MinecraftLaunch.Modules.Interface;
@@ -12,11 +6,8 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Text.Json;
-using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using System.Text.Encodings.Web;
 
 namespace MinecraftLaunch.Modules.Utils;
 
@@ -62,31 +53,35 @@ public static class ExtendUtil {
                 item2.Delete();
             }
             catch (UnauthorizedAccessException) {
+                Console.WriteLine("6S");
             }
         }
     }
 
     public static T ToJsonEntity<T>(this T entity, string json) where T : IJsonEntity {
-        return JsonConvert.DeserializeObject<T>(json)!;
+        return JsonSerializer.Deserialize<T>(json)!;
     }
 
     public static string ToJson<T>(this T entity) where T : IJsonEntity {
-        return JsonConvert.SerializeObject(entity);
+        return JsonSerializer.Serialize(entity);
     }
 
     public static string ToJson(this object entity) {
-        return JsonConvert.SerializeObject(entity, new JsonSerializerSettings() {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
-        })!;
+        var options = new JsonSerializerOptions() {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true,
+        };
+        options.Converters.Add(new DateTimeConverter());
+
+        return JsonSerializer.Serialize(entity, options);
     }
 
     public static T FromJson<T>(this T entity, string json) where T : IJsonEntity {
-        return JsonConvert.DeserializeObject<T>(json)!;
+        return JsonSerializer.Deserialize<T>(json)!;
     }
 
     public static T ToJsonEntity<T>(this string json) {
-        return JsonConvert.DeserializeObject<T>(json)!;
+        return JsonSerializer.Deserialize<T>(json)!;
     }
 
     public static string ToDownloadLink(this OpenJdkType open, JdkDownloadSource jdkDownloadSource) {

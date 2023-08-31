@@ -1,12 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ResourcePackDetailed
 {
-	[JsonProperty("pack_format")]
+	[JsonPropertyName("pack_format")]
 	public int pack_format { get; set; }
 
-	[JsonProperty("description")]
+	[JsonPropertyName("description")]
 	public string description { get; set; }
 }

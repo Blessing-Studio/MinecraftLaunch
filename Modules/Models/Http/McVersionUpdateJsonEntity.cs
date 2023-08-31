@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace MinecraftLaunch.Modules.Models.Http {
     public class McVersionUpdateJsonEntity {
-        [JsonProperty("article_count")]
+        [JsonPropertyName("article_count")]
         public int ArticleCount { get; set; }
 
-        [JsonProperty("article_grid")]
+        [JsonPropertyName("article_grid")]
         public List<ArticleJsonEntity> Articles { get; set; }
     }
 }

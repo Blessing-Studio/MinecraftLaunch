@@ -1,18 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer {
@@ -27,9 +18,9 @@ namespace MinecraftLaunch.Modules.Installer {
 
             libraries.Insert(0, new() { Name = FabricBuild.Intermediary.Maven });
             libraries.Insert(0, new() { Name = FabricBuild.Loader.Maven });
-
-            string mainClass = FabricBuild.LauncherMeta.MainClass.Type == JTokenType.Object
-                ? FabricBuild.LauncherMeta.MainClass.ToObject<Dictionary<string, string>>()["client"]
+            //JsonElement
+            string mainClass = FabricBuild.LauncherMeta.MainClass.ValueKind == JsonValueKind.Object
+                ? JsonSerializer.Deserialize<Dictionary<string, string>>(FabricBuild.LauncherMeta.MainClass.GetRawText())!["client"]
                 : string.IsNullOrEmpty(FabricBuild.LauncherMeta.MainClass.ToString())
                     ? "net.minecraft.client.main.Main"
                     : FabricBuild.LauncherMeta.MainClass.ToString();
@@ -76,16 +67,17 @@ namespace MinecraftLaunch.Modules.Installer {
                 Time = DateTime.Now.ToString("O"),
                 Type = "release",
                 MainClass = mainClass,
-                Arguments = new() { Jvm = new() { "-DFabricMcEmu= net.minecraft.client.main.Main" } },
+                Arguments = new() { Jvm = new() { JsonDocument.Parse("\"-DFabricMcEmu= net.minecraft.client.main.Main\"").RootElement } },
                 Libraries = libraries
             };
 
-            var versionJsonFile = new FileInfo(Path.Combine(GameCoreLocator.Root.FullName, "versions", entity.Id, $"{entity.Id}.json"));
+            var versionJsonFile = new FileInfo(Path.Combine(GameCoreLocator.Root!.FullName, "versions", entity.Id, $"{entity.Id}.json"));
 
             if (!versionJsonFile.Directory!.Exists)
                 versionJsonFile.Directory.Create();
 
-            File.WriteAllText(versionJsonFile.FullName, entity.ToJson());
+            await Console.Out.WriteLineAsync(entity.ToJson());
+            await File.WriteAllTextAsync(versionJsonFile.FullName, entity.ToJson());
             #endregion
 
             InvokeStatusChangedEvent(1f, "安装完成");
@@ -95,12 +87,11 @@ namespace MinecraftLaunch.Modules.Installer {
                 Exception = null!
             };
         }
-
         public static async ValueTask<FabricMavenItem[]> GetFabricLoaderMavensAsync() {
             try {
                 using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync("https://meta.fabricmc.net/v2/versions/loader");
                 responseMessage.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<FabricMavenItem[]>(await responseMessage.Content.ReadAsStringAsync());
+                return JsonSerializer.Deserialize<FabricMavenItem[]>(await responseMessage.Content.ReadAsStringAsync());
             }
             catch {
                 return Array.Empty<FabricMavenItem>();
@@ -112,7 +103,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonConvert.DeserializeObject<List<FabricInstallBuild>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<FabricInstallBuild>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => new Version(a.Loader.Version.Replace(a.Loader.Separator, ".")).CompareTo(new Version(b.Loader.Version.Replace(b.Loader.Separator, "."))));
                 list.Reverse();

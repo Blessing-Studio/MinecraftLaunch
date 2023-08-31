@@ -14,7 +14,7 @@ using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Installer;
 

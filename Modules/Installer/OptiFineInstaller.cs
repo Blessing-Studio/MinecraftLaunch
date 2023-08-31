@@ -8,7 +8,7 @@ using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer {
     public class OptiFineInstaller : InstallerBase<InstallerResponse> {
@@ -80,7 +80,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 Time = DateTime.Now.ToString("O"),
                 ReleaseTime = DateTime.Now.ToString("O"),
                 Type = "release",
-                Libraries = new List<Models.Launch.LibraryJsonEntity> {
+                Libraries = new() {
                     new Models.Launch.LibraryJsonEntity {
                         Name = $"optifine:Optifine:{OptiFineBuild.McVersion}_{OptiFineBuild.Type}_{OptiFineBuild.Patch}"
                     },
@@ -91,11 +91,12 @@ namespace MinecraftLaunch.Modules.Installer {
                 MainClass = "net.minecraft.launchwrapper.Launch",
                 Arguments = new ArgumentsJsonEntity {
                     Game = new() {
-                        "--tweakClass",
-                        "optifine.OptiFineTweaker"
+                        JsonDocument.Parse("\"--tweakClass\"").RootElement,
+                        JsonDocument.Parse("\"optifine.OptiFineTweaker\"").RootElement
                     }
                 }
             };
+
             var coreJsonFile = new FileInfo(Path.Combine(GameCoreLocator.Root!.FullName, "versions", entity.Id, $"{entity.Id}.json"));
 
             if (!coreJsonFile.Directory!.Exists) {
@@ -137,25 +138,26 @@ namespace MinecraftLaunch.Modules.Installer {
 
             InvokeStatusChangedEvent(0.85f, "运行安装程序处理器中");
 
-            using var process = Process.Start(new ProcessStartInfo(JavaPath) {
+            var process = Process.Start(new ProcessStartInfo(JavaPath) {
                 UseShellExecute = false,
                 WorkingDirectory = this.GameCoreLocator.Root.FullName,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
-                Arguments = string.Join(" ", new string[] {
-                    "-cp",
-                    PackageFile,
-                    "optifine.Patcher",
-                    inheritsFromFile,
-                    PackageFile,
-                    optiFineLibraryFile.FullName
-                })  
-            });    
+                Arguments = string.Join(" ", new string[]
+                {
+                "-cp",
+                PackageFile,
+                "optifine.Patcher",
+                inheritsFromFile,
+                PackageFile,
+                optiFineLibraryFile.FullName
+                })
+            });
 
             var outputs = new List<string>();
             var errorOutputs = new List<string>();
 
-            process!.OutputDataReceived += (_, args) =>
+            process.OutputDataReceived += (_, args) =>
             {
                 if (!string.IsNullOrEmpty(args.Data))
                     outputs.Add(args.Data);
@@ -171,7 +173,8 @@ namespace MinecraftLaunch.Modules.Installer {
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            await process.WaitForExitAsync();
+            process.WaitForExit();
+
             #endregion
 
             #region ModpackTypeInstaller Exit
@@ -208,7 +211,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonConvert.DeserializeObject<List<OptiFineInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<OptiFineInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 var preview = list!.Where(x => x.Patch.StartsWith("pre")).ToList();
                 var release = list!.Where(x => !x.Patch.StartsWith("pre")).ToList();

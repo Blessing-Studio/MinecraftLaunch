@@ -1,60 +1,60 @@
 using System.Collections.Generic;
 using MinecraftLaunch.Modules.Interface;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class GameCoreJsonEntity : IJsonEntity
 {
-	[JsonProperty("arguments")]
+	[JsonPropertyName("arguments")]
 	public ArgumentsJsonEntity Arguments { get; set; }
 
-	[JsonProperty("assetIndex")]
+	[JsonPropertyName("assetIndex")]
 	public AssetIndexJsonEntity AssetIndex { get; set; }
 
-	[JsonProperty("assets")]
+	[JsonPropertyName("assets")]
 	public string Assets { get; set; }
 
-	[JsonProperty("javaVersion")]
+	[JsonPropertyName("javaVersion")]
 	public JavaVersionJsonEntity JavaVersion { get; set; } = new JavaVersionJsonEntity
 	{
 		MajorVersion = 8
 	};
 
 
-	[JsonProperty("downloads")]
+	[JsonPropertyName("downloads")]
 	public Dictionary<string, FileJsonEntity> Downloads { get; set; }
 
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonProperty("libraries")]
+	[JsonPropertyName("libraries")]
 	public List<LibraryJsonEntity> Libraries { get; set; }
 
-	[JsonProperty("logging")]
+	[JsonPropertyName("logging")]
 	public LoggingJsonEntity Logging { get; set; }
 
-	[JsonProperty("minecraftArguments")]
+	[JsonPropertyName("minecraftArguments")]
 	public string MinecraftArguments { get; set; }
 
-	[JsonProperty("mainClass")]
+	[JsonPropertyName("mainClass")]
 	public string MainClass { get; set; }
 
-	[JsonProperty("inheritsFrom")]
+	[JsonPropertyName("inheritsFrom")]
 	public string InheritsFrom { get; set; }
 
-	[JsonProperty("jar")]
+	[JsonPropertyName("jar")]
 	public string Jar { get; set; }
 
-	[JsonProperty("minimumLauncherVersion")]
+	[JsonPropertyName("minimumLauncherVersion")]
 	public int? MinimumLauncherVersion { get; set; }
 
-	[JsonProperty("releaseTime")]
+	[JsonPropertyName("releaseTime")]
 	public string ReleaseTime { get; set; }
 
-	[JsonProperty("time")]
+	[JsonPropertyName("time")]
 	public string Time { get; set; }
 
-	[JsonProperty("type")]
+	[JsonPropertyName("type")]
 	public string Type { get; set; }
 }

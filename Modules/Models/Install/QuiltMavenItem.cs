@@ -1,18 +1,18 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class QuiltMavenItem
 {
-	[JsonProperty("separator")]
+	[JsonPropertyName("separator")]
 	public string Separator { get; set; }
 
-	[JsonProperty("maven")]
+	[JsonPropertyName("maven")]
 	public string Maven { get; set; }
 
-	[JsonProperty("version")]
+	[JsonPropertyName("version")]
 	public string Version { get; set; }
 
-	[JsonProperty("build")]
+	[JsonPropertyName("build")]
 	public int build { get; set; }
 }

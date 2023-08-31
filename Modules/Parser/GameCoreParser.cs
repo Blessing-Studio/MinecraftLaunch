@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Utils;
-using Newtonsoft.Json.Linq;
+
 
 namespace MinecraftLaunch.Modules.Parser;
 
@@ -130,19 +131,18 @@ public class GameCoreParser {
     }
 
     private string GetSource(GameCore core) {
-        //IL_006c: Unknown result type (might be due to invalid IL or missing references)
         try {
             if (core.InheritsFrom != null) {
                 return core.InheritsFrom;
             }
             string path = Path.Combine(core.Root.FullName, "versions", core.Id, core.Id + ".json");
             if (File.Exists(path)) {
-                JObject jObject = JObject.Parse(File.ReadAllText(path));
-                if (jObject.ContainsKey("patches")) {
-                    return ((object)((JArray)jObject["patches"])[0][(object)"version"]).ToString();
+                using var document = JsonDocument.Parse(File.ReadAllText(path));
+                if (document.RootElement.TryGetProperty("patches", out var patchesElement)) {
+                    return patchesElement.EnumerateArray().First().GetProperty("version").GetString()!;
                 }
-                if (jObject.ContainsKey("clientVersion")) {
-                    return ((object)jObject["clientVersion"]).ToString();
+                if (document.RootElement.TryGetProperty("clientVersion", out var clientVersionElement)) {
+                    return clientVersionElement.GetString()!;
                 }
             }
         }
@@ -210,21 +210,11 @@ public class GameCoreParser {
         }
     }
 
-    private IEnumerable<string> HandleMinecraftArguments(string minecraftArguments) {
-        return ArgumnetsGroup(minecraftArguments.Replace("  ", " ").Split(' '));
-    }
+    private IEnumerable<string> HandleMinecraftArguments(string minecraftArguments) => ArgumnetsGroup(minecraftArguments.Replace("  ", " ").Split(' '));
 
-    private IEnumerable<string> HandleArgumentsGame(ArgumentsJsonEntity entity) {
-        return ArgumnetsGroup(from x in entity.Game
-                              where x is string
-                              select x.ToString().ToPath());
-    }
+private IEnumerable<string> HandleArgumentsGame(ArgumentsJsonEntity entity) => ArgumnetsGroup(entity.Game.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
 
-    private IEnumerable<string> HandleArgumentsJvm(ArgumentsJsonEntity entity) {
-        return ArgumnetsGroup(from x in entity.Jvm
-                              where x is string
-                              select x.ToString().ToPath());
-    }
+private IEnumerable<string> HandleArgumentsJvm(ArgumentsJsonEntity entity) => ArgumnetsGroup(entity.Jvm.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
 
     private static IEnumerable<string> ArgumnetsGroup(IEnumerable<string> vs) {
         List<string> cache = new List<string>();

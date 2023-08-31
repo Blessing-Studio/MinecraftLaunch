@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
@@ -16,21 +9,21 @@ using MinecraftLaunch.Modules.Utils;
 using Natsurainko.Toolkits.IO;
 using Natsurainko.Toolkits.Network;
 using Natsurainko.Toolkits.Network.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class ForgeInstaller : InstallerBase<InstallerResponse> {
-        private GameCoreJsonEntity GetGameCoreJsonEntity(ZipArchive archive, JObject installProfile) {
-            if (installProfile.ContainsKey("versionInfo")) {
-                return installProfile["versionInfo"].ToObject<GameCoreJsonEntity>();
+        private GameCoreJsonEntity GetGameCoreJsonEntity(ZipArchive archive, JsonDocument installProfile) {
+            if (installProfile.RootElement.TryGetProperty("versionInfo", out var versionInfo)) {
+                return JsonSerializer.Deserialize<GameCoreJsonEntity>(versionInfo.GetRawText())!;
             }
-            ZipArchiveEntry entry = archive.GetEntry("version.json");
+
+            ZipArchiveEntry entry = archive.GetEntry("version.json")!;
             if (entry != null) {
-                return JsonConvert.DeserializeObject<GameCoreJsonEntity>(ZipExtension.GetString(entry));
+                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ZipExtension.GetString(entry))!;
             }
-            return null;
+            return null!;
         }
 
         private string CombineLibraryName(string name) {
@@ -60,18 +53,25 @@ namespace MinecraftLaunch.Modules.Installer {
             #region Parse Package
             InvokeStatusChangedEvent(0.15f, "开始解析 Forge 安装包");
             using ZipArchive archive = ZipFile.OpenRead(PackageFile);
-            JObject installProfile = JObject.Parse(ZipExtension.GetString(archive.GetEntry("install_profile.json")));
+            var installProfile = JsonDocument.Parse(ZipExtension.GetString(archive.GetEntry("install_profile.json")));
+
             GameCoreJsonEntity entity = GetGameCoreJsonEntity(archive, installProfile);
-            IEnumerable<LibraryResource> libraries = new LibraryParser(entity.Libraries, GameCoreLocator.Root).GetLibraries();
+            IEnumerable<LibraryResource> libraries = new LibraryParser(entity.Libraries, GameCoreLocator.Root!).GetLibraries();
             IEnumerable<LibraryResource> enumerable;
-            if (!installProfile.ContainsKey("libraries")) {
+            if (!installProfile.RootElement.TryGetProperty("libraries", out var librariesElement)) {
                 enumerable = Array.Empty<LibraryResource>().AsEnumerable();
             } else {
-                IEnumerable<LibraryResource> libraries2 = new LibraryParser(installProfile["libraries"].ToObject<IEnumerable<MinecraftLaunch.Modules.Models.Launch.LibraryJsonEntity>>().ToList(), GameCoreLocator.Root).GetLibraries();
+                IEnumerable<LibraryResource> libraries2 = new LibraryParser(JsonSerializer.Deserialize<IEnumerable<Models.Launch.LibraryJsonEntity>>(librariesElement.GetRawText())!.ToList(), GameCoreLocator.Root).GetLibraries();
                 enumerable = libraries2;
             }
             IEnumerable<LibraryResource> installerLibraries = enumerable;
-            Dictionary<string, JObject> dataDictionary = (installProfile.ContainsKey("data") ? installProfile["data"].ToObject<Dictionary<string, JObject>>() : new Dictionary<string, JObject>());
+            Dictionary<string, JsonNode> dataDictionary;
+            if (installProfile.RootElement.TryGetProperty("data", out var dataElement)) {
+                dataDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonNode>>(dataElement.GetRawText())!;
+            } else {
+                dataDictionary = new Dictionary<string, JsonNode>();
+            }
+
             IEnumerable<LibraryResource> downloadLibraries = libraries.Union(installerLibraries);
             if (!string.IsNullOrEmpty(CustomId))
                 entity.Id = CustomId;
@@ -99,13 +99,13 @@ namespace MinecraftLaunch.Modules.Installer {
             string forgeFolderId = $"{ForgeBuild.McVersion}-{ForgeBuild.ForgeVersion}";
             string forgeLibrariesFolder = Path.Combine(GameCoreLocator.Root.FullName, "libraries", "net", "minecraftforge", "forge", forgeFolderId);
 
-            if (installProfile.ContainsKey("install")) {
+            if (installProfile.RootElement.TryGetProperty("install", out var versionInfo)) {
                 var lib = new LibraryResource {
-                    Root = GameCoreLocator.Root,
-                    Name = installProfile["install"]["path"].ToString()
+                    Root = GameCoreLocator.Root,//
+                    Name = installProfile.RootElement.GetProperty("install").GetProperty("path").ToString()
                 };
 
-                archive.GetEntry(installProfile["install"]!["filePath"]!.ToString()).ExtractTo(lib.ToFileInfo().FullName);
+                archive.GetEntry(installProfile.RootElement.GetProperty("install").GetProperty("filePath")!.ToString()).ExtractTo(lib.ToFileInfo().FullName);
             }
 
             if (archive.GetEntry("maven/") != null) {
@@ -142,7 +142,7 @@ namespace MinecraftLaunch.Modules.Installer {
             #endregion
 
             #region LegacyForgeInstaller Exit
-            if (installProfile.ContainsKey("versionInfo") || dataDictionary.Count == 0) {
+            if (installProfile.RootElement.TryGetProperty("versionInfo", out var element) || dataDictionary.Count == 0) {
                 InvokeStatusChangedEvent(1f, "安装完成");
                 return new InstallerResponse {
                     Success = true,
@@ -180,7 +180,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 return value;
             });
 
-            var processors = installProfile["processors"].ToObject<IEnumerable<ForgeInstallProcessorEntity>>()!
+            var processors = JsonSerializer.Deserialize<IEnumerable<ForgeInstallProcessorEntity>>(installProfile.RootElement.GetProperty("processors").GetRawText())!
                 .Where(x => {
                     if (!x.Sides.Any())
                         return true;
@@ -267,7 +267,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
                 responseMessage.EnsureSuccessStatusCode();
                 await Console.Out.WriteLineAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
-                var list = JsonConvert.DeserializeObject<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
 
                 list.Sort((a, b) => a.Build.CompareTo(b.Build));
                 list.Reverse();

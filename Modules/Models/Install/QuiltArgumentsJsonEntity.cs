@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class QuiltArgumentsJsonEntity
 {
-	[JsonProperty("game")]
-	public List<JToken> Game { get; set; }
+	[JsonPropertyName("game")]
+	public List<JsonElement> Game { get; set; }
 }

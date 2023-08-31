@@ -1,31 +1,31 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ModsPacksModel
 {
-	[JsonProperty("minecraft")]
+	[JsonPropertyName("minecraft")]
 	public ModsPacksMinecraftModel Minecraft { get; set; }
 
-	[JsonProperty("manifestType")]
+	[JsonPropertyName("manifestType")]
 	public string ManifestType { get; set; }
 
-	[JsonProperty("manifestVersion")]
+	[JsonPropertyName("manifestVersion")]
 	public int ManifestVersion { get; set; }
 
-	[JsonProperty("name")]
+	[JsonPropertyName("name")]
 	public string Name { get; set; }
 
-	[JsonProperty("version")]
+	[JsonPropertyName("version")]
 	public string Version { get; set; }
 
-	[JsonProperty("author")]
+	[JsonPropertyName("author")]
 	public string Author { get; set; }
 
-	[JsonProperty("files")]
+	[JsonPropertyName("files")]
 	public List<ModsPacksFileModel> Files { get; set; }
 
-	[JsonProperty("overrides")]
+	[JsonPropertyName("overrides")]
 	public string Overrides { get; set; }
 }

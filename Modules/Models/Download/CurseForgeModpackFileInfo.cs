@@ -1,6 +1,6 @@
 using MinecraftLaunch.Modules.Enum;
-using Newtonsoft.Json;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
@@ -8,15 +8,15 @@ public class CurseForgeModpackFileInfo
 {
 	public string DownloadUrl { get; set; }
 
-	[JsonProperty("fileId")]
+	[JsonPropertyName("fileId")]
 	public int FileId { get; set; }
 
-	[JsonProperty("filename")]
+	[JsonPropertyName("filename")]
 	public string FileName { get; set; }
 
-	[JsonProperty("modLoader")]
+	[JsonPropertyName("modLoader")]
 	public ModLoaderType? ModLoaderType { get; set; }
 
-	[JsonProperty("gameVersion")]
+	[JsonPropertyName("gameVersion")]
 	public string SupportedVersion { get; set; }
 }

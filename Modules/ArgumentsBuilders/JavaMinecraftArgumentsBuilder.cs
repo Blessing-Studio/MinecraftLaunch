@@ -120,18 +120,18 @@ public sealed partial class JavaMinecraftArgumentsBuilder : IArgumentsBuilder {
             yield return item2.Replace(keyValuePairs);
     }
 
-    internal string GetClasspath() {
+    private string GetClasspath() {
         List<IResource> loads = new List<IResource>();
-        GameCore.LibraryResources.ForEach(delegate (LibraryResource x) {
+        GameCore!.LibraryResources!.ForEach(x => {
             if (x.IsEnable && !x.IsNatives) {
                 loads.Add(x);
             }
         });
-        loads.Add(GameCore.ClientFile);
+        loads.Add(GameCore.ClientFile!);
         return string.Join(Path.PathSeparator.ToString(), loads.Select((IResource x) => x.ToFileInfo().FullName));
     }
 
-    internal static IEnumerable<string> GetEnvironmentJvmArguments() {
+    private static IEnumerable<string> GetEnvironmentJvmArguments() {
         string platformName = EnvironmentUtil.GetPlatformName();
         if (!(platformName == "windows")) {
             if (platformName == "osx")

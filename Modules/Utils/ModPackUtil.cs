@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
@@ -127,6 +128,20 @@ public class ModPackUtil : IPackToolkit<ModPack> {
             Version = fabricMod?.version!,
             Url = fabricMod?.contact?.homepage!,
             Authors = authors
+        };
+    }
+
+    private static ModPack LoadQuiltMod(Stream infoStream) {
+        using StreamReader reader = new(infoStream);
+        string json = reader.ReadToEnd();
+
+        JsonNode node = JsonNode.Parse(json)!["quilt_loader"]!["metadata"]!;
+        return new ModPack {
+            Id = node["name"]!.GetValue<string>(),
+            Description = node["description"]!.GetValue<string>(),
+            Version = node["version"]!.GetValue<string>(),
+            Url = node["contact"]!["homepage"]!.GetValue<string>()! ?? node["contact"]!["issues"]?.GetValue<string>()!,
+            Authors = "6"
         };
     }
 

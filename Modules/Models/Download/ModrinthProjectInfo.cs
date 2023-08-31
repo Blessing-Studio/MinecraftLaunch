@@ -1,53 +1,53 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthProjectInfo : ModrinthProjectInfoBase
 {
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string ProjectId { get; set; }
 
-	[JsonProperty("team")]
+	[JsonPropertyName("team")]
 	public string TeamId { get; set; }
 
-	[JsonProperty("body")]
+	[JsonPropertyName("body")]
 	public string Body { get; set; }
 
-	[JsonProperty("body_url")]
+	[JsonPropertyName("body_url")]
 	public string BodyUrl { get; set; }
 
-	[JsonProperty("published")]
+	[JsonPropertyName("published")]
 	public DateTime Published { get; set; }
 
-	[JsonProperty("updated")]
+	[JsonPropertyName("updated")]
 	public DateTime Updated { get; set; }
 
-	[JsonProperty("status")]
+	[JsonPropertyName("status")]
 	public string Status { get; set; }
 
-	[JsonProperty("moderator_message")]
+	[JsonPropertyName("moderator_message")]
 	public string ModeratorMessage { get; set; }
 
-	[JsonProperty("license")]
+	[JsonPropertyName("license")]
 	public LicenseInfo License { get; set; }
 
-	[JsonProperty("followers")]
+	[JsonPropertyName("followers")]
 	public int Followers { get; set; }
 
-	[JsonProperty("issues_url")]
+	[JsonPropertyName("issues_url")]
 	public string IssuesUrl { get; set; }
 
-	[JsonProperty("source_url")]
+	[JsonPropertyName("source_url")]
 	public string SourceUrl { get; set; }
 
-	[JsonProperty("wiki_url")]
+	[JsonPropertyName("wiki_url")]
 	public string WikiUrl { get; set; }
 
-	[JsonProperty("discord_url")]
+	[JsonPropertyName("discord_url")]
 	public string DiscordUrl { get; set; }
 
-	[JsonProperty("donation_urls")]
+	[JsonPropertyName("donation_urls")]
 	public List<object> DonationUrls { get; set; }
 }

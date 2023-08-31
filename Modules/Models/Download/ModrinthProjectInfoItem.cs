@@ -1,53 +1,53 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class ModrinthProjectInfoItem
 {
-	[JsonProperty("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonProperty("project_id")]
+	[JsonPropertyName("project_id")]
 	public string ProjectId { get; set; }
 
-	[JsonProperty("author_id")]
+	[JsonPropertyName("author_id")]
 	public string AuthorId { get; set; }
 
-	[JsonProperty("featured")]
+	[JsonPropertyName("featured")]
 	public bool Featured { get; set; }
 
-	[JsonProperty("name")]
+	[JsonPropertyName("name")]
 	public string Name { get; set; }
 
-	[JsonProperty("version_number")]
+	[JsonPropertyName("version_number")]
 	public string VersionNumber { get; set; }
 
-	[JsonProperty("changelog")]
+	[JsonPropertyName("changelog")]
 	public string ChangeLog { get; set; }
 
-	[JsonProperty("changelog_url")]
+	[JsonPropertyName("changelog_url")]
 	public string ChangeLogUrl { get; set; }
 
-	[JsonProperty("date_published")]
+	[JsonPropertyName("date_published")]
 	public DateTime PublishDate { get; set; }
 
-	[JsonProperty("downloads")]
+	[JsonPropertyName("downloads")]
 	public int Downloads { get; set; }
 
-	[JsonProperty("version_type")]
+	[JsonPropertyName("version_type")]
 	public string VersionType { get; set; }
 
-	[JsonProperty("files")]
+	[JsonPropertyName("files")]
 	public List<ModrinthFileInfo> Files { get; set; }
 
-	[JsonProperty("loaders")]
+	[JsonPropertyName("loaders")]
 	public List<string> Loaders { get; set; }
 
-	[JsonProperty("dependencies")]
+	[JsonPropertyName("dependencies")]
 	public List<ModrinthDependency> Dependencies { get; set; }
 
-	[JsonProperty("game_versions")]
+	[JsonPropertyName("game_versions")]
 	public List<string> GameVersion { get; set; }
 }

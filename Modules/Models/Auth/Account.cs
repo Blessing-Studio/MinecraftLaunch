@@ -1,9 +1,8 @@
 using MinecraftLaunch.Modules.Enum;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using JsonConverter = Newtonsoft.Json.JsonConverter;
-using JsonConverterAttribute = Newtonsoft.Json.JsonConverterAttribute;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
+//using System.Text.Json.Serialization;
 namespace MinecraftLaunch.Modules.Models.Auth;
 
 [JsonConverter(typeof(AccountJsonConverter))]
@@ -45,47 +44,43 @@ public abstract class Account {
     public static implicit operator Account(string name) => new OfflineAccount(name);
 }
 
-public class AccountJsonConverter : JsonConverter {
-    public override bool CanConvert(Type objectType) => objectType == typeof(Account);
+public class AccountJsonConverter : JsonConverter<Account> {
+    public override bool CanConvert(Type typeToConvert) {
+        return typeToConvert == typeof(Account);
+    }
 
-    public override bool CanRead => true;
-
-    public override bool CanWrite => false;
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-        var jobject = serializer.Deserialize<JObject>(reader);
-
-        if (jobject == null)
-            return null;
-
-        var accountType = (AccountType)jobject["Type"]!.Value<int>();
+    public override Account Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        using var jsonDoc = JsonDocument.ParseValue(ref reader);
+        var root = jsonDoc.RootElement;
+        var accountType = (AccountType)root.GetProperty("Type").GetInt32();
 
         return accountType switch {
             AccountType.Offline => new OfflineAccount {
-                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
-                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
-                Name = jobject["Name"]!.ToObject<string>()!,
-                Uuid = jobject["Uuid"]!.ToObject<Guid>()
+                AccessToken = root.GetProperty("AccessToken").GetString(),
+                ClientToken = root.GetProperty("ClientToken").GetString(),
+                Name = root.GetProperty("Name").GetString(),
+                Uuid = root.GetProperty("Uuid").GetGuid()
             },
             AccountType.Microsoft => new MicrosoftAccount {
-                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
-                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
-                Name = jobject["Name"]!.ToObject<string>()!,
-                Uuid = jobject["Uuid"]!.ToObject<Guid>(),
-                DateTime = jobject["DateTime"]!.ToObject<DateTime>(),
-                RefreshToken = jobject["RefreshToken"]!.ToObject<string>()
+                AccessToken = root.GetProperty("AccessToken").GetString()!,
+                ClientToken = root.GetProperty("ClientToken").GetString(),
+                Name = root.GetProperty("Name").GetString(),
+                Uuid = root.GetProperty("Uuid").GetGuid(),
+                DateTime = root.GetProperty("DateTime").GetDateTime(),
+                RefreshToken = root.GetProperty("RefreshToken").GetString()
             },
             AccountType.Yggdrasil => new YggdrasilAccount {
-                AccessToken = jobject["AccessToken"]!.ToObject<string>()!,
-                ClientToken = jobject["ClientToken"]!.ToObject<string>()!,
-                Name = jobject["Name"]!.ToObject<string>()!,
-                Uuid = jobject["Uuid"]!.ToObject<Guid>(),
-                YggdrasilServerUrl = jobject["YggdrasilServerUrl"]!.ToObject<string>()!
+                AccessToken = root.GetProperty("AccessToken").GetString(),
+                ClientToken = root.GetProperty("ClientToken").GetString(),
+                Name = root.GetProperty("Name").GetString(),
+                Uuid = root.GetProperty("Uuid").GetGuid(),
+                YggdrasilServerUrl = root.GetProperty("YggdrasilServerUrl").GetString()
             },
             _ => default!
         };
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+    public override void Write(Utf8JsonWriter writer, Account value, JsonSerializerOptions options) {
+        throw new NotImplementedException();
+    }
 }
-

@@ -301,13 +301,13 @@ public class GameCoreUtil {
         return endCores!;
     }
 
-    private static GameCoreJsonEntity GetGameCoreJsonEntity(string root, string id, string inheritsfrom) {
-        new List<GameCoreJsonEntity>();
+    public static GameCoreJsonEntity GetGameCoreJsonEntity(string root, string id, string inheritsfrom) {
         DirectoryInfo versionsFolder = new DirectoryInfo(Path.Combine(root, "versions"));
         if (!versionsFolder.Exists) {
             versionsFolder.Create();
             return null;
         }
+
         DirectoryInfo[] directories = versionsFolder.GetDirectories();
         foreach (DirectoryInfo item in directories) {
             FileInfo[] files2 = item.GetFiles();
@@ -322,7 +322,8 @@ public class GameCoreUtil {
                 }
             }
         }
-        return null;
+
+        return null!;
     }
 
     public GameCoreUtil() {

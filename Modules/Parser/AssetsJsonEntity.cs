@@ -1,12 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Parser;
 
 public class AssetsJsonEntity
 {
-	[JsonProperty("hash")]
+	[JsonPropertyName("hash")]
 	public string Hash { get; set; }
 
-	[JsonProperty("size")]
+	[JsonPropertyName("size")]
 	public int Size { get; set; }
 }

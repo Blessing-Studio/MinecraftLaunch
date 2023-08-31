@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
 public class DataModelWithPagination<T> : DataModel<T>
 {
-	[JsonProperty("pagination")]
+	[JsonPropertyName("pagination")]
 	public PaginationModel Pagination { get; set; }
 }

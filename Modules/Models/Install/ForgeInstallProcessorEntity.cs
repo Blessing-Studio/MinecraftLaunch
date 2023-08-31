@@ -1,24 +1,24 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Install;
 
 public class ForgeInstallProcessorEntity
 {
-	[JsonProperty("sides")]
+	[JsonPropertyName("sides")]
 	public List<string> Sides { get; set; } = new List<string>();
 
 
-	[JsonProperty("jar")]
+	[JsonPropertyName("jar")]
 	public string Jar { get; set; }
 
-	[JsonProperty("classpath")]
+	[JsonPropertyName("classpath")]
 	public List<string> Classpath { get; set; }
 
-	[JsonProperty("args")]
+	[JsonPropertyName("args")]
 	public List<string> Args { get; set; }
 
-	[JsonProperty("outputs")]
+	[JsonPropertyName("outputs")]
 	public Dictionary<string, string> Outputs { get; set; } = new Dictionary<string, string>();
 
 }

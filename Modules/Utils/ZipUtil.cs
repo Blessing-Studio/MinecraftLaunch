@@ -12,6 +12,7 @@ public class ZipUtil {
         if (!directory.Exists) {
             directory.Create();
         }
+
         directory.DeleteAllFiles();
         foreach (LibraryResource item in libraryResources.Where((LibraryResource x) => x.IsEnable && x.IsNatives)) {
             using ZipArchive zipArchive = ZipFile.OpenRead(item.ToFileInfo().FullName);

@@ -1,9 +1,9 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Models.Launch;
 
 public class LoggingJsonEntity
 {
-	[JsonProperty("client")]
+	[JsonPropertyName("client")]
 	public ClientJsonEntity Client { get; set; }
 }
