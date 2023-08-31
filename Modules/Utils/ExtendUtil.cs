@@ -4,10 +4,10 @@ using MinecraftLaunch.Modules.Installer;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 using System.Text.Json;
 using System.Text.Encodings.Web;
+using System.IO.Compression;
+using System.Security.Cryptography;
 
 namespace MinecraftLaunch.Modules.Utils;
 
@@ -25,18 +25,6 @@ public static class ExtendUtil {
             text = text.Replace(keyValuePair.Key, keyValuePair.Value);
         }
         return text;
-    }
-
-    public static string Get(this string url) {
-        return HttpWrapper.HttpGetAsync(url, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead).Result.Content.ReadAsStringAsync().Result;
-    }
-
-    public static async ValueTask<string> Post(this string url, string content, Dictionary<string, string> keyValuePairs) {
-        return await (await HttpWrapper.HttpPostAsync(url, content, keyValuePairs, "application/json")).Content.ReadAsStringAsync();
-    }
-
-    public static async ValueTask<string> Post(this string url, string content) {
-        return await (await HttpWrapper.HttpPostAsync(url, content, "application/json")).Content.ReadAsStringAsync();
     }
 
     public static void DeleteAllFiles(this DirectoryInfo directory) {
@@ -186,5 +174,61 @@ public static class ExtendUtil {
 
     public static string Join(this HttpDownloadRequest request) {
         return Path.Combine(request.Directory.FullName, request.FileName);
+    }
+
+    public static string LengthToMb(this long value) {
+        return $"{(double)value / 1048576.0:0.0} Mb";
+    }
+
+    public static IEnumerable<(long, long)> SplitIntoRange(this long value, int rangeCount) {
+        long add;
+        for (long a = 0L; value > a; a += add) {
+            add = value / rangeCount;
+            if (a + add > value) {
+                add = value - a;
+            }
+
+            yield return (a, a + add);
+        }
+    }
+
+    public static string Combine(params string[] paths) {
+        return string.Join("/", paths);
+    }
+
+    public static string GetString(this ZipArchiveEntry zipArchiveEntry) {
+        using Stream stream = zipArchiveEntry.Open();
+        using StreamReader streamReader = new StreamReader(stream);
+        return streamReader.ReadToEnd();
+    }
+
+    public static void ExtractTo(this ZipArchiveEntry zipArchiveEntry, string filename) {
+        FileInfo fileInfo = new FileInfo(filename);
+        if (!fileInfo.Directory!.Exists) {
+            fileInfo.Directory!.Create();
+        }
+
+        zipArchiveEntry.ExtractToFile(filename, overwrite: true);
+    }
+
+    public static bool Verify(this FileInfo file, int size) {
+        return file.Exists && file.Length == size;
+    }
+     
+
+    public static bool Verify(this FileInfo file, string sha1) {
+        if (!file.Exists)
+            return false;
+
+        try {
+            using var fileStream = File.OpenRead(file.FullName);
+            using var provider = new SHA1CryptoServiceProvider();
+            byte[] bytes = provider.ComputeHash(fileStream);
+
+            return sha1.ToLower() == BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        }
+        catch {
+            return false;
+        }
     }
 }

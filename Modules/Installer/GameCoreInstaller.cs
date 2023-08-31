@@ -1,22 +1,18 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using Flurl.Http;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Utils;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using MinecraftLaunch.Modules.Parser;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class GameCoreInstaller : InstallerBase<InstallerResponse> {
         public override async ValueTask<InstallerResponse> InstallAsync() {
             try {
                 InvokeStatusChangedEvent(0.1f, "正在获取 游戏核心Json");
-                GameCoreJsonEntity entity = JsonSerializer.Deserialize<GameCoreJsonEntity>(await HttpUtil.GetStringAsync(CoreInfo.Url))!;
+                GameCoreJsonEntity entity = JsonSerializer.Deserialize<GameCoreJsonEntity>(await CoreInfo.Url.GetStringAsync())!;
+
                 if (!string.IsNullOrEmpty(CustomId)) {
                     entity.Id = CustomId;
                 } else {
@@ -53,7 +49,7 @@ namespace MinecraftLaunch.Modules.Installer {
         }
 
         public static async ValueTask<GameCoresEntity> GetGameCoresAsync() {
-            return (await HttpUtil.GetStringAsync(APIManager.Current.VersionManifest)).ToJsonEntity<GameCoresEntity>();
+            return (await APIManager.Current.VersionManifest.GetStringAsync()).ToJsonEntity<GameCoresEntity>();
         }
     }
 

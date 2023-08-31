@@ -1,11 +1,22 @@
 using System.Text;
 using System.Text.Json;
+using Flurl;
+using Flurl.Http;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
-using Natsurainko.Toolkits.Network;
 
 namespace MinecraftLaunch.Modules.Utils {
     public partial class CurseForgeUtil {
+        private const string API = "https://api.curseforge.com/v1/mods";
+
+        public static string Key { get; set; } = string.Empty;
+
+        private Dictionary<string, string> Headers => new Dictionary<string, string> { { "x-api-key", Key } };
+
+        public CurseForgeUtil(string accesskey) {
+            Key = accesskey;
+        }
+
         /// <summary>
         /// 模组搜索方法
         /// </summary>
@@ -69,10 +80,13 @@ namespace MinecraftLaunch.Modules.Utils {
 
 
             try {
-                using var responseMessage = await HttpWrapper.HttpPostAsync($"{API}/featured", content.ToJson(), Headers);
-                responseMessage.EnsureSuccessStatusCode();
+                
+                using var responseMessage = await $"{API}/featured".WithHeader("x-api-key", Key)
+                    .PostJsonAsync(content);
 
-                var entitys = JsonDocument.Parse(await responseMessage.Content.ReadAsStringAsync()).RootElement;
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+
+                var entitys = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
 
                 foreach (var entity in entitys.GetProperty("data").GetProperty("popular").EnumerateArray())
                     result.Add(ParseCurseForgeModpack(entity));
@@ -111,10 +125,13 @@ namespace MinecraftLaunch.Modules.Utils {
             var result = new List<CurseForgeModpack>();
 
             try {
-                using var responseMessage = await HttpWrapper.HttpGetAsync(builder.ToString(), Headers);
-                responseMessage.EnsureSuccessStatusCode();
+                using var responseMessage = await builder.ToString()
+                    .WithHeader("x-api-key", Key)
+                    .GetAsync();
 
-                var entity = JsonDocument.Parse(await responseMessage.Content.ReadAsStringAsync()).RootElement;
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+
+                var entity = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
                 foreach (var x in entity.GetProperty("data").EnumerateArray())
                     result.Add(ParseCurseForgeModpack(x));
 
@@ -135,16 +152,20 @@ namespace MinecraftLaunch.Modules.Utils {
         /// <returns></returns>
         public async ValueTask<string> GetModpackDownloadUrlAsync(long addonId, long fileId) {
             string reqUrl = $"{API}/{addonId}/files/{fileId}/download-url";
-            using HttpResponseMessage res = await HttpWrapper.HttpGetAsync(reqUrl, Headers);
-            return (await res.Content.ReadAsStringAsync()).ToJsonEntity<DataModel<string>>()?.Data!;
+            using var responseMessage = await reqUrl.ToString()
+                .WithHeader("x-api-key", Key)
+                .GetAsync();
+
+            return (await responseMessage.GetStringAsync()).ToJsonEntity<DataModel<string>>()?.Data!;
         }
 
         public async ValueTask<List<CurseForgeModpackCategory>> GetCategories() {
             try {
-                using var responseMessage = await HttpWrapper.HttpGetAsync($"https://api.curseforge.com/v1/categories?gameId=432", Headers);
-                responseMessage.EnsureSuccessStatusCode();
+                using var responseMessage = await $"https://api.curseforge.com/v1/categories?gameId=432".WithHeader("x-api-key", Key)
+                    .GetAsync();
 
-                var entity = JsonDocument.Parse(await responseMessage.Content.ReadAsStringAsync()).RootElement;
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+                var entity = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
 
                 return entity.GetProperty("data").EnumerateArray().Select(x => JsonSerializer.Deserialize<CurseForgeModpackCategory>(x.GetRawText())).ToList()!;
             }
@@ -156,9 +177,11 @@ namespace MinecraftLaunch.Modules.Utils {
         public async ValueTask<string> GetModDescriptionHtmlAsync(int modId) {
             string url = $"{API}/{modId}/description";
             try {
-                using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync(url, Headers);
-                responseMessage.EnsureSuccessStatusCode();
-                return (await responseMessage.Content.ReadAsStringAsync()).ToJsonEntity<DataModel<string>>().Data;
+                using var responseMessage = await url.WithHeader("x-api-key", Key)
+                    .GetAsync();
+
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+                return (await responseMessage.GetStringAsync()).ToJsonEntity<DataModel<string>>().Data;
             }
             catch {
             }
@@ -185,18 +208,6 @@ namespace MinecraftLaunch.Modules.Utils {
             modpack.SupportedVersions = modpack.Files.Keys.ToArray();
 
             return modpack;
-        }
-    }
-
-    partial class CurseForgeUtil {
-        private const string API = "https://api.curseforge.com/v1/mods";
-
-        public static string Key { get; set; } = string.Empty;
-
-        private Dictionary<string, string> Headers => new Dictionary<string, string> { { "x-api-key", Key } };
-
-        public CurseForgeUtil(string accesskey) {
-            Key = accesskey;
         }
     }
 }

@@ -10,15 +10,13 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.Network;
 using System.Text.Json.Serialization;
 
 using System.Text.Json;
+using Flurl.Http;
 
-namespace MinecraftLaunch.Modules.Installer
-{
-    public class QuiltInstaller : InstallerBase<InstallerResponse>
-    {
+namespace MinecraftLaunch.Modules.Installer {
+    public class QuiltInstaller : InstallerBase<InstallerResponse> {
         public QuiltInstallBuild QuiltBuild { get; private set; }
 
         public GameCoreUtil GameCoreLocator { get; private set; }
@@ -44,19 +42,16 @@ namespace MinecraftLaunch.Modules.Installer
                 _ = JsonSerializer.Deserialize<Dictionary<string, string>>(QuiltBuild.LauncherMeta.MainClass.GetRawText())["client"];
             }
             _ = QuiltBuild.Intermediary.Version;
-            libraries.ForEach(async delegate (QuiltLibraryJsonEntity x)
-            {
+            libraries.ForEach(x => {
                 if (x.Name.Contains("fabricmc") || x.Name.Contains("ow2.asm")) {
-                    x.Url = UrlExtension.Combine(new string[2]
-                    {
-            "https://maven.fabricmc.net",
-            UrlExtension.Combine(LibraryResource.FormatName(x.Name).ToArray())
+                    x.Url = ExtendUtil.Combine(new string[2] {
+                        "https://maven.fabricmc.net",
+                        ExtendUtil.Combine(LibraryResource.FormatName(x.Name).ToArray())
                     });
                 } else {
-                    x.Url = UrlExtension.Combine(new string[2]
-                    {
-            "https://maven.quiltmc.org/repository/release",
-            UrlExtension.Combine(LibraryResource.FormatName(x.Name).ToArray())
+                    x.Url = ExtendUtil.Combine(new string[2] {
+                        "https://maven.quiltmc.org/repository/release",
+                        ExtendUtil.Combine(LibraryResource.FormatName(x.Name).ToArray())
                     });
                 }
             });
@@ -66,9 +61,8 @@ namespace MinecraftLaunch.Modules.Installer
                 Url = y.Url
             }).ToList();
             int count = 0;
-            res.ForEach(async delegate (LibraryResource x)
-            {
-                await HttpWrapper.HttpDownloadAsync(x.Url, x.ToDownloadRequest().Directory.FullName, (string)null);
+            res.ForEach(async delegate (LibraryResource x) {
+                await HttpUtil.HttpDownloadAsync(x.Url, x.ToDownloadRequest().Directory.FullName, (string)null);
                 count++;
                 Console.WriteLine($"下载依赖文件中：{count}/{res.Count}");
             });
@@ -106,15 +100,15 @@ namespace MinecraftLaunch.Modules.Installer
 
             foreach (var x in libraries.AsParallel()) {
                 if (x.Name.Contains("fabricmc") || x.Name.Contains("ow2.asm")) {
-                    x.Url = UrlExtension.Combine(new string[2] {
-            "https://maven.fabricmc.net",
-            UrlExtension.Combine(LibraryResource.FormatName(x.Name).ToArray())
-        });
+                    x.Url = ExtendUtil.Combine(new string[2] {
+                        "https://maven.fabricmc.net",
+                        ExtendUtil.Combine(LibraryResource.FormatName(x.Name).ToArray())
+                    });
                 } else {
-                    x.Url = UrlExtension.Combine(new string[2] {
-            "https://maven.quiltmc.org/repository/release",
-            UrlExtension.Combine(LibraryResource.FormatName(x.Name).ToArray())
-        });
+                    x.Url = ExtendUtil.Combine(new string[2] {
+                        "https://maven.quiltmc.org/repository/release",
+                        ExtendUtil.Combine(LibraryResource.FormatName(x.Name).ToArray())
+                    });
                 }
                 files.Add(new LibraryResource {
                     Root = new DirectoryInfo(Path.GetFullPath(GameCoreLocator.Root.FullName)),
@@ -124,10 +118,9 @@ namespace MinecraftLaunch.Modules.Installer
             }
 
             TransformManyBlock<List<LibraryResource>, LibraryResource> manyBlock = new TransformManyBlock<List<LibraryResource>, LibraryResource>((List<LibraryResource> x) => x.Where((LibraryResource x) => true));
-            ActionBlock<LibraryResource> actionBlock = new ActionBlock<LibraryResource>(async delegate (LibraryResource resource)
-            {
+            ActionBlock<LibraryResource> actionBlock = new ActionBlock<LibraryResource>(async delegate (LibraryResource resource) {
                 post++;
-                if ((await HttpWrapper.HttpDownloadAsync(resource.Url, resource.ToFileInfo().Directory!.FullName, (string)null!)).HttpStatusCode != HttpStatusCode.OK) {
+                if ((await HttpUtil.HttpDownloadAsync(resource.Url, resource.ToFileInfo().Directory!.FullName, (string)null!)).HttpStatusCode != HttpStatusCode.OK) {
                     Console.WriteLine(resource.Url);
                     InvokeStatusChangedEvent((float)count / (float)post, "依赖文件：" + resource.ToFileInfo().Name + " 下载失败");
                 }
@@ -188,39 +181,35 @@ namespace MinecraftLaunch.Modules.Installer
 
         public static async ValueTask<string[]> GetSupportedMcVersionsAsync() {
             List<string> supportedMcVersions = new List<string>();
-            using var response = await HttpWrapper.HttpGetAsync("https://meta.quiltmc.org/v3/versions/game");
-            using var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            using var response = await "https://meta.quiltmc.org/v3/versions/game".GetAsync();
 
+            using var document = await JsonDocument.ParseAsync(await response.GetStreamAsync());
             foreach (var i in document.RootElement.EnumerateArray()) {
                 supportedMcVersions.Add(i.GetProperty("version").GetString());
             }
+
             return supportedMcVersions.ToArray();
         }
 
-        public static async ValueTask<QuiltInstallBuild[]> GetQuiltBuildsByVersionAsync(string mcVersion)
-        {
-            _ = 1;
-            try
-            {
-                using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync("https://meta.quiltmc.org/v3/versions/loader/" + mcVersion, (Tuple<string, string>)null, HttpCompletionOption.ResponseContentRead);
-                responseMessage.EnsureSuccessStatusCode();
-                return JsonSerializer.Deserialize<List<QuiltInstallBuild>>(await responseMessage.Content.ReadAsStringAsync()).ToArray();
+        public static async ValueTask<QuiltInstallBuild[]> GetQuiltBuildsByVersionAsync(string mcVersion) {
+            try {
+                string url = $"https://meta.quiltmc.org/v3/versions/loader/{mcVersion}";
+                using var responseMessage = await url.GetAsync();
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+                return JsonSerializer.Deserialize<List<QuiltInstallBuild>>(await responseMessage.GetStringAsync())!.ToArray();
             }
-            catch
-            {
+            catch {
                 return Array.Empty<QuiltInstallBuild>();
             }
         }
 
-        public QuiltInstaller(GameCoreUtil coreLocator, QuiltInstallBuild build, string customId = null)
-        {
+        public QuiltInstaller(GameCoreUtil coreLocator, QuiltInstallBuild build, string customId = null) {
             QuiltBuild = build;
             GameCoreLocator = coreLocator;
             CustomId = customId;
         }
 
-        public QuiltInstaller(string root, QuiltInstallBuild build, string customId = null)
-        {
+        public QuiltInstaller(string root, QuiltInstallBuild build, string customId = null) {
             QuiltBuild = build;
             GameCoreLocator = new(root);
             CustomId = customId;

@@ -5,10 +5,8 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.IO;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 using System.Text.Json;
+using Flurl.Http;
 
 namespace MinecraftLaunch.Modules.Installer {
     public class OptiFineInstaller : InstallerBase<InstallerResponse> {
@@ -116,7 +114,7 @@ namespace MinecraftLaunch.Modules.Installer {
 
                 archive.GetEntry($"launchwrapper-of-{launchwrapper}.jar")!.ExtractToFile(launchwrapperFile.FullName, true);
             } else if (!launchwrapperFile.Exists) {
-                await HttpWrapper.HttpDownloadAsync(new LibraryResource() {
+                await HttpUtil.HttpDownloadAsync(new LibraryResource() {
                     Name = entity.Libraries[1].Name, Root = this.GameCoreLocator.Root 
                 }.ToDownloadRequest());
             }
@@ -208,10 +206,11 @@ namespace MinecraftLaunch.Modules.Installer {
 
         public static async ValueTask<OptiFineInstallEntity[]> GetOptiFineBuildsFromMcVersionAsync(string mcVersion) {
             try {
-                using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{mcVersion}");
-                responseMessage.EnsureSuccessStatusCode();
+                string url = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/optifine/{mcVersion}";
+                using var responseMessage = await url.GetAsync();
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonSerializer.Deserialize<List<OptiFineInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<OptiFineInstallEntity>>(await responseMessage.GetStringAsync());
 
                 var preview = list!.Where(x => x.Patch.StartsWith("pre")).ToList();
                 var release = list!.Where(x => !x.Patch.StartsWith("pre")).ToList();

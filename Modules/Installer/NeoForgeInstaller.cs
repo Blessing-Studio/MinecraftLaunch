@@ -1,12 +1,11 @@
-﻿using MinecraftLaunch.Modules.Interface;
+﻿using Flurl.Http;
+using MinecraftLaunch.Modules.Downloaders;
+using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.IO;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
@@ -39,8 +38,8 @@ namespace MinecraftLaunch.Modules.Installer {
         }
 
         public static async IAsyncEnumerable<NeoForgeInstallEntity> GetNeoForgesOfVersionAsync(string mcVersion = "1.20.1") {
-            using var responseMessage = await HttpWrapper.HttpGetAsync(VersionApi);
-            string xml = await responseMessage.Content.ReadAsStringAsync();
+            using var responseMessage = await VersionApi.GetAsync();
+            string xml = await responseMessage.GetStringAsync();
 
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
@@ -57,10 +56,10 @@ namespace MinecraftLaunch.Modules.Installer {
             }
         }
 
-        public static Task<HttpDownloadResponse> DownNeoForgeOfBuildAsync(NeoForgeInstallEntity info, DirectoryInfo directory, Action<float, string> action) {
+        public static async ValueTask<HttpDownloadResponse> DownNeoForgeOfBuildAsync(NeoForgeInstallEntity info, DirectoryInfo directory, Action<float, string> action) {
             string url = $"{BaseApi}releases/net/neoforged/forge/{info.McVersion}-{info.NeoForgeVersion}/forge-{info.McVersion}-{info.NeoForgeVersion}-installer.jar";
 
-            return HttpWrapper.HttpDownloadAsync(new HttpDownloadRequest {
+            return await HttpUtil.HttpDownloadAsync(new HttpDownloadRequest {
                 Url = url,
                 Directory = directory
             }, action);
@@ -84,7 +83,7 @@ namespace MinecraftLaunch.Modules.Installer {
             #region Parse Package
             InvokeStatusChangedEvent(0.15f, "开始解析 NeoForged 安装包");
             using ZipArchive archive = ZipFile.OpenRead(PackageFile);
-            JsonDocument installProfile = JsonDocument.Parse(ZipExtension.GetString(archive.GetEntry("install_profile.json")));
+            JsonDocument installProfile = JsonDocument.Parse(ExtendUtil.GetString(archive.GetEntry("install_profile.json")!));
             GameCoreJsonEntity entity = GetGameCoreJsonEntity(archive, installProfile);
             IEnumerable<LibraryResource> libraries = new LibraryParser(entity.Libraries, GameCoreLocator.Root!).GetLibraries();
             IEnumerable<LibraryResource> enumerable;
@@ -285,7 +284,7 @@ namespace MinecraftLaunch.Modules.Installer {
             }
             ZipArchiveEntry entry = archive.GetEntry("version.json")!;
             if (entry != null) {
-                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ZipExtension.GetString(entry))!;
+                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ExtendUtil.GetString(entry))!;
             }
             return null;
         }

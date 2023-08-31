@@ -1,7 +1,6 @@
 using System.IO;
 using MinecraftLaunch.Modules.Interface;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
+using MinecraftLaunch.Modules.Utils;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
@@ -24,7 +23,7 @@ public class AssetResource : IResource {
         val.FileName = CheckSum;
         val.Sha1 = CheckSum;
         val.Size = Size;
-        val.Url = UrlExtension.Combine(new string[3]
+        val.Url = ExtendUtil.Combine(new string[3]
         {
             APIManager.Current.Assets,
             CheckSum.Substring(0, 2),

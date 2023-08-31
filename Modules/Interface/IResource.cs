@@ -1,5 +1,4 @@
-using System.IO;
-using Natsurainko.Toolkits.Network.Model;
+using MinecraftLaunch.Modules.Models.Download;
 
 namespace MinecraftLaunch.Modules.Interface;
 

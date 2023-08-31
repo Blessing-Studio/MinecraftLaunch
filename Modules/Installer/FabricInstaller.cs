@@ -1,9 +1,9 @@
+using Flurl.Http;
+using MinecraftLaunch.Modules.Downloaders;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.Network;
-
 using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer {
@@ -37,7 +37,7 @@ namespace MinecraftLaunch.Modules.Installer {
 
             #region Download Libraries
             InvokeStatusChangedEvent(0.45f, "开始下载依赖文件");
-            libraries.ForEach(x => x.Url = UrlExtension.Combine("https://maven.fabricmc.net", UrlExtension.Combine(LibraryResource.FormatName(x.Name).ToArray())));
+            libraries.ForEach(x => x.Url = ExtendUtil.Combine("https://maven.fabricmc.net", ExtendUtil.Combine(LibraryResource.FormatName(x.Name).ToArray())));
 
             var downloader = new MultithreadedDownloader<LibraryResource>
                 (x => x.ToDownloadRequest(), libraries.Select(y => new LibraryResource { Root = GameCoreLocator.Root, Name = y.Name, Url = y.Url }).ToList());
@@ -89,9 +89,10 @@ namespace MinecraftLaunch.Modules.Installer {
         }
         public static async ValueTask<FabricMavenItem[]> GetFabricLoaderMavensAsync() {
             try {
-                using HttpResponseMessage responseMessage = await HttpWrapper.HttpGetAsync("https://meta.fabricmc.net/v2/versions/loader");
-                responseMessage.EnsureSuccessStatusCode();
-                return JsonSerializer.Deserialize<FabricMavenItem[]>(await responseMessage.Content.ReadAsStringAsync());
+                using var responseMessage = await "https://meta.fabricmc.net/v2/versions/loader".GetAsync();
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+
+                return JsonSerializer.Deserialize<FabricMavenItem[]>(await responseMessage.GetStringAsync())!;
             }
             catch {
                 return Array.Empty<FabricMavenItem>();
@@ -100,10 +101,10 @@ namespace MinecraftLaunch.Modules.Installer {
 
         public static async ValueTask<FabricInstallBuild[]> GetFabricBuildsByVersionAsync(string mcVersion) {
             try {
-                using var responseMessage = await HttpWrapper.HttpGetAsync($"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}");
-                responseMessage.EnsureSuccessStatusCode();
+                using var responseMessage = await $"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}".GetAsync();
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
 
-                var list = JsonSerializer.Deserialize<List<FabricInstallBuild>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<FabricInstallBuild>>(await responseMessage.GetStringAsync());
 
                 list.Sort((a, b) => new Version(a.Loader.Version.Replace(a.Loader.Separator, ".")).CompareTo(new Version(b.Loader.Version.Replace(b.Loader.Separator, "."))));
                 list.Reverse();

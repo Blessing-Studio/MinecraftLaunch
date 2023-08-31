@@ -6,11 +6,10 @@ using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.IO;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using MinecraftLaunch.Modules.Downloaders;
+using Flurl.Http;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class ForgeInstaller : InstallerBase<InstallerResponse> {
@@ -21,7 +20,7 @@ namespace MinecraftLaunch.Modules.Installer {
 
             ZipArchiveEntry entry = archive.GetEntry("version.json")!;
             if (entry != null) {
-                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ZipExtension.GetString(entry))!;
+                return JsonSerializer.Deserialize<GameCoreJsonEntity>(ExtendUtil.GetString(entry))!;
             }
             return null!;
         }
@@ -53,7 +52,7 @@ namespace MinecraftLaunch.Modules.Installer {
             #region Parse Package
             InvokeStatusChangedEvent(0.15f, "开始解析 Forge 安装包");
             using ZipArchive archive = ZipFile.OpenRead(PackageFile);
-            var installProfile = JsonDocument.Parse(ZipExtension.GetString(archive.GetEntry("install_profile.json")));
+            var installProfile = JsonDocument.Parse(ExtendUtil.GetString(archive.GetEntry("install_profile.json")));
 
             GameCoreJsonEntity entity = GetGameCoreJsonEntity(archive, installProfile);
             IEnumerable<LibraryResource> libraries = new LibraryParser(entity.Libraries, GameCoreLocator.Root!).GetLibraries();
@@ -264,10 +263,11 @@ namespace MinecraftLaunch.Modules.Installer {
 
         public static async ValueTask<ForgeInstallEntity[]> GetForgeBuildsOfVersionAsync(string mcVersion) {
             try {
-                using var responseMessage = await HttpWrapper.HttpGetAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
-                responseMessage.EnsureSuccessStatusCode();
+                string url = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}";
+                using var responseMessage = await url.GetAsync();
+                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
                 await Console.Out.WriteLineAsync($"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/minecraft/{mcVersion}");
-                var list = JsonSerializer.Deserialize<List<ForgeInstallEntity>>(await responseMessage.Content.ReadAsStringAsync());
+                var list = JsonSerializer.Deserialize<List<ForgeInstallEntity>>(await responseMessage.GetStringAsync());
 
                 list.Sort((a, b) => a.Build.CompareTo(b.Build));
                 list.Reverse();
@@ -279,9 +279,9 @@ namespace MinecraftLaunch.Modules.Installer {
             }
         }
 
-        public static Task<HttpDownloadResponse> DownForgeOfBuildAsync(int build, DirectoryInfo directory, Action<float, string> progressChangedAction) {
+        public static ValueTask<HttpDownloadResponse> DownForgeOfBuildAsync(int build, DirectoryInfo directory, Action<float, string> progressChangedAction) {
             var downloadUrl = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/download/{build}";
-            return HttpWrapper.HttpDownloadAsync(new HttpDownloadRequest {
+            return HttpUtil.HttpDownloadAsync(new HttpDownloadRequest {
                 Url = downloadUrl,
                 Directory = directory
             }, progressChangedAction);

@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
@@ -52,7 +50,7 @@ public class LibraryResource : IResource {
     public HttpDownloadRequest ToDownloadRequest() {
         string root = APIManager.Current.Libraries;
         foreach (string item in FormatName(Name)) {
-            root = UrlExtension.Combine(new string[2] { root, item });
+            root = ExtendUtil.Combine(new string[2] { root, item });
         }
 
         if (!string.IsNullOrEmpty(Url) && (!Url.Contains("fabricmc") || !Url.Contains("quiltmc") || !Url.Contains("minecraftforge")) || !Url.Contains("neoforged")) {
@@ -60,7 +58,7 @@ public class LibraryResource : IResource {
         }
 
         return new HttpDownloadRequest {
-            Directory = ToFileInfo().Directory,
+            Directory = ToFileInfo().Directory!,
             FileName = ToFileInfo().Name,
             Sha1 = CheckSum,
             Size = Size,

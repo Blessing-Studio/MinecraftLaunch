@@ -1,16 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using Flurl.Http;
+using MinecraftLaunch.Modules.Models.Download;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
-using Natsurainko.Toolkits.Values;
 
 namespace MinecraftLaunch.Modules.Utils;
 
@@ -19,11 +10,8 @@ public class HttpUtil {
 
     public static int BufferSize { get; set; } = 1048576;
 
-    public static async ValueTask<string> GetStringAsync(string Uri) {
-        return await HttpClient.GetStringAsync(Uri);
-    }
-
-    public static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Tuple<string, string> authorization = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
+    [Obsolete]
+    protected static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Tuple<string, string> authorization = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
         using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         if (authorization != null) {
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authorization.Item1, authorization.Item2);
@@ -38,7 +26,8 @@ public class HttpUtil {
         return httpResponseMessage;
     }
 
-    public static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Dictionary<string, string> headers, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
+    [Obsolete]
+    protected static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Dictionary<string, string> headers, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
         using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         if (headers != null && headers.Any()) {
             foreach (KeyValuePair<string, string> header in headers) {
@@ -55,7 +44,8 @@ public class HttpUtil {
         return httpResponseMessage;
     }
 
-    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, Stream content, string contentType = "application/json") {
+    [Obsolete]
+    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, Stream content, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         StreamContent httpContent = new StreamContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -66,7 +56,8 @@ public class HttpUtil {
         return result;
     }
 
-    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, string contentType = "application/json") {
+    [Obsolete]
+    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         using StringContent httpContent = new StringContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -74,7 +65,8 @@ public class HttpUtil {
         return await HttpClient.SendAsync(httpRequestMessage);
     }
 
-    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, Dictionary<string, string> headers, string contentType = "application/json") {
+    [Obsolete]
+    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, Dictionary<string, string> headers, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         using StringContent httpContent = new StringContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -91,7 +83,7 @@ public class HttpUtil {
         FileInfo fileInfo = null;
         HttpResponseMessage responseMessage = null;
         try {
-            responseMessage = await HttpWrapper.HttpGetAsync(url, new Dictionary<string, string>(), HttpCompletionOption.ResponseHeadersRead);
+            responseMessage = (await url.GetAsync()).ResponseMessage;
             responseMessage.EnsureSuccessStatusCode();
             fileInfo = ((responseMessage.Content.Headers == null || responseMessage.Content.Headers.ContentDisposition == null) ? new FileInfo(Path.Combine(folder, Path.GetFileName(responseMessage.RequestMessage.RequestUri.AbsoluteUri))) : new FileInfo(Path.Combine(folder, responseMessage.Content.Headers.ContentDisposition.FileName.Trim(new char[1] { '"' }))));
             if (filename != null) {
@@ -141,7 +133,7 @@ public class HttpUtil {
         using System.Timers.Timer timer = new System.Timers.Timer(1000.0);
         _ = 4;
         try {
-            responseMessage = await HttpWrapper.HttpGetAsync(url, new Dictionary<string, string>(), HttpCompletionOption.ResponseHeadersRead);
+            responseMessage = (await url.GetAsync()).ResponseMessage;
             responseMessage.EnsureSuccessStatusCode();
             fileInfo = ((responseMessage.Content.Headers == null || responseMessage.Content.Headers.ContentDisposition == null) ? new FileInfo(Path.Combine(folder, Path.GetFileName(responseMessage.RequestMessage.RequestUri.AbsoluteUri))) : new FileInfo(Path.Combine(folder, responseMessage.Content.Headers.ContentDisposition.FileName.Trim(new char[1] { '"' }))));
             if (filename != null) {
@@ -154,7 +146,7 @@ public class HttpUtil {
             try {
                 using Stream stream = await responseMessage.Content.ReadAsStreamAsync();
                 timer.Elapsed += delegate {
-                    progressChangedAction2((float)fileStream.Length / (float)responseMessage.Content.Headers.ContentLength.Value, LongExtension.LengthToMb(fileStream.Length) + " / " + LongExtension.LengthToMb(responseMessage.Content.Headers.ContentLength.Value));
+                    progressChangedAction2((float)fileStream.Length / (float)responseMessage.Content.Headers.ContentLength.Value, ExtendUtil.LengthToMb(fileStream.Length) + " / " + ExtendUtil.LengthToMb(responseMessage.Content.Headers.ContentLength.Value));
                 };
                 timer.Start();
                 byte[] bytes = new byte[BufferSize];

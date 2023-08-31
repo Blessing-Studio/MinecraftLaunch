@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
@@ -11,10 +6,6 @@ using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.IO;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MinecraftLaunch.Modules.Installer;
 
@@ -43,7 +34,7 @@ public class ResourceInstaller {
                 request.Url = $"{APIManager.Current.Host}/version/{Path.GetFileNameWithoutExtension(clientFile.Name)}/client";
             }
 
-            var httpDownloadResponse = await HttpWrapper.HttpDownloadAsync(request);
+            var httpDownloadResponse = await HttpUtil.HttpDownloadAsync(request);
             if (httpDownloadResponse.HttpStatusCode != HttpStatusCode.OK) {
                 FailedResources.Add(clientFile);
             }
@@ -142,7 +133,7 @@ public class ResourceInstaller {
             if (!request.Directory.Exists)
                 request.Directory.Create();
 
-            var res = await HttpWrapper.HttpDownloadAsync(request);
+            var res = await HttpUtil.HttpDownloadAsync(request);
         }
 
         var entity = new AssetJsonEntity();

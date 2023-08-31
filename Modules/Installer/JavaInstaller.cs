@@ -7,10 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
+using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Utils;
-using Natsurainko.Toolkits.Network;
-using Natsurainko.Toolkits.Network.Model;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class JavaInstaller : InstallerBase<JavaInstallerResponse> {
@@ -76,7 +75,7 @@ namespace MinecraftLaunch.Modules.Installer {
                 _ = ActiveJdk;
 
                 InvokeStatusChangedEvent(0.1f, "开始下载 Jdk");
-                HttpDownloadResponse res = await HttpWrapper.HttpDownloadAsync(item, Path.GetTempPath(), (e, a) => {
+                HttpDownloadResponse res = await HttpUtil.HttpDownloadAsync(item, Path.GetTempPath(), (e, a) => {
                     InvokeStatusChangedEvent(0.1f + e * 0.8f, "下载中：" + a);
                 }, null);
                 if (res.HttpStatusCode != HttpStatusCode.OK) {
