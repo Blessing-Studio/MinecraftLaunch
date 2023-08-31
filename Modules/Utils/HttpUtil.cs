@@ -11,7 +11,7 @@ public class HttpUtil {
     public static int BufferSize { get; set; } = 1048576;
 
     [Obsolete]
-    protected static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Tuple<string, string> authorization = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
+    public static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Tuple<string, string> authorization = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
         using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         if (authorization != null) {
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authorization.Item1, authorization.Item2);
@@ -27,7 +27,7 @@ public class HttpUtil {
     }
 
     [Obsolete]
-    protected static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Dictionary<string, string> headers, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
+    public static async ValueTask<HttpResponseMessage> HttpGetAsync(string url, Dictionary<string, string> headers, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead) {
         using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         if (headers != null && headers.Any()) {
             foreach (KeyValuePair<string, string> header in headers) {
@@ -45,7 +45,7 @@ public class HttpUtil {
     }
 
     [Obsolete]
-    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, Stream content, string contentType = "application/json") {
+    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, Stream content, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         StreamContent httpContent = new StreamContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -57,7 +57,7 @@ public class HttpUtil {
     }
 
     [Obsolete]
-    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, string contentType = "application/json") {
+    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         using StringContent httpContent = new StringContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -66,7 +66,7 @@ public class HttpUtil {
     }
 
     [Obsolete]
-    protected static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, Dictionary<string, string> headers, string contentType = "application/json") {
+    public static async ValueTask<HttpResponseMessage> HttpPostAsync(string url, string content, Dictionary<string, string> headers, string contentType = "application/json") {
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
         using StringContent httpContent = new StringContent(content);
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
