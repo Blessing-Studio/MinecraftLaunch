@@ -24,7 +24,7 @@ namespace MinecraftLaunch.Modules.Installer {
             }
             return null!;
         }
-
+        
         private string CombineLibraryName(string name) {
             string libraries = Path.Combine(GameCoreLocator.Root.FullName, "libraries");
             foreach (string subPath in LibraryResource.FormatName(name.TrimStart('[').TrimEnd(']'))) {
