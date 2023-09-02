@@ -1,0 +1,43 @@
+name: CI-Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "**" ]
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  compile-flags: "-c Release"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Test
+      run: dotnet test MinecraftLaunch.csproj
+  test_build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Test
+      run: dotnet build MinecraftLaunch.csproj
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, test_build]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Build
+      run: dotnet build MinecraftLaunch.csproj ${{ env.compile-flags }}
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with: 
+        PROJECT_FILE_PATH: MinecraftLaunch.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
