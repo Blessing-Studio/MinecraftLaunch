@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	  <Version>1.9.6-preview5</Version>
 	  <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
 	  <Title>MinecraftLaunch</Title>
-	  <Version>1.9.6-preview5</Version>
 	  <Authors>Xilu</Authors>
 	  <Company>Blessing Studio</Company>
 	  <Description>下一代全能高效化的 Minecraft 启动核心</Description>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="C:\Users\w\Desktop\总整包\素材库\图片素材\杂项\icon.png">
+    <None Include="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
