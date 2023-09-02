@@ -14,9 +14,7 @@ namespace MinecraftLaunch.Modules.Downloaders {
 
         public int MaxThreadNumber { get; set; } = 128;
 
-
         public int BufferCapacity { get; set; } = 256;
-
 
         public List<T> Sources { get; private set; }
 
