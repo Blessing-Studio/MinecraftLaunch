@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">	
   <PropertyGroup>
-	  <Version>1.9.6-preview6</Version>
+	  <Version>1.9.6-preview7</Version>
 	  <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>

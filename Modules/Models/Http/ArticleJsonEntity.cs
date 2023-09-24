@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace MinecraftLaunch.Modules.Models.Http {
     public class ArticleJsonEntity {
         [JsonPropertyName("default_tile")]
-        public DefaultTileJsonEntity default_tile { get; set; }
+        public DefaultTileJsonEntity DefaultTile { get; set; }
 
         [JsonPropertyName("articleLang")]
         public string Lang { get; set; }

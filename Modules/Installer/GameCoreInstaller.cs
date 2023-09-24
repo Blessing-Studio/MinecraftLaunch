@@ -5,6 +5,7 @@ using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Utils;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class GameCoreInstaller : InstallerBase<InstallerResponse> {
@@ -25,7 +26,9 @@ namespace MinecraftLaunch.Modules.Installer {
                     fileInfo.Directory.Create();
                 }
 
-                await File.WriteAllTextAsync(fileInfo.FullName, entity.ToJson(), default);
+                await File.WriteAllTextAsync(fileInfo.FullName, JsonSerializer.Serialize(entity, options: new() {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                }), default);
 
                 InvokeStatusChangedEvent(0.3f, "正在下载 游戏依赖资源");
                 await new ResourceInstaller(GameCoreToolkit.GetGameCore(CustomId ?? Id)).DownloadAsync((a, e) => {
