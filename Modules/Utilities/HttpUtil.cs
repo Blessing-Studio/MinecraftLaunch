@@ -3,7 +3,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public class HttpUtil {
     private static readonly HttpClient HttpClient = new HttpClient();

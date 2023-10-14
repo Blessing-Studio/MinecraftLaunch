@@ -14,5 +14,5 @@ public interface IResource
 
 	FileInfo ToFileInfo();
 
-	HttpDownloadRequest ToDownloadRequest();
+	DownloadRequest ToDownloadRequest();
 }

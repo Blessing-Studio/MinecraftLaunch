@@ -25,9 +25,9 @@ namespace MinecraftLaunch.Modules.Analyzers {
                     if (keywords.Count > 0) {
                         var names = TryAnalyzeModOfCrash(keywords);
                         if (names is not null && names.Count > 0)
-                            AddPossibleCauses(Enum.CrashReason.崩溃日志堆栈分析发现关键字, keywords);
+                            AddPossibleCauses(Enum.CrashReason.MCLogStackAnalysisFoundKeyword, keywords);
                         else
-                            AddPossibleCauses(Enum.CrashReason.崩溃日志堆栈分析发现Mod名称, names);
+                            AddPossibleCauses(Enum.CrashReason.CrashLogStackAnalysisFoundModName, names);
                     }
                 }
 
@@ -38,7 +38,7 @@ namespace MinecraftLaunch.Modules.Analyzers {
                         keywords.AddRange(AnalyzeStackKeyword(item));
 
                     if (keywords.Count > 0) {
-                        AddPossibleCauses(Enum.CrashReason.MC日志堆栈分析发现关键字, fatals.Distinct().ToList());
+                        AddPossibleCauses(Enum.CrashReason.MCLogStackAnalysisFoundKeyword, fatals.Distinct().ToList());
                         goto Done;
                     }
                 }
@@ -58,19 +58,19 @@ namespace MinecraftLaunch.Modules.Analyzers {
         /// </summary>
         private void AccurateLogMatching() {
             if (Log.Contains("]: Warnings were found!"))
-                AddPossibleCauses(Enum.CrashReason.Fabric报错);
+                AddPossibleCauses(Enum.CrashReason.FabricError);
 
             if (Log.Contains("\tBlock location: World: "))
-                AddPossibleCauses(Enum.CrashReason.特定方块导致崩溃);
+                AddPossibleCauses(Enum.CrashReason.SpecificBlockCausedCrash);
 
             if (Log.Contains("\tEntity's Exact location: "))
-                AddPossibleCauses(Enum.CrashReason.特定实体导致崩溃);
+                AddPossibleCauses(Enum.CrashReason.SpecificEntityCausedCrash);
 
             if (Log.Contains("Couldn't load texture") || Log.Contains("Could not load image"))
-                AddPossibleCauses(Enum.CrashReason.无法加载纹理);
+                AddPossibleCauses(Enum.CrashReason.UnableToLoadTexture);
 
             if (Log.Contains("UnsupportedClassVersionError"))
-                AddPossibleCauses(Enum.CrashReason.不支持的Java类版本错误);
+                AddPossibleCauses(Enum.CrashReason.UnsupportedJavaClassVersionError);
         }
 
         /// <summary>
@@ -84,58 +84,58 @@ namespace MinecraftLaunch.Modules.Analyzers {
                 Log.Contains("Unsupported class file major version") || Log.Contains("because module java.base does not export") ||
                 Log.Contains("java.lang.ClassNotFoundException: jdk.nashorn.api.scripting.NashornScriptEngineFactory") ||
                 Log.Contains("java.lang.ClassNotFoundException: java.lang.invoke.LambdaMetafactory"))
-                AddPossibleCauses(Enum.CrashReason.Java版本过高);
+                AddPossibleCauses(Enum.CrashReason.JavaVersionTooHigh);
 
             if (Log.Contains("Found multiple arguments for option fml.forgeVersion, but you asked for only one"))
-                AddPossibleCauses(Enum.CrashReason.版本Json中存在多个Forge);
+                AddPossibleCauses(Enum.CrashReason.MultipleForgeInVersionJson);
 
             if (Log.Contains("The driver does not appear to support OpenGL"))
-                AddPossibleCauses(Enum.CrashReason.显卡不支持OpenGL);
+                AddPossibleCauses(Enum.CrashReason.GraphicsCardDoesNotSupportOpenGL);
 
             if (Log.Contains("java.lang.ClassCastException: java.base/jdk") || Log.Contains("java.lang.ClassCastException: class jdk"))
-                AddPossibleCauses(Enum.CrashReason.使用JDK);
+                AddPossibleCauses(Enum.CrashReason.UsingJDK);
 
             if (Log.Contains("Cannot read field \"ofTelemetry\" because \"net.optifine.Config.gameSettings\" is null") || Log.Contains("TRANSFORMER/net.optifine/net.optifine.reflect.Reflector.<clinit>(Reflector.java"))
-                AddPossibleCauses(Enum.CrashReason.OptiFine与Forge不兼容);
+                AddPossibleCauses(Enum.CrashReason.OptiFineIncompatibleWithForge);
 
             if (Log.Contains("Open J9 is not supported") || Log.Contains("OpenJ9 is incompatible") || Log.Contains(".J9VMInternals."))
-                AddPossibleCauses(Enum.CrashReason.使用OpenJ9);
+                AddPossibleCauses(Enum.CrashReason.UsingOpenJ9);
 
             if (Log.Contains("The directories below appear to be extracted jar files. Fix this before you continue.") ||
                 Log.Contains("Extracted mod jars found, loading will NOT continue"))
-                AddPossibleCauses(Enum.CrashReason.Mod文件被解压);
+                AddPossibleCauses(Enum.CrashReason.ModFileDecompressed);
 
             if (Log.Contains("java.lang.OutOfMemoryError"))
-                AddPossibleCauses(Enum.CrashReason.内存不足);
+                AddPossibleCauses(Enum.CrashReason.InsufficientMemory);
 
             if (Log.Contains("java.lang.NoSuchMethodError: sun.security.util.ManifestEntryVerifier"))
-                AddPossibleCauses(Enum.CrashReason.低版本Forge与高版本Java不兼容);
+                AddPossibleCauses(Enum.CrashReason.LowVersionForgeIncompatibleWithHighVersionJava);
 
             if (Log.Contains("1282: Invalid operation"))
-                AddPossibleCauses(Enum.CrashReason.光影或资源包导致OpenGL1282错误);
+                AddPossibleCauses(Enum.CrashReason.ShaderOrResourcePackCausedOpenGL1282Error);
 
             if (Log.Contains("signer information does not match signer information of other classes in the same package"))
-                AddPossibleCauses(Enum.CrashReason.文件或内容校验失败);
+                AddPossibleCauses(Enum.CrashReason.FileOrContentCheckFailed);
 
             if (Log.Contains("An exception was thrown, the game will display an error screen and halt."))
-                AddPossibleCauses(Enum.CrashReason.Forge报错);
+                AddPossibleCauses(Enum.CrashReason.ForgeError);
 
             if (Log.Contains("A potential solution has been determined:"))
-                AddPossibleCauses(Enum.CrashReason.Fabric报错并给出解决方案);
+                AddPossibleCauses(Enum.CrashReason.FabricErrorWithSolution);
 
             if (Log.Contains("Maybe try a lower resolution resourcepack?"))
-                AddPossibleCauses(Enum.CrashReason.材质过大或显卡配置不足);
+                AddPossibleCauses(Enum.CrashReason.TextureTooLargeOrInsufficientGraphicsConfig);
 
             if (Log.Contains("java.lang.NoSuchMethodError: net.minecraft.world.server.ChunkManager$ProxyTicketManager.shouldForceTicks(J)Z") && Log.Contains("OptiFine"))
-                AddPossibleCauses(Enum.CrashReason.OptiFine导致无法加载世界);
+                AddPossibleCauses(Enum.CrashReason.OptiFineCausedWorldLoadingFailure);
 
             if (Log.Contains("Could not reserve enough space"))
                 if (Log.Contains("for 1048576KB object heap"))
-                    AddPossibleCauses(Enum.CrashReason.使用32位Java导致JVM无法分配足够多的内存);
-                else AddPossibleCauses(Enum.CrashReason.内存不足);
+                    AddPossibleCauses(Enum.CrashReason.Using32BitJavaCausedInsufficientJVMMemory);
+                else AddPossibleCauses(Enum.CrashReason.InsufficientMemory);
 
             if (Log.Contains("DuplicateModsFoundException") || Log.Contains("Found a duplicate mod") || Log.Contains("ModResolutionException: Duplicate"))
-                AddPossibleCauses(Enum.CrashReason.Mod重复安装);
+                AddPossibleCauses(Enum.CrashReason.ModInstalledRepeatedly);
 
             if (Regex.IsMatch(Log, "(?<=in )[^./ ]+(?=.mixins.json.+failed injection check)") || Log.Contains("mixin.injection.throwables.") || Log.Contains(".mixins.json] FAILED during )")) {
                 var mod = Regex.Match(Log, "(?<=in )[^./ ]+(?=.mixins.json.+failed injection check)").Value;
@@ -147,29 +147,29 @@ namespace MinecraftLaunch.Modules.Analyzers {
 
                 if (string.IsNullOrEmpty(mod))
                     mod = Regex.Match(Log, "(?<= in callback )[^./ ]+(?=.mixins.json:)").Value;
-                AddPossibleCauses(Enum.CrashReason.ModMixin失败, TryAnalyModName(mod.TrimEnd(("\r\n" + " ").ToCharArray())));
+                AddPossibleCauses(Enum.CrashReason.ModMixinFailed, TryAnalyModName(mod.TrimEnd(("\r\n" + " ").ToCharArray())));
             }
 
             if (Log.Contains("Caught exception from "))
-                AddPossibleCauses(Enum.CrashReason.Mod导致游戏崩溃, TryAnalyModName(Regex.Match(Log, "[^\n]+?(?)").Value.TrimEnd('\r', '\n', ' ')));
+                AddPossibleCauses(Enum.CrashReason.ModCausedGameCrash, TryAnalyModName(Regex.Match(Log, "[^\n]+?(?)").Value.TrimEnd('\r', '\n', ' ')));
 
             if (Log.Contains("Failed to create mod instance."))
-                AddPossibleCauses(Enum.CrashReason.Mod初始化失败, TryAnalyModName((Regex.IsMatch(Log, "(?<=Failed to create mod instance. ModID: )[^,]+") ? Regex.Match(Log, "(?<=Failed to create mod instance. ModID: )[^,]+").Value : Regex.Match(Log, @"(?<=Failed to create mod instance. ModId )[^\n]+(?= for )").Value).TrimEnd('\r', '\n')));
+                AddPossibleCauses(Enum.CrashReason.ModInitializationFailed, TryAnalyModName((Regex.IsMatch(Log, "(?<=Failed to create mod instance. ModID: )[^,]+") ? Regex.Match(Log, "(?<=Failed to create mod instance. ModID: )[^,]+").Value : Regex.Match(Log, @"(?<=Failed to create mod instance. ModId )[^\n]+(?= for )").Value).TrimEnd('\r', '\n')));
 
             if (Log.Contains("maximum id range exceeded"))
-                AddPossibleCauses(Enum.CrashReason.Mod过多导致超出ID限制);
+                AddPossibleCauses(Enum.CrashReason.TooManyModsExceededIDLimit);
 
             if (Log.Contains("java.lang.OutOfMemoryError"))
-                AddPossibleCauses(Enum.CrashReason.内存不足);
+                AddPossibleCauses(Enum.CrashReason.InsufficientMemory);
 
             if (Log.Contains("Manually triggered debug crash"))
-                AddPossibleCauses(Enum.CrashReason.玩家手动触发调试崩溃);
+                AddPossibleCauses(Enum.CrashReason.PlayerTriggeredDebugCrash);
 
             if (Log.Contains("-- MOD ")) {
                 var loglast = Log.Split("-- MOD").Last();
                 if (loglast.Contains("Failure message: MISSING"))
-                    AddPossibleCauses(Enum.CrashReason.Mod导致游戏崩溃);
-                else AddPossibleCauses(Enum.CrashReason.Mod加载器报错);
+                    AddPossibleCauses(Enum.CrashReason.ModCausedGameCrash);
+                else AddPossibleCauses(Enum.CrashReason.ModLoaderError);
             }
         }
 
@@ -313,7 +313,7 @@ namespace MinecraftLaunch.Modules.Analyzers {
     }
 
     partial class GameCrashAnalyzer {
-        public GameCrashAnalyzer(List<string> log) {
+        public GameCrashAnalyzer(IEnumerable<string> log) {
             Log = string.Join(' ', log);
         }
     }

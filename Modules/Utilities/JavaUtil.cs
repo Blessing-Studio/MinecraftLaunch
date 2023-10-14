@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
 using MinecraftLaunch.Modules.Models.Launch;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public sealed class JavaUtil {
     [SupportedOSPlatform("OSX")]
@@ -36,36 +36,36 @@ public sealed class JavaUtil {
     }
 
     public static JavaInfo GetJavaInfo(string javaPath) {
-        FileInfo info = new(javaPath);
+        FileInfo javaFileInfo = new(javaPath);
 
         if (javaPath.IsDirectory()) {
-            info = new(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "java.exe" : "java"));
+            javaFileInfo = new FileInfo(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "java.exe" : "java"));
 
-            if (!info.Exists) {
-                info = new(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "javaw.exe" : "java"));
+            if (!javaFileInfo.Exists) {
+                javaFileInfo = new FileInfo(Path.Combine(javaPath, EnvironmentUtil.IsWindow ? "javaw.exe" : "java"));
             }
         }
 
         if (EnvironmentUtil.IsWindow) {
-            var fileVersionInfo = FileVersionInfo.GetVersionInfo(info.FullName);
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(javaFileInfo.FullName);
 
-            return new() {
+            return new JavaInfo {
                 Is64Bit = GetIs64Bit(),
-                JavaDirectoryPath = info.Directory!.FullName,
+                JavaDirectoryPath = javaFileInfo.Directory!.FullName,
                 JavaSlugVersion = fileVersionInfo.ProductMajorPart,
                 JavaVersion = fileVersionInfo.ProductVersion!,
-                JavaPath = info.FullName,
+                JavaPath = javaFileInfo.FullName,
             };
         } else {
             try {
-                int? ires = null;
-                string tempinfo = null;
+                int? versionNumber = null;
+                string versionInfo = null;
                 string pattern = "java version \"\\s*(?<version>\\S+)\\s*\"";
 
-                using var Program = new Process {
-                    StartInfo = new() {
+                using var program = new Process {
+                    StartInfo = new ProcessStartInfo {
                         Arguments = "-version",
-                        FileName = info.FullName,
+                        FileName = javaFileInfo.FullName,
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         RedirectStandardError = true,
@@ -73,33 +73,34 @@ public sealed class JavaUtil {
                     }
                 };
 
-                Program.Start();
-                Program.WaitForExit(8000);
-                StreamReader res = Program.StandardError;
-                bool end = false;
+                program.Start();
+                program.WaitForExit(8000);
+                using StreamReader res = program.StandardError;
+                bool is64Bit = false;
+
                 while (res.Peek() != -1) {
                     string temp = res.ReadLine()!;
                     if (temp.Contains("java version")) {
-                        tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
+                        versionInfo = new Regex(pattern).Match(temp).Groups["version"].Value;
                     } else if (temp.Contains("openjdk version")) {
                         pattern = pattern.Replace("java", "openjdk");
-                        tempinfo = new Regex(pattern).Match(temp).Groups["version"].Value;
+                        versionInfo = new Regex(pattern).Match(temp).Groups["version"].Value;
                     } else if (temp.Contains("64-Bit")) {
-                        end = true;
+                        is64Bit = true;
                     }
                 }
 
-                string[] sres = tempinfo.Split(".");
-                if (sres.Length != 0) {
-                    ires = ((int.Parse(sres[0]) == 1) ? new int?(int.Parse(sres[1])) : new int?(int.Parse(sres[0])));
+                string[] versionParts = versionInfo.Split(".");
+                if (versionParts.Length != 0) {
+                    versionNumber = (int.Parse(versionParts[0]) == 1) ? int.Parse(versionParts[1]) : int.Parse(versionParts[0]);
                 }
 
                 return new JavaInfo {
-                    Is64Bit = end,
-                    JavaDirectoryPath = info.Directory!.FullName,
-                    JavaSlugVersion = Convert.ToInt32(ires),
-                    JavaVersion = tempinfo,
-                    JavaPath = info.FullName,
+                    Is64Bit = is64Bit,
+                    JavaDirectoryPath = javaFileInfo.Directory!.FullName,
+                    JavaSlugVersion = Convert.ToInt32(versionNumber),
+                    JavaVersion = versionInfo,
+                    JavaPath = javaFileInfo.FullName,
                 };
             }
             catch (Exception) {
@@ -111,22 +112,22 @@ public sealed class JavaUtil {
             ushort architecture = 0;
 
             try {
-                using var fStream = new FileStream(info.FullName, FileMode.Open, FileAccess.Read);
-                using var bReader = new BinaryReader(fStream);
+                using var fileStream = new FileStream(javaFileInfo.FullName, FileMode.Open, FileAccess.Read);
+                using var binaryReader = new BinaryReader(fileStream);
 
-                if (bReader.ReadUInt16() == 23117) {
-                    fStream.Seek(0x3A, SeekOrigin.Current);
-                    fStream.Seek(bReader.ReadUInt32(), SeekOrigin.Begin);
+                if (binaryReader.ReadUInt16() == 23117) {
+                    fileStream.Seek(0x3A, SeekOrigin.Current);
+                    fileStream.Seek(binaryReader.ReadUInt32(), SeekOrigin.Begin);
 
-                    if (bReader.ReadUInt32() == 17744) {
-                        fStream.Seek(20, SeekOrigin.Current);
-                        architecture = bReader.ReadUInt16();
+                    if (binaryReader.ReadUInt32() == 17744) {
+                        fileStream.Seek(20, SeekOrigin.Current);
+                        architecture = binaryReader.ReadUInt16();
                     }
                 }
             }
             catch { }
 
-            return architecture is 523 || architecture is 267;
+            return architecture is 523 or 267;
         }
     }
 

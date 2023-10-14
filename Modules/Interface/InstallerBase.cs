@@ -9,7 +9,7 @@ public abstract class InstallerBase<T>
 
 	public abstract ValueTask<T> InstallAsync();
 
-    internal void InvokeStatusChangedEvent(float progress, string progressdescription)
+    internal void InvokeStatusChangedEvent(double progress, string progressdescription)
 	{
 		this.ProgressChanged?.Invoke(this, new()
 		{

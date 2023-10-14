@@ -4,5 +4,5 @@ public class ProgressChangedEventArgs : EventArgs
 {
     public string? ProgressDescription { get; set; }
 
-    public float Progress { get; set; }
+    public double Progress { get; set; }
 }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace MinecraftLaunch.Modules.Utils {
+namespace MinecraftLaunch.Modules.Utilities {
     public class McNewsUtil {
         private readonly static string ImageBaseUrl = "https://www.minecraft.net";
 
@@ -14,38 +14,34 @@ namespace MinecraftLaunch.Modules.Utils {
 
         public static async ValueTask<McVersionUpdateJsonEntity> GetMcVersionUpdatesAsync() {
             using var httpResponse = await HttpUtil.HttpSimulateBrowserGetAsync(McVersionUpdateAPI);
-
             using var stream = await httpResponse.Content.ReadAsStreamAsync();
             var json = StringUtil.ConvertGzipStreamToString(stream);
-            var model = json.ToJsonEntity<McVersionUpdateJsonEntity>();
+            var mcVersionUpdateEntity = json.ToJsonEntity<McVersionUpdateJsonEntity>();
 
-            //Concurrency get news's image from minecraft website
-            ActionBlock<ArticleJsonEntity> actionBlock = new(async info => {
-                using var httpResponse = await HttpUtil.HttpSimulateBrowserGetAsync($"{ImageBaseUrl}{info.NewsUrl}");
+            // Concurrency get news's image from minecraft website
+            var actionBlock = new ActionBlock<ArticleJsonEntity>(async articleInfo => {
+                using var httpResponse = await HttpUtil.HttpSimulateBrowserGetAsync($"{ImageBaseUrl}{articleInfo.NewsUrl}");
                 using var stream = await httpResponse.Content.ReadAsStreamAsync();
 
                 var htmlStrs = StringUtil.ConvertGzipStreamToList(stream);
-                foreach (var item in htmlStrs.AsParallel()) {
-                    if (item.Contains("og:image")) {
-                        info.ImageUrl = StringUtil.GetPropertyFromHtmlText(item, "meta", "content");
+                foreach (var htmlStr in htmlStrs.AsParallel()) {
+                    if (htmlStr.Contains("og:image")) {
+                        articleInfo.ImageUrl = StringUtil.GetPropertyFromHtmlText(htmlStr, "meta", "content");
                     }
                 }
-            }, new() {
+            }, new ExecutionDataflowBlockOptions {
                 BoundedCapacity = 64,
                 MaxDegreeOfParallelism = 64
             });
 
-            DataflowLinkOptions linkOptions = new DataflowLinkOptions {
-                PropagateCompletion = true
-            };
-
-            foreach (var item in model.Articles.AsParallel()) {
-                actionBlock.Post(item);
+            foreach (var article in mcVersionUpdateEntity.Articles.AsParallel()) {
+                actionBlock.Post(article);
             }
 
             actionBlock.Complete();
-            actionBlock.Completion.Wait();
-            return model;
+
+            await actionBlock.Completion;
+            return mcVersionUpdateEntity;
         }
     }
 }

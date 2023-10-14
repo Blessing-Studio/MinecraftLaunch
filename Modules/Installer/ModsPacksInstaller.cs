@@ -4,7 +4,7 @@ using System.Threading.Tasks.Dataflow;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Modules.Installer;
 

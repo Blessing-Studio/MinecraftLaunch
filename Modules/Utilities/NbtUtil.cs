@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NbtLib;
+﻿using NbtLib;
 
-namespace MinecraftLaunch.Modules.Utils {
+namespace MinecraftLaunch.Modules.Utilities {
     public class NbtUtil {   
         /// <summary>
         /// Load the Nbt file

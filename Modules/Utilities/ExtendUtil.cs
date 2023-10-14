@@ -9,7 +9,7 @@ using System.Text.Encodings.Web;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public static class ExtendUtil {
     public static string ToPath(this string raw) {
@@ -47,11 +47,23 @@ public static class ExtendUtil {
     }
 
     public static T ToJsonEntity<T>(this T entity, string json) where T : IJsonEntity {
-        return JsonSerializer.Deserialize<T>(json)!;
+        var options = new JsonSerializerOptions() {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true,
+        };
+        options.Converters.Add(new DateTimeConverter());
+
+        return JsonSerializer.Deserialize<T>(json, options:options)!;
     }
 
     public static string ToJson<T>(this T entity) where T : IJsonEntity {
-        return JsonSerializer.Serialize(entity);
+        var options = new JsonSerializerOptions() {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true,
+        };
+        options.Converters.Add(new DateTimeConverter());
+
+        return JsonSerializer.Serialize(entity, options);
     }
 
     public static string ToJson(this object entity) {

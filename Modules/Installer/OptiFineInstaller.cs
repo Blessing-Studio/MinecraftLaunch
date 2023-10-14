@@ -4,9 +4,10 @@ using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System.Text.Json;
 using Flurl.Http;
+using MinecraftLaunch.Modules.Downloaders;
 
 namespace MinecraftLaunch.Modules.Installer {
     public class OptiFineInstaller : InstallerBase<InstallerResponse> {
@@ -114,7 +115,7 @@ namespace MinecraftLaunch.Modules.Installer {
 
                 archive.GetEntry($"launchwrapper-of-{launchwrapper}.jar")!.ExtractToFile(launchwrapperFile.FullName, true);
             } else if (!launchwrapperFile.Exists) {
-                await HttpUtil.HttpDownloadAsync(new LibraryResource() {
+                await FileDownloader.DownloadAsync(new LibraryResource() {
                     Name = entity.Libraries[1].Name, Root = this.GameCoreLocator.Root 
                 }.ToDownloadRequest());
             }

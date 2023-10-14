@@ -5,7 +5,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;

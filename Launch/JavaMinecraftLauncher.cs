@@ -8,7 +8,7 @@ using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Installer;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Launch {
     public sealed partial class JavaMinecraftLauncher : LauncherBase<JavaMinecraftArgumentsBuilder, MinecraftLaunchResponse> {
@@ -62,7 +62,7 @@ namespace MinecraftLaunch.Launch {
                 progress.Report((9f, "正在检查Natives"));
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try {
-                    ZipUtil.GameNativesDecompress(natives, core.LibraryResources);
+                    ZipUtil.DecompressGameNatives(natives, core.LibraryResources);
                 }
                 catch (Exception ex2) when (ex2.Message.Contains("The process cannot access the file")) {
                     progress.Report((0.95f, "Natives文件情况：已解压，无需再次解压"));
@@ -129,7 +129,7 @@ namespace MinecraftLaunch.Launch {
 
                 DirectoryInfo natives = new DirectoryInfo((LaunchSetting.NativesFolder != null && LaunchSetting.NativesFolder.Exists) ? LaunchSetting.NativesFolder.FullName.ToString() : Path.Combine(core.Root.FullName, "versions", core.Id, "natives"));
                 try {
-                    ZipUtil.GameNativesDecompress(natives, core.LibraryResources);
+                    ZipUtil.DecompressGameNatives(natives, core.LibraryResources);
                 }
                 catch (Exception ex2) when (ex2.Message.Contains("The process cannot access the file")) { }
                 catch { throw; }

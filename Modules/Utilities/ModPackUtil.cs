@@ -12,7 +12,7 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public class ModPackUtil : IPackToolkit<ModPack> {
     private static GameCore? GameCore = null;
@@ -30,7 +30,7 @@ public class ModPackUtil : IPackToolkit<ModPack> {
     public async ValueTask<ImmutableArray<ModPack>> LoadAllAsync() {
         List<ModPack> modPacks = new List<ModPack>();
         Directory.CreateDirectory(ModPacksDirectory);
-        FileInfo[] files = new DirectoryInfo(ModPacksDirectory).GetFiles();
+        var files = new DirectoryInfo(ModPacksDirectory).EnumerateFiles();
         foreach (FileInfo file in files) {
             ModPack v = LoadSingle(file.FullName);
             modPacks.Add(v);

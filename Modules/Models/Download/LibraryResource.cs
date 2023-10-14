@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using MinecraftLaunch.Modules.Interface;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Modules.Models.Download;
 
@@ -47,7 +47,7 @@ public class LibraryResource : IResource {
         }
     }
 
-    public HttpDownloadRequest ToDownloadRequest() {
+    public DownloadRequest ToDownloadRequest() {
         string root = APIManager.Current.Libraries;
         foreach (string item in FormatName(Name)) {
             root = ExtendUtil.Combine(new string[2] { root, item });
@@ -57,11 +57,10 @@ public class LibraryResource : IResource {
             root = (APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? Url : Url.Replace(APIManager.Mojang.Libraries, APIManager.Current.Libraries).Replace(APIManager.ForgeLibraryUrlReplace).Replace(APIManager.FabricLibraryUrlReplace));
         }
 
-        return new HttpDownloadRequest {
+        return new DownloadRequest {
             Directory = ToFileInfo().Directory!,
             FileName = ToFileInfo().Name,
-            Sha1 = CheckSum,
-            Size = Size,
+            FileSize = Size,
             Url = root
         };
     }

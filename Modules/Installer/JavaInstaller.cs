@@ -9,7 +9,7 @@ using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class JavaInstaller : InstallerBase<JavaInstallerResponse> {

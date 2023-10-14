@@ -1,7 +1,7 @@
 ﻿using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;

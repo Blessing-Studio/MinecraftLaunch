@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public class EnvironmentUtil {
     public static string Arch

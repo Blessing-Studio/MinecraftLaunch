@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using System.IO;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Modules.Parser;
 
@@ -17,50 +15,37 @@ public class LibraryParser {
     }
 
     public IEnumerable<LibraryResource> GetLibraries() {
+        string platformName = EnvironmentUtil.GetPlatformName();
         foreach (LibraryJsonEntity libraryJsonEntity in Entities) {
             LibraryResource obj = new LibraryResource {
-                CheckSum = (libraryJsonEntity.Downloads?.Artifact?.Sha1 ?? string.Empty)
+                CheckSum = (libraryJsonEntity.Downloads?.Artifact?.Sha1 ?? string.Empty),
+                Size = (libraryJsonEntity.Downloads?.Artifact?.Size ?? 0),
+                Url = (libraryJsonEntity.Downloads?.Artifact?.Url ?? string.Empty) + libraryJsonEntity.Url,
+                Name = libraryJsonEntity.Name,
+                Root = Root,
+                IsEnable = true
             };
-            DownloadsJsonEntity downloads = libraryJsonEntity.Downloads;
-            int num;
-            if (downloads == null) {
-                num = 1;
-            } else {
-                FileJsonEntity artifact = downloads.Artifact;
-                if (artifact == null) {
-                    num = 1;
-                } else {
-                    _ = artifact.Size;
-                    num = 0;
-                }
-            }
-            obj.Size = ((num == 0) ? (libraryJsonEntity.Downloads?.Artifact?.Size)!.Value : 0);
-            obj.Url = (libraryJsonEntity.Downloads?.Artifact?.Url ?? string.Empty) + libraryJsonEntity.Url;
-            obj.Name = libraryJsonEntity.Name;
-            obj.Root = Root;
-            obj.IsEnable = true;
-            LibraryResource libraryResource = obj;
 
             if (libraryJsonEntity.Rules != null) {
-                libraryResource.IsEnable = GetAblility(libraryJsonEntity, EnvironmentUtil.GetPlatformName());
+                obj.IsEnable = GetAblility(libraryJsonEntity, platformName);
             }
 
             if (libraryJsonEntity.Natives != null) {
-                libraryResource.IsNatives = true;
-                if (!libraryJsonEntity.Natives.ContainsKey(EnvironmentUtil.GetPlatformName())) {
-                    libraryResource.IsEnable = false;
+                obj.IsNatives = true;
+                if (!libraryJsonEntity.Natives.ContainsKey(platformName)) {
+                    obj.IsEnable = false;
                 }
 
-                if (libraryResource.IsEnable) {
-                    libraryResource.Name = libraryResource.Name + ":" + GetNativeName(libraryJsonEntity);
-                    FileJsonEntity file = libraryJsonEntity.Downloads.Classifiers[libraryJsonEntity.Natives[EnvironmentUtil.GetPlatformName()].Replace("${arch}", EnvironmentUtil.Arch)];
-                    libraryResource.CheckSum = file.Sha1;
-                    libraryResource.Size = file.Size;
-                    libraryResource.Url = file.Url;
+                if (obj.IsEnable) {
+                    obj.Name += ":" + GetNativeName(libraryJsonEntity);
+                    FileJsonEntity file = libraryJsonEntity.Downloads.Classifiers[libraryJsonEntity.Natives[platformName].Replace("${arch}", EnvironmentUtil.Arch)];
+                    obj.CheckSum = file.Sha1;
+                    obj.Size = file.Size;
+                    obj.Url = file.Url;
                 }
             }
 
-            yield return libraryResource;
+            yield return obj;
         }
     }
 
@@ -69,16 +54,16 @@ public class LibraryParser {
     }
 
     private bool GetAblility(LibraryJsonEntity libraryJsonEntity, string platform) {
-        bool linux;
-        bool osx;
-        bool windows = (linux = (osx = false));
+        bool linux, osx, windows = osx = linux = false;
         foreach (RuleEntity item in libraryJsonEntity.Rules) {
             if (item.Action == "allow") {
                 if (item.System == null) {
-                    windows = (linux = (osx = true));
+                    windows = linux = osx = true;
                     continue;
                 }
-                using Dictionary<string, string>.Enumerator enumerator2 = item.System.GetEnumerator();
+                using Dictionary<string, string>.Enumerator enumerator2 = 
+                    item.System.GetEnumerator();
+
                 while (enumerator2.MoveNext()) {
                     switch (enumerator2.Current.Value) {
                         case "windows":
@@ -96,11 +81,15 @@ public class LibraryParser {
                 if (!(item.Action == "disallow")) {
                     continue;
                 }
+
                 if (item.System == null) {
-                    windows = (linux = (osx = false));
+                    windows = (linux = osx = false);
                     continue;
                 }
-                using Dictionary<string, string>.Enumerator enumerator2 = item.System.GetEnumerator();
+
+                using Dictionary<string, string>.Enumerator enumerator2 =
+                    item.System.GetEnumerator();
+
                 while (enumerator2.MoveNext()) {
                     switch (enumerator2.Current.Value) {
                         case "windows":
@@ -116,6 +105,7 @@ public class LibraryParser {
                 }
             }
         }
+
         return platform switch {
             "windows" => windows,
             "linux" => linux,
@@ -124,3 +114,38 @@ public class LibraryParser {
         };
     }
 }
+//private bool GetAblility(LibraryJsonEntity libraryJsonEntity, string platform) {
+//    bool windows = false;
+//    bool linux = false;
+//    bool osx = false;
+
+//    foreach (RuleEntity item in libraryJsonEntity.Rules) {
+//        switch (item.Action) {
+//            case "allow":
+//                if (item.System == null) {
+//                    windows = linux = osx = true;
+//                } else {
+//                    windows = item.System.ContainsKey("windows");
+//                    linux = item.System.ContainsKey("linux");
+//                    osx = item.System.ContainsKey("osx");
+//                }
+//                break;
+//            case "disallow":
+//                if (item.System == null) {
+//                    windows = linux = osx = false;
+//                } else {
+//                    windows = !item.System.ContainsKey("windows");
+//                    linux = !item.System.ContainsKey("linux");
+//                    osx = !item.System.ContainsKey("osx");
+//                }
+//                break;
+//        }
+//    }
+
+//    return platform switch {
+//        "windows" => windows,
+//        "linux" => linux,
+//        "osx" => osx,
+//        _ => false,
+//    };
+//}

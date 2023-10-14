@@ -16,12 +16,11 @@ public class FileResource : IResource {
 
     public FileInfo? FileInfo { get; set; }
 
-    public HttpDownloadRequest ToDownloadRequest() {
-        return new HttpDownloadRequest {
+    public DownloadRequest ToDownloadRequest() {
+        return new DownloadRequest {
             Directory = FileInfo.Directory,
             FileName = Name,
-            Sha1 = CheckSum,
-            Size = Size,
+            FileSize = Size,
             Url = Url
         };
     }

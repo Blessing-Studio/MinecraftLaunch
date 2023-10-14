@@ -1,11 +1,12 @@
 using System.Net;
 using System.Threading.Tasks.Dataflow;
+using MinecraftLaunch.Modules.Downloaders;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 namespace MinecraftLaunch.Modules.Installer;
 
@@ -34,7 +35,7 @@ public class ResourceInstaller {
                 request.Url = $"{APIManager.Current.Host}/version/{Path.GetFileNameWithoutExtension(clientFile.Name)}/client";
             }
 
-            var httpDownloadResponse = await HttpUtil.HttpDownloadAsync(request);
+            var httpDownloadResponse = await FileDownloader.DownloadAsync(request);
             if (httpDownloadResponse.HttpStatusCode != HttpStatusCode.OK) {
                 FailedResources.Add(clientFile);
             }
@@ -75,7 +76,7 @@ public class ResourceInstaller {
                         File.Copy(text, Path.Combine(request.Directory.FullName, request.FileName), true);
                     } else if (!resource.ToFileInfo().Exists)//缓存和实际目录都没有此依赖的情况
                       {
-                        var httpDownloadResponse = await HttpUtil.HttpDownloadAsync(request);
+                        var httpDownloadResponse = await FileDownloader.DownloadAsync(request);
 
                         if (httpDownloadResponse.HttpStatusCode != HttpStatusCode.OK)
                             this.FailedResources.Add(resource);
@@ -85,7 +86,7 @@ public class ResourceInstaller {
                                 Directory.CreateDirectory(Path.Combine(root, info));
                             }
 
-                            httpDownloadResponse.FileInfo.CopyTo(text, true);
+                            httpDownloadResponse.Result.CopyTo(text, true);
                         }
                     }
                 }
@@ -133,7 +134,7 @@ public class ResourceInstaller {
             if (!request.Directory.Exists)
                 request.Directory.Create();
 
-            var res = await HttpUtil.HttpDownloadAsync(request);
+            var res = await FileDownloader.DownloadAsync(request);
         }
 
         var entity = new AssetJsonEntity();

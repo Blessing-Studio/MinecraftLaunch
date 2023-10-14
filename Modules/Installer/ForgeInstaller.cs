@@ -5,11 +5,12 @@ using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
 using MinecraftLaunch.Modules.Models.Launch;
 using MinecraftLaunch.Modules.Parser;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using MinecraftLaunch.Modules.Downloaders;
 using Flurl.Http;
+using System;
 
 namespace MinecraftLaunch.Modules.Installer {
     public partial class ForgeInstaller : InstallerBase<InstallerResponse> {
@@ -38,13 +39,14 @@ namespace MinecraftLaunch.Modules.Installer {
             InvokeStatusChangedEvent(0f, "开始下载 Forge 安装包");
             if (string.IsNullOrEmpty(PackageFile) || !File.Exists(PackageFile)) {
                 var downloadResponse = await DownForgeOfBuildAsync(this.ForgeBuild.Build, GameCoreLocator.Root, (progress, message) => {
-                    InvokeStatusChangedEvent(0.1f * progress, "下载 Forge 安装包中");
+                    InvokeStatusChangedEvent(0.1d * progress, "下载 Forge 安装包中");
                 });
 
                 if (downloadResponse.HttpStatusCode != System.Net.HttpStatusCode.OK)
                     throw new HttpRequestException(downloadResponse.HttpStatusCode.ToString());
 
-                PackageFile = downloadResponse.FileInfo.FullName;
+                PackageFile = downloadResponse.Result
+                    .FullName;
             }
 
             #endregion
@@ -279,12 +281,19 @@ namespace MinecraftLaunch.Modules.Installer {
             }
         }
 
-        public static ValueTask<HttpDownloadResponse> DownForgeOfBuildAsync(int build, DirectoryInfo directory, Action<float, string> progressChangedAction) {
+        public static async ValueTask<FileDownloaderResponse> DownForgeOfBuildAsync(int build, DirectoryInfo directory, Action<double, string> progressChangedAction) {
             var downloadUrl = $"{(APIManager.Current.Host.Equals(APIManager.Mojang.Host) ? APIManager.Bmcl.Host : APIManager.Current.Host)}/forge/download/{build}";
-            return HttpUtil.HttpDownloadAsync(new HttpDownloadRequest {
+            using var downloader = FileDownloader.Build(new DownloadRequest {
                 Url = downloadUrl,
                 Directory = directory
-            }, progressChangedAction);
+            });
+
+            downloader.DownloadProgressChanged += (_, x) => {
+                progressChangedAction(x.Progress, x.Progress.ToString());
+            };
+
+            downloader.BeginDownload();            
+            return await downloader.CompleteAsync();
         }
     }
 

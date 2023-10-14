@@ -3,7 +3,7 @@ using MinecraftLaunch.Modules.Downloaders;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System.Text.Json;
 
 namespace MinecraftLaunch.Modules.Installer {
@@ -76,7 +76,6 @@ namespace MinecraftLaunch.Modules.Installer {
             if (!versionJsonFile.Directory!.Exists)
                 versionJsonFile.Directory.Create();
 
-            await Console.Out.WriteLineAsync(entity.ToJson());
             await File.WriteAllTextAsync(versionJsonFile.FullName, entity.ToJson());
             #endregion
 

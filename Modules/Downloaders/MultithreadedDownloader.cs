@@ -1,5 +1,5 @@
 ﻿using MinecraftLaunch.Modules.Models.Download;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace MinecraftLaunch.Modules.Downloaders {
     public class MultithreadedDownloader<T> {
-        private readonly Dictionary<HttpDownloadRequest, HttpDownloadResponse> FailedDownloadRequests = new Dictionary<HttpDownloadRequest, HttpDownloadResponse>();
+        private readonly Dictionary<DownloadRequest, FileDownloaderResponse> FailedDownloadRequests = new();
 
         public int MaxThreadNumber { get; set; } = 128;
 
@@ -18,32 +18,32 @@ namespace MinecraftLaunch.Modules.Downloaders {
 
         public List<T> Sources { get; private set; }
 
-        public Func<T, HttpDownloadRequest> HandleFunc { get; private set; }
+        public Func<T, DownloadRequest> HandleFunc { get; private set; }
 
         public event EventHandler Completed;
 
-        public event EventHandler<HttpDownloadResponse> SingleDownloaded;
+        public event EventHandler<FileDownloaderResponse> SingleDownloaded;
 
         public event EventHandler<(float, string)> ProgressChanged;
 
-        public MultithreadedDownloader(Func<T, HttpDownloadRequest> func, List<T> sources) {
+        public MultithreadedDownloader(Func<T, DownloadRequest> func, List<T> sources) {
             HandleFunc = func;
             Sources = sources;
         }
 
         public async Task<MultithreadedDownloadResponse> DownloadAsync() {
-            TransformManyBlock<List<T>, HttpDownloadRequest> transformManyBlock = new TransformManyBlock<List<T>, HttpDownloadRequest>((List<T> x) => x.Select((T x) => HandleFunc(x)));
+            TransformManyBlock<List<T>, DownloadRequest> transformManyBlock = new TransformManyBlock<List<T>, DownloadRequest>((List<T> x) => x.Select((T x) => HandleFunc(x)));
             int post = 0;
             int output = 0;
-            ActionBlock<HttpDownloadRequest> actionBlock = new ActionBlock<HttpDownloadRequest>(async delegate (HttpDownloadRequest request) {
+            ActionBlock<DownloadRequest> actionBlock = new ActionBlock<DownloadRequest>(async delegate (DownloadRequest request) {
                 post++;
                 if (!request.Directory.Exists) {
                     request.Directory.Create();
                 }
 
-                HttpDownloadResponse httpDownloadResponse = null;
+                FileDownloaderResponse httpDownloadResponse = null;
                 try {
-                    httpDownloadResponse = await HttpUtil.HttpDownloadAsync(request);
+                    httpDownloadResponse = await FileDownloader.DownloadAsync(request);
                     if (httpDownloadResponse.HttpStatusCode != HttpStatusCode.OK) {
                         FailedDownloadRequests.Add(request, httpDownloadResponse);
                     }

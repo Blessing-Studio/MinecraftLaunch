@@ -13,7 +13,7 @@ using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
 
-namespace MinecraftLaunch.Modules.Utils;
+namespace MinecraftLaunch.Modules.Utilities;
 
 public class ResourcePackUtil : IPackToolkit<ResourcePack> {
     public static readonly string X = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "\\" : "/");

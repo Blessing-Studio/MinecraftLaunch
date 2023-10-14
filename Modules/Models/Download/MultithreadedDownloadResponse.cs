@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MinecraftLaunch.Modules.Models.Download {
     public class MultithreadedDownloadResponse {
-        public Dictionary<HttpDownloadRequest, HttpDownloadResponse> FailedDownloadRequests { get; set; }
+        public Dictionary<DownloadRequest, FileDownloaderResponse> FailedDownloadRequests { get; set; }
 
         public bool IsAllSuccess { get; set; }
     }

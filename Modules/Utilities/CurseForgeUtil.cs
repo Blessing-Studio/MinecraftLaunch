@@ -5,13 +5,11 @@ using Flurl.Http;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
 
-namespace MinecraftLaunch.Modules.Utils {
+namespace MinecraftLaunch.Modules.Utilities {
     public partial class CurseForgeUtil {
         private const string API = "https://api.curseforge.com/v1/mods";
 
         public static string Key { get; set; } = string.Empty;
-
-        private Dictionary<string, string> Headers => new Dictionary<string, string> { { "x-api-key", Key } };
 
         public CurseForgeUtil(string accesskey) {
             Key = accesskey;
@@ -78,24 +76,28 @@ namespace MinecraftLaunch.Modules.Utils {
                 gameVersionTypeId = null as string
             };
 
-
             try {
-                
-                using var responseMessage = await $"{API}/featured".WithHeader("x-api-key", Key)
+                using var responseMessage = await $"{API}/featured"
+                    .WithHeader("x-api-key", Key)
                     .PostJsonAsync(content);
 
-                responseMessage.ResponseMessage.EnsureSuccessStatusCode();
+                responseMessage.ResponseMessage
+                    .EnsureSuccessStatusCode();
 
                 var entitys = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
+                var data = entitys.GetProperty("data");
 
-                foreach (var entity in entitys.GetProperty("data").GetProperty("popular").EnumerateArray())
-                    result.Add(ParseCurseForgeModpack(entity));
+                result.AddRange(data.GetProperty("popular")
+                    .EnumerateArray()
+                    .Select(ParseCurseForgeModpack));
 
-                foreach (var entity in entitys.GetProperty("data").GetProperty("recentlyUpdated").EnumerateArray())
-                    result.Add(ParseCurseForgeModpack(entity));
+                result.AddRange(data.GetProperty("recentlyUpdated")
+                    .EnumerateArray()
+                    .Select(ParseCurseForgeModpack));
 
-                foreach (var entity in entitys.GetProperty("data").GetProperty("featured").EnumerateArray())
-                    result.Add(ParseCurseForgeModpack(entity));
+                result.AddRange(data.GetProperty("featured")
+                    .EnumerateArray()
+                    .Select(ParseCurseForgeModpack));
 
                 result.Sort((a, b) => a.GamePopularityRank.CompareTo(b.GamePopularityRank));
 
@@ -103,7 +105,7 @@ namespace MinecraftLaunch.Modules.Utils {
             }
             catch { }
 
-            return null;
+            return default!;
         }
 
         /// <summary>
@@ -114,24 +116,30 @@ namespace MinecraftLaunch.Modules.Utils {
         /// </remarks>
         /// <returns></returns>
         public async ValueTask<List<CurseForgeModpack>> SearchResourceAsync(string searchFilter, int classId, ModLoaderType modLoaderType = ModLoaderType.Any, string gameVersion = null, int category = -1) {
-            var builder = new StringBuilder(API)
-                          .Append($"/search?gameId=432")
-                          .Append(string.IsNullOrEmpty(searchFilter) ? string.Empty : $"&searchFilter={searchFilter}")
-                          .Append((int)modLoaderType == 8 ? $"&modLoaderType={(int)modLoaderType}" : string.Empty)
-                          .Append(string.IsNullOrEmpty(gameVersion) ? string.Empty : $"&gameVersion={gameVersion}")
-                          .Append(category == -1 ? string.Empty : $"&categoryId={gameVersion}")
-                          .Append($"&sortField=Featured&sortOrder=desc&classId={classId}");
+            var parameters = new List<string> {
+                "gameId=432",
+                string.IsNullOrEmpty(searchFilter) ? string.Empty : $"searchFilter={searchFilter}",
+                (int)modLoaderType == 8 ? $"modLoaderType={(int)modLoaderType}" : string.Empty,
+                string.IsNullOrEmpty(gameVersion) ? string.Empty : $"gameVersion={gameVersion}",
+                category == -1 ? string.Empty : $"categoryId={gameVersion}",
+                "sortField=Featured",
+                "sortOrder=desc",
+                $"classId={classId}"
+            };
 
+            var url = $"{API}/search?" + string.Join("&", parameters.Where(p => p != null));
             var result = new List<CurseForgeModpack>();
 
             try {
-                using var responseMessage = await builder.ToString()
+                using var responseMessage = await url
                     .WithHeader("x-api-key", Key)
                     .GetAsync();
 
                 responseMessage.ResponseMessage.EnsureSuccessStatusCode();
 
-                var entity = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
+                var entity = JsonDocument.Parse(await responseMessage
+                    .GetStringAsync()).RootElement;
+
                 foreach (var x in entity.GetProperty("data").EnumerateArray())
                     result.Add(ParseCurseForgeModpack(x));
 
@@ -161,13 +169,16 @@ namespace MinecraftLaunch.Modules.Utils {
 
         public async ValueTask<List<CurseForgeModpackCategory>> GetCategories() {
             try {
-                using var responseMessage = await $"https://api.curseforge.com/v1/categories?gameId=432".WithHeader("x-api-key", Key)
+                using var responseMessage = await $"https://api.curseforge.com/v1/categories?gameId=432"
+                    .WithHeader("x-api-key", Key)
                     .GetAsync();
 
                 responseMessage.ResponseMessage.EnsureSuccessStatusCode();
                 var entity = JsonDocument.Parse(await responseMessage.GetStringAsync()).RootElement;
 
-                return entity.GetProperty("data").EnumerateArray().Select(x => JsonSerializer.Deserialize<CurseForgeModpackCategory>(x.GetRawText())).ToList()!;
+                return entity.GetProperty("data").EnumerateArray().Select(x => JsonSerializer.Deserialize<CurseForgeModpackCategory>(x
+                    .GetRawText()))
+                    .ToList()!;
             }
             catch { }
 
@@ -185,7 +196,8 @@ namespace MinecraftLaunch.Modules.Utils {
             }
             catch {
             }
-            return null;
+
+            return default!;
         }
 
         protected CurseForgeModpack ParseCurseForgeModpack(JsonElement entity) {
@@ -203,9 +215,15 @@ namespace MinecraftLaunch.Modules.Utils {
                 modpack.Files[x.SupportedVersion].Add(x);
             });
 
-            modpack.Links.Where(x => string.IsNullOrEmpty(x.Value)).Select(x => x.Key).ToList().ForEach(x => modpack.Links.Remove(x));
-            modpack.Files = modpack.Files.OrderByDescending(x => (int)(float.Parse(x.Key.Substring(2)) * 100)).ToDictionary(x => x.Key, x => x.Value);
-            modpack.SupportedVersions = modpack.Files.Keys.ToArray();
+            modpack.Links = modpack.Links.Where(x => !string.IsNullOrEmpty(x.Value))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            modpack.Files = modpack.Files.OrderByDescending(x => (int)(float.Parse(x.Key
+                .Substring(2)) * 100))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            modpack.SupportedVersions = modpack.Files
+                .Keys.ToArray();
 
             return modpack;
         }

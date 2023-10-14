@@ -6,7 +6,7 @@ using System.Text.Json;
 using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Launch;
-using MinecraftLaunch.Modules.Utils;
+using MinecraftLaunch.Modules.Utilities;
 
 
 namespace MinecraftLaunch.Modules.Parser;
@@ -25,7 +25,7 @@ public class GameCoreParser {
     }
 
     public IEnumerable<GameCore> GetGameCores() {
-        List<GameCore> cores = new List<GameCore>();
+        List<GameCore> gameCores = new();
         foreach (GameCoreJsonEntity jsonEntity in JsonEntities) {
             try {
                 GameCore gameCore = new GameCore {
@@ -37,18 +37,21 @@ public class GameCoreParser {
                     LibraryResources = new LibraryParser(jsonEntity.Libraries, Root).GetLibraries().ToList(),
                     Root = Root
                 };
-                if (string.IsNullOrEmpty(jsonEntity.InheritsFrom) && jsonEntity.Downloads != null) {
+
+                if (string.IsNullOrEmpty(jsonEntity.InheritsFrom)) {
                     gameCore.ClientFile = GetClientFile(jsonEntity);
+                    if (jsonEntity.Logging != null && jsonEntity.Logging.Client != null) {
+                        gameCore.LogConfigFile = GetLogConfigFile(jsonEntity);
+                    }
+                    if (jsonEntity.AssetIndex != null) {
+                        gameCore.AssetIndexFile = GetAssetIndexFile(jsonEntity);
+                    }
                 }
-                if (string.IsNullOrEmpty(jsonEntity.InheritsFrom) && jsonEntity.Logging != null && jsonEntity.Logging.Client != null) {
-                    gameCore.LogConfigFile = GetLogConfigFile(jsonEntity);
-                }
-                if (string.IsNullOrEmpty(jsonEntity.InheritsFrom) && jsonEntity.AssetIndex != null) {
-                    gameCore.AssetIndexFile = GetAssetIndexFile(jsonEntity);
-                }
+
                 if (jsonEntity.MinecraftArguments != null) {
                     gameCore.BehindArguments = HandleMinecraftArguments(jsonEntity.MinecraftArguments);
                 }
+
                 if (jsonEntity.Arguments != null && jsonEntity.Arguments.Game != null) {
                     IEnumerable<string> behindArguments;
                     if (gameCore.BehindArguments != null) {
@@ -59,37 +62,35 @@ public class GameCoreParser {
                     }
                     gameCore.BehindArguments = behindArguments;
                 }
+
                 if (jsonEntity.Arguments != null && jsonEntity.Arguments.Jvm != null) {
                     gameCore.FrontArguments = HandleArgumentsJvm(jsonEntity.Arguments);
                 } else {
                     gameCore.FrontArguments = new string[4] { "-Djava.library.path=${natives_directory}", "-Dminecraft.launcher.brand=${launcher_name}", "-Dminecraft.launcher.version=${launcher_version}", "-cp ${classpath}" };
                 }
-                cores.Add(gameCore);
+
+                gameCores.Add(gameCore);
             }
-            catch (Exception item) {
-                ErrorGameCores.Add((jsonEntity.Id, item));
+            catch (Exception exception) {
+                ErrorGameCores.Add((jsonEntity.Id, exception));
             }
         }
-        foreach (GameCore item2 in cores) {
-            item2.Source = GetSource(item2);
-            item2.HasModLoader = GetHasModLoader(item2);
 
-            if (item2.HasModLoader) {
-                item2.ModLoaderInfos = GetModLoaderInfos(item2);
+        Dictionary<string, GameCore> gameCoresDict = gameCores?.ToDictionary(core => core.Id!)!;
+        foreach (GameCore gameCore in gameCores!) {
+            gameCore.Source = GetSource(gameCore);
+            gameCore.HasModLoader = GetHasModLoader(gameCore);
+
+            if (gameCore.HasModLoader) {
+                gameCore.ModLoaderInfos = GetModLoaderInfos(gameCore);
             }
 
-            if (string.IsNullOrEmpty(item2.InheritsFrom)) {
-                yield return item2;
-                continue;
-            }
-            GameCore gameCore2 = null;
-            foreach (GameCore item3 in cores) {
-                if (item3.Id == item2.InheritsFrom) {
-                    gameCore2 = item3;
+            if (!string.IsNullOrEmpty(gameCore.InheritsFrom)) {
+                if (gameCoresDict.TryGetValue(gameCore.InheritsFrom, out var inheritedGameCore)) {
+                    yield return Combine(gameCore, inheritedGameCore);
                 }
-            }
-            if (gameCore2 != null) {
-                yield return Combine(item2, gameCore2);
+            } else {
+                yield return gameCore;
             }
         }
     }
@@ -210,26 +211,29 @@ public class GameCoreParser {
         }
     }
 
-    private IEnumerable<string> HandleMinecraftArguments(string minecraftArguments) => ArgumnetsGroup(minecraftArguments.Replace("  ", " ").Split(' '));
+    private IEnumerable<string> HandleMinecraftArguments(string minecraftArguments) => GroupArguments(minecraftArguments.Replace("  ", " ").Split(' '));
 
-private IEnumerable<string> HandleArgumentsGame(ArgumentsJsonEntity entity) => ArgumnetsGroup(entity.Game.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
+    private IEnumerable<string> HandleArgumentsGame(ArgumentsJsonEntity entity) => GroupArguments(entity.Game.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
 
-private IEnumerable<string> HandleArgumentsJvm(ArgumentsJsonEntity entity) => ArgumnetsGroup(entity.Jvm.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
+    private IEnumerable<string> HandleArgumentsJvm(ArgumentsJsonEntity entity) => GroupArguments(entity.Jvm.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
 
-    private static IEnumerable<string> ArgumnetsGroup(IEnumerable<string> vs) {
+    private static IEnumerable<string> GroupArguments(IEnumerable<string> arguments) {
         List<string> cache = new List<string>();
-        foreach (string item in vs) {
-            if (cache.Any() && cache[0].StartsWith("-") && item.StartsWith("-")) {
-                yield return cache[0].Trim(' ');
-                cache = new List<string> { item };
-            } else if (vs.Last() == item && !cache.Any()) {
-                yield return item.Trim(' ');
+        string lastArgument = arguments.Last();
+
+        foreach (string argument in arguments) {
+            if (cache.Any() && cache[0].StartsWith("-") && argument.StartsWith("-")) {
+                yield return cache[0].Trim();
+                cache.Clear();
+                cache.Add(argument);
+            } else if (lastArgument == argument && !cache.Any()) {
+                yield return argument.Trim();
             } else {
-                cache.Add(item);
+                cache.Add(argument);
             }
             if (cache.Count == 2) {
-                yield return string.Join(" ", cache).Trim(' ');
-                cache = new List<string>();
+                yield return string.Join(" ", cache).Trim();
+                cache.Clear();
             }
         }
     }

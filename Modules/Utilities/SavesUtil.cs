@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftLaunch.Modules.Utils
+namespace MinecraftLaunch.Modules.Utilities
 {
     /// <summary>
     /// 存档操作工具箱
