@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftOAuth", "..\MinecraftOAuth\MinecraftOAuth.csproj", "{EDA8F283-2F52-4E4E-902E-33AE0690217C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ML.Test", "..\ML.Test\ML.Test.csproj", "{6F005E58-7316-4013-B209-AF6775DBC0D4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Skin", "..\MinecraftLaunch.Skin\MinecraftLaunch.Skin.csproj", "{FA30EBA6-DDC0-4F6C-8867-7AF9A0951F2E}"
@@ -26,10 +24,6 @@ Global
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF404FF4-2070-462B-89CF-54C893AA70D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EDA8F283-2F52-4E4E-902E-33AE0690217C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EDA8F283-2F52-4E4E-902E-33AE0690217C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EDA8F283-2F52-4E4E-902E-33AE0690217C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EDA8F283-2F52-4E4E-902E-33AE0690217C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F005E58-7316-4013-B209-AF6775DBC0D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F005E58-7316-4013-B209-AF6775DBC0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F005E58-7316-4013-B209-AF6775DBC0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
