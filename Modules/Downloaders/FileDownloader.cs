@@ -56,7 +56,7 @@ public class FileDownloader : DownloaderBase<FileDownloaderResponse, FileDownloa
 
             else HttpResponseMessage = (await Url.GetAsync(HttpCompletionOption.ResponseHeadersRead)).ResponseMessage;
 
-            TotleLength = (long)HttpResponseMessage.Content.Headers.ContentLength;
+            TotleLength = HttpResponseMessage.Content.Headers.ContentLength ??= 0;
 
             if (HttpResponseMessage.Content.Headers.ContentDisposition != null && !string.IsNullOrEmpty(HttpResponseMessage.Content.Headers.ContentDisposition.FileName) && string.IsNullOrEmpty(TargetFileName))
                 TargetFileName = HttpResponseMessage.Content.Headers.ContentDisposition.FileName.Trim('\"');

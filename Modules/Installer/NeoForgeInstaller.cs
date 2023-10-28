@@ -299,5 +299,14 @@ namespace MinecraftLaunch.Modules.Installer {
 
             return result;
         }
+
+        public static async ValueTask<List<T>> AsListAsync<T>(this IAsyncEnumerable<T> values) {
+            var result = new List<T>();
+            await foreach (var item in values) {
+                result.Add(item);
+            }
+
+            return result;
+        }
     }
 }

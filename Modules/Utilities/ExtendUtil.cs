@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Encodings.Web;
 using System.IO.Compression;
 using System.Security.Cryptography;
+using System.IO;
 
 namespace MinecraftLaunch.Modules.Utilities;
 
@@ -82,30 +83,6 @@ public static class ExtendUtil {
 
     public static T ToJsonEntity<T>(this string json) {
         return JsonSerializer.Deserialize<T>(json)!;
-    }
-
-    public static string ToDownloadLink(this OpenJdkType open, JdkDownloadSource jdkDownloadSource) {
-        foreach (KeyValuePair<string, KeyValuePair<string, string>[]> i in JavaInstaller.OpenJdkDownloadSourcesForWindows) {
-            if (i.Key == "OpenJDK 8" && open == OpenJdkType.OpenJdk8) {
-                return i.Value[0].Value;
-            }
-            if (i.Key == "OpenJDK 11" && open == OpenJdkType.OpenJdk11) {
-                if (jdkDownloadSource == JdkDownloadSource.JdkJavaNet) {
-                    return i.Value[0].Value;
-                }
-                return i.Value[1].Value;
-            }
-            if (i.Key == "OpenJDK 17" && open == OpenJdkType.OpenJdk17) {
-                if (jdkDownloadSource == JdkDownloadSource.JdkJavaNet) {
-                    return i.Value[0].Value;
-                }
-                return i.Value[1].Value;
-            }
-            if (i.Key == "OpenJDK 18" && open == OpenJdkType.OpenJdk18) {
-                return i.Value[0].Value;
-            }
-        }
-        return "";
     }
 
     public static string ToFullJavaPath(this OpenJdkType open, string Save) {
@@ -242,5 +219,16 @@ public static class ExtendUtil {
         catch {
             return false;
         }
+    }
+
+    public static FileInfo Find(this DirectoryInfo directory, string file) {
+        foreach (var item in directory.EnumerateFiles())
+            if (item.Name == file)
+                return item;
+
+        foreach (var item in directory.EnumerateDirectories())
+            return item.Find(file);
+
+        return null;
     }
 }

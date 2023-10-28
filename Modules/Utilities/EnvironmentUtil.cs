@@ -21,16 +21,19 @@ public class EnvironmentUtil {
 
     public readonly static bool IsWindow = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    public static string GetPlatformName() {
+    public static string GetPlatformName(bool isMac = false) {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-            return "osx";
+            return isMac ? "mac-os" : "osx";
         }
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
             return "linux";
         }
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
             return "windows";
         }
+
         return "unknown";
     }
 }

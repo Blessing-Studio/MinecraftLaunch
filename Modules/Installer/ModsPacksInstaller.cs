@@ -1,6 +1,11 @@
+using System;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks.Dataflow;
+using MinecraftLaunch.Modules.Downloaders;
+using MinecraftLaunch.Modules.Enum;
 using MinecraftLaunch.Modules.Interface;
 using MinecraftLaunch.Modules.Models.Download;
 using MinecraftLaunch.Modules.Models.Install;
@@ -111,11 +116,119 @@ public class ModsPacksInstaller : InstallerBase<InstallerResponse> {
     }
 
     /// <summary>
-    /// MCBBS格式整合包安装方法
+    /// 获取整合包类型
     /// </summary>
+    /// <param name="path"></param>
     /// <returns></returns>
-    internal void MCBBSModsPacksInstall() {
+    public ModpacksType GetModpackType(string path) {
+        using var zipItems = ZipFile.OpenRead(path);
 
+        foreach (var zipItem in zipItems.Entries) {
+            var fullName = zipItem.FullName;
+
+            if (fullName.Contains("mcbbs.packmeta")) {
+                return ModpacksType.Mcbbs;
+            }
+
+            if (fullName.Contains("modrinth.index.json")) {
+                return ModpacksType.Modrinth;
+            }
+
+            if (fullName.Contains("manifest.json")) {
+                return ModpacksType.Curseforge;
+            }
+        }
+
+        return ModpacksType.Unknown;
     }
 
+    /// <summary>
+    /// Mcbbs
+    /// </summary>
+    /// <param name="path"></param>
+    public void McbbsModpacksInstall(string path) {
+        using ZipArchive zipinfo = ZipFile.OpenRead(path);
+        var jsonEntry = zipinfo.GetEntry("manifest.json");
+        if (jsonEntry == null) {
+            return;
+        }
+
+        string json = ExtendUtil.GetString(jsonEntry);
+        var modpackInfo = json.ToJsonEntity<ModsPacksModel>();
+        var gamcorePath = GameCoreUtil.GetGameCore(GamePath, modpackInfo.Name)
+            .GetGameCorePath();
+
+        foreach (ZipArchiveEntry i in zipinfo.Entries.AsParallel()) {
+            if (!i.FullName.StartsWith("overrides")) {
+                continue;
+            }
+
+            string cutpath = i.FullName.Replace("overrides/", string.Empty);
+            string fullPath = Path.Combine(gamcorePath, cutpath);
+            FileInfo v = new(fullPath);
+
+            if (!v.Directory!.Exists) {
+                v.Directory.Create();
+            }
+
+            i.ExtractToFile(fullPath, overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// Modrinth
+    /// </summary>
+    /// <param name="path"></param>
+    public async void ModrinthModpacksInstall(string path) {
+        using var zipItems = ZipFile.OpenRead(path);
+        var jsonEntry = zipItems.GetEntry("modrinth.index.json");
+        if (jsonEntry == null) return;
+
+        string json = ExtendUtil.GetString(jsonEntry);
+        var modpackInfo = json.ToJsonEntity<ModrinthJsonModel>();
+        float _totalDownloaded = 0, _needToDownload = modpackInfo.Files.Count();
+
+        var gamecorePath = GameCoreUtil.GetGameCore(GamePath, modpackInfo.Name).GetGameCorePath();
+        var actionBlock = new ActionBlock<IEnumerable<Files>>(async x => {
+            try {
+                foreach (var item in x.AsParallel()) {
+                    foreach (var url in item.Downloads.AsParallel()) {
+                        var folder = item.Path?.Split('/').FirstOrDefault()!;
+
+                        await FileDownloader.DownloadAsync(new DownloadRequest {
+                            Url = url,
+                            FileName = Path.GetFileName(url),
+                            Directory = new(Path.Combine(gamecorePath, folder))
+                        });
+
+                        _totalDownloaded++;
+                        var progress = (_totalDownloaded / _needToDownload * 0.8f) * 100;
+                    }
+                }
+            }
+            catch (Exception) { 
+            }
+        }, new ExecutionDataflowBlockOptions {
+            BoundedCapacity = 64,
+            MaxDegreeOfParallelism = 64
+        });
+
+        actionBlock.Post(modpackInfo.Files);
+        actionBlock.Complete();
+        await actionBlock.Completion;
+
+        foreach (ZipArchiveEntry i in zipItems.Entries.AsParallel()) {
+            if (!i.FullName.StartsWith("overrides")) continue;
+
+            string cutpath = i.FullName.Replace("overrides/", string.Empty);
+            string fullPath = Path.Combine(gamecorePath, cutpath);
+            FileInfo v = new FileInfo(fullPath);
+
+            if (!v.Directory.Exists) {
+                v.Directory.Create();
+            }
+
+            i.ExtractToFile(fullPath, overwrite: true);
+        }
+    }
 }

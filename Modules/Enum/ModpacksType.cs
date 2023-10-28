@@ -9,10 +9,10 @@ namespace MinecraftLaunch.Modules.Enum
     /// <summary>
     /// 整合包类型
     /// </summary>
-    public enum ModsPacksType {
-        Curseforge,
-        HMCL,
-        MCBBS,
-        MultiMC
+    public enum ModpacksType {
+        Mcbbs,
+        Unknown,
+        Modrinth,
+        Curseforge
     }
 }
