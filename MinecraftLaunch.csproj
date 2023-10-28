@@ -5,12 +5,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Title>MinecraftLaunch</Title>
-		<Authors>Xilu</Authors>
+		<Authors>Xilu;Ddggdd135</Authors>
 		<Company>Blessing Studio</Company>
 		<Description>下一代全能高效化的 Minecraft 启动核心</Description>
 		<PackageIcon>icon-1.png</PackageIcon>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackAsTool>False</PackAsTool>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Minecraft</PackageTags>
+		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -24,5 +28,11 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 </Project>
