@@ -9,6 +9,9 @@ using System.Text.Encodings.Web;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.IO;
+using System.ComponentModel;
+using System.Reflection;
+using DateTimeConverter = MinecraftLaunch.Modules.Models.Download.DateTimeConverter;
 
 namespace MinecraftLaunch.Modules.Utilities;
 
@@ -84,27 +87,6 @@ public static class ExtendUtil {
     public static T ToJsonEntity<T>(this string json) {
         return JsonSerializer.Deserialize<T>(json)!;
     }
-
-    public static string ToFullJavaPath(this OpenJdkType open, string Save) {
-        string javapath = null;
-        switch (open) {
-            case OpenJdkType.OpenJdk8:
-                javapath += "OpenJDK 8";
-                break;
-            case OpenJdkType.OpenJdk11:
-                javapath += "OpenJDK 11";
-                break;
-            case OpenJdkType.OpenJdk17:
-                javapath += "OpenJDK 17";
-                break;
-            case OpenJdkType.OpenJdk18:
-                javapath += "OpenJDK 18";
-                break;
-        }
-        string obj = (Save.EndsWith('\\') ? (Save + javapath) : (Save.EndsWith("/") ? (Save + javapath) : (Save + "\\" + javapath)));
-        Directory.CreateDirectory(obj);
-        return obj;
-    }   
 
     public static List<ModrinthFileInfo> GetModInfoToVersion(this List<ModrinthProjectInfoItem> ms, string version) {
         string version2 = version;
@@ -230,5 +212,13 @@ public static class ExtendUtil {
             return item.Find(file);
 
         return null;
+    }
+
+    public static string? AsDescription(this System.Enum t) {
+        var type = t.GetType();
+        var field = type.GetField(t.ToString());
+        var description = field?.GetCustomAttribute<DescriptionAttribute>();
+
+        return description?.Description;
     }
 }

@@ -36,7 +36,7 @@ namespace MinecraftLaunch.Modules.Installer {
             JavaInfo = javaInfo;
         }
 
-        public static async IAsyncEnumerable<DownloadJavaInfo> GetJavasByVersionAsync(int javaVersion) {
+        public static async IAsyncEnumerable<DownloadJavaInfo> GetJavasByVersionAsync(JavaVersion javaVersion) {
             string api = $"{(APIManager.Current == APIManager.Mojang ? "https://piston-meta.mojang.com" : APIManager.Current.Host)}" +
                 $"/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
 
@@ -58,11 +58,12 @@ namespace MinecraftLaunch.Modules.Installer {
                             ? Convert.ToInt32(version.Split('.', 2)[0])
                             : Convert.ToInt32(version[0].ToString());
 
-                        if (firstVersion == javaVersion) {
+                        if (firstVersion == Convert.ToInt32(javaVersion.AsDescription())) {
                             var manifest = info["manifest"];
 
                             yield return new DownloadJavaInfo {
-                                Type = java.Key,
+                                OsType = java.Key,
+                                JavaType = item.Key,
                                 Version = firstVersion,
                                 DetailVersion = version,
                                 Url = manifest["url"].GetValue<string>(),
@@ -157,9 +158,9 @@ namespace MinecraftLaunch.Modules.Installer {
 
         public int Version { get; set; }
 
-        public string Type { get; set; }
+        public string OsType { get; set; }
 
-        public string JavaPath { get; set; }
+        public string JavaType { get; set; }
 
         public string DetailVersion { get; set; }
     }
