@@ -15,7 +15,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Test
-      run: dotnet test MinecraftLaunch.csproj
+      run: dotnet test MinecraftLaunch/MinecraftLaunch.csproj
   test_build:
     runs-on: ubuntu-latest
     steps:
@@ -24,4 +24,4 @@ jobs:
       with:
         fetch-depth: 0
     - name: Test
-      run: dotnet build MinecraftLaunch.csproj
+      run: dotnet build MinecraftLaunch/MinecraftLaunch.csproj
