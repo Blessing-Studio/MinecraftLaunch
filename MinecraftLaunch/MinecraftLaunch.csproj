@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>net8.0;net7.0</TargetFrameworks>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <LangVersion>latest</LangVersion>
+	  <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.0.0-pre7" />
+  </ItemGroup>
+
+</Project>
