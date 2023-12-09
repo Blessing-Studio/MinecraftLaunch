@@ -148,9 +148,9 @@ namespace MinecraftLaunch.Components.Launcher {
         }
 
         private static IEnumerable<string> GetEnvironmentJvmArguments() {
-            string platformName = EnvironmentUtil.GetPlatformName();
-            if (!(platformName == "windows")) {
-                if (platformName == "osx")
+            Platform platformName = EnvironmentUtil.GetPlatformName();
+            if (!(platformName == Platform.windows)) {
+                if (platformName == Platform.osx)
                     yield return "-XstartOnFirstThread";
             } else {
                 yield return "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";

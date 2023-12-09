@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Classes.Enums;
 
 namespace MinecraftLaunch.Components.Fetcher {
     public class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
@@ -67,9 +68,9 @@ namespace MinecraftLaunch.Components.Fetcher {
 
         public async ValueTask<ImmutableArray<JavaEntry>> FetchAsync() {
             return EnvironmentUtil.GetPlatformName() switch {
-                "windows" => FetchWindowJava(),
-                "osx" => await FetchMacJavaAsync(),
-                "linux" => await FetchLinuxJavaAsync(),
+                Platform.windows => FetchWindowJava(),
+                Platform.osx => await FetchMacJavaAsync(),
+                Platform.linux => await FetchLinuxJavaAsync(),
                 _ => FetchWindowJava()
             };
         }

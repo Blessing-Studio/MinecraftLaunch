@@ -4,6 +4,7 @@ using MinecraftLaunch.Utilities;
 using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Classes.Enums;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -111,13 +112,13 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
 
                 foreach (var os in item.System) {
                     switch (os.Value) {
-                        case "windows":
+                        case Platform.windows:
                             windows = true;
                             break;
-                        case "linux":
+                        case Platform.linux:
                             linux = true;
                             break;
-                        case "osx":
+                        case Platform.osx:
                             osx = true;
                             break;
                     }
@@ -130,13 +131,13 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
 
                 foreach (var os in item.System) {
                     switch (os.Value) {
-                        case "windows":
+                        case Platform.windows:
                             windows = false;
                             break;
-                        case "linux":
+                        case Platform.linux:
                             linux = false;
                             break;
-                        case "osx":
+                        case Platform.osx:
                             osx = false;
                             break;
                     }
@@ -145,9 +146,9 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         }
 
         return EnvironmentUtil.GetPlatformName() switch {
-            "windows" => windows,
-            "linux" => linux,
-            "osx" => osx,
+            Platform.windows => windows,
+            Platform.linux=> linux,
+            Platform.osx => osx,
             _ => false,
         };
     }

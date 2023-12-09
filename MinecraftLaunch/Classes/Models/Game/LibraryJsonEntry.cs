@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Models.Download;
 
 namespace MinecraftLaunch.Classes.Models.Game {
@@ -10,14 +11,15 @@ namespace MinecraftLaunch.Classes.Models.Game {
         public DownloadsEntry Downloads { get; set; }
 
         [JsonPropertyName("natives")]
-        public Dictionary<string, string> Natives { get; set; }
+        public Dictionary<Platform, string> Natives { get; set; }
     }
 
-    public record RuleModel {
+    public record RuleModel
+    {
         [JsonPropertyName("action")]
         public string Action { get; set; }
 
         [JsonPropertyName("os")]
-        public Dictionary<string, string> System { get; set; }
+        public Dictionary<string, Platform> System { get; set; }
     }
 }

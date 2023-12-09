@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using MinecraftLaunch.Classes.Enums;
+using System.IO.Compression;
 
 namespace MinecraftLaunch.Utilities {
     public class ZipUtil {
@@ -10,9 +11,9 @@ namespace MinecraftLaunch.Utilities {
             DirectoryUtil.DeleteAllFiles(targetFolder);
 
             var extension = EnvironmentUtil.GetPlatformName() switch {
-                "windows" => ".dll",
-                "linux" => ".so",
-                "osx" => ".dylib",
+                Platform.windows => ".dll",
+                Platform.linux => ".so",
+                Platform.osx => ".dylib",
                 _ => "."
             };
 
