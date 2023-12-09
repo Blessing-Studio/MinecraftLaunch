@@ -181,10 +181,11 @@ namespace MinecraftLaunch.Components.Resolver {
                     var clientVersion = json["clientVersion"]; // pcl合并核心版本号读取
 
                     if (patches != null) {
-                        return patches[0]["version"].GetValue<string>();
+                        return patches[0].GetString("version");
                     }
+
                     if (clientVersion != null) {
-                        return clientVersion.GetValue<string>();
+                        return clientVersion.GetString();
                     }
                 }
 

@@ -1,7 +1,8 @@
-﻿using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Download;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Download;
 
 namespace MinecraftLaunch.Components.Fetcher {
     public class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceEntry>> {
@@ -16,11 +17,11 @@ namespace MinecraftLaunch.Components.Fetcher {
         private CurseForgeResourceEntry ResolveFromJsonNode(JsonNode node) {
             var entry = node.Deserialize<CurseForgeResourceEntry>();
 
-            entry.WebLink = node["links"]?["websiteUrl"]?.GetValue<string>();
-            entry.IconUrl = node["logo"]?["url"]?.GetValue<string>();
-            entry.Authors = node["authors"]?.AsArray().Select(x => x["name"].GetValue<string>());
-            entry.ScreenshotUrls = node["screenshots"]?.AsArray().Select(x => x["url"].GetValue<string>());
-            entry.Categories = node["categories"]?.AsArray().Select(x => x["name"].GetValue<string>());
+            entry.IconUrl = node["logo"]?.GetString("url");
+            entry.WebLink = node["links"]?.GetString("websiteUrl");
+            entry.Authors = node?.GetEnumerable<string>("authors", "name");
+            entry.Categories = node?.GetEnumerable<string>("categories", "name");
+            entry.ScreenshotUrls = node?.GetEnumerable<string>("screenshots", "url");
             entry.Files = entry.Files.Select(x => {
                 x.ModId = entry.Id;
                 return x;

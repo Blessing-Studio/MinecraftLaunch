@@ -1,15 +1,15 @@
 ﻿using MinecraftLaunch.Components.Authenticator;
+using MinecraftLaunch.Components.Checker;
+using MinecraftLaunch.Components.Resolver;
+using System.Diagnostics;
 
-MicrosoftAuthenticator authenticator = new("9fd44410-8ed7-4eb3-a160-9f1cc62c824c");
+string gameFolder = "C:\\Users\\w\\Desktop\\temp\\.minecraft";
 
-var result = await authenticator.DeviceFlowAuthAsync(x => {
-    Console.WriteLine(x.UserCode);
-});
+GameResolver resolver = new(gameFolder);
+var gameEntry = resolver.GetGameEntity("1.12.2");
 
-if(result != null) {
-    var account = await authenticator.AuthenticateAsync();
-    Console.WriteLine(account.Name);
-    Console.WriteLine(account.Uuid);
-}
+ResourceChecker checker = new(gameEntry);
+var result = await checker.CheckAsync();
 
+Console.WriteLine(result);
 Console.ReadKey();

@@ -18,7 +18,8 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         var jsonRules = libNode["rules"];
         var jsonNatives = libNode["natives"];
 
-        if (jsonRules != null && !GetLibraryEnable(jsonRules.Deserialize<IEnumerable<RuleModel>>()!)) {
+        if (jsonRules != null && !GetLibraryEnable(jsonRules.Deserialize<IEnumerable<RuleModel>>(JsonConverterUtil
+            .DefaultJsonConverterOptions)!)) {
             return null!;
         }
 
@@ -74,9 +75,9 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         if (jsonClient != null)
             return new LibraryEntry {
                 Path = GameEntry.JarPath,
-                Size = jsonClient["size"]!.GetValue<int>(),
-                Url = jsonClient["url"]!.GetValue<string>(),
-                Checksum = jsonClient["sha1"]!.GetValue<string>()
+                Url = jsonClient.GetString("url"),
+                Size = jsonClient.GetInt32("size"),
+                Checksum = jsonClient.GetString("sha1")
             };
 
         return null;
@@ -199,7 +200,7 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
                 libraryEntry.Url = libraryJsonNode.Downloads.Classifiers[nativeName].Url;
             }
 
-            if (jsonNode["name"]!.GetValue<string>().Contains("natives")) {
+            if (jsonNode.GetString("name").Contains("natives")) {
                 libraryEntry.Checksum = libraryJsonNode.Downloads.Artifact.Sha1;
                 libraryEntry.Size = libraryJsonNode.Downloads.Artifact.Size;
                 libraryEntry.Url = libraryJsonNode.Downloads.Artifact.Url;
@@ -216,15 +217,14 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         }
 
         if (libraryEntry.Url == null && jsonNode["url"] != null) {
-            libraryEntry.Url = (jsonNode["url"]
-                .GetValue<string>() + libraryEntry.RelativePath)
+            libraryEntry.Url = (jsonNode.GetString("url") + libraryEntry.RelativePath)
                 .Replace('\\', '/');
         }
 
         if (libraryEntry.Checksum == null && jsonNode["checksums"] != null) {
             libraryEntry.Checksum = jsonNode["checksums"]!
                 .AsArray()[0]!
-                .GetValue<string>();
+                .GetString();
         }
     }
 }

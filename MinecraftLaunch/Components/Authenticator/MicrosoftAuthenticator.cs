@@ -100,8 +100,8 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
             using var authenticateMinecraftPostRes = await $"https://api.minecraftservices.com/authentication/login_with_xbox"
                 .PostJsonAsync(authenticateMinecraftContent);
 
-            string access_token = JsonNode.Parse(await authenticateMinecraftPostRes.GetStringAsync())!["access_token"]!
-                .GetValue<string>();
+            string access_token = JsonNode.Parse(await authenticateMinecraftPostRes.GetStringAsync())
+                .GetString("access_token");
 
             /*
              * Check player's minecraft ownership (optional steps)
@@ -192,7 +192,7 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
                     };
                 }
 
-                if (tempTokenResponse["token_type"]?.GetValue<string>() is "Bearer") {
+                if (tempTokenResponse.GetString("token_type") is "Bearer") {
                     _oAuth2TokenResponse = tokenResponse;
                     return tokenResponse;
                 }

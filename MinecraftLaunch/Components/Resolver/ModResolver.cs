@@ -73,11 +73,11 @@ namespace MinecraftLaunch.Components.Resolver {
                 ?? throw new InvalidDataException("Invalid mcmod.info");
 
             try {
-                entry.DisplayName = jsonNode["name"].GetValue<string>();
-                entry.Version = jsonNode["version"]?.GetValue<string>();
-                entry.Description = jsonNode["description"]?.GetValue<string>();
-                entry.Authors = (jsonNode["authorList"] ?? jsonNode["authors"]).AsArray()
-                    .Select(x => x.GetValue<string>())
+                entry.DisplayName = jsonNode.GetString("name");
+                entry.Version = jsonNode.GetString("version");
+                entry.Description = jsonNode.GetString("description");
+                entry.Authors = (jsonNode["authorList"] ?? jsonNode["authors"])
+                    .GetEnumerable<string>()
                     .ToImmutableArray();
             }
             catch (Exception) {
@@ -92,11 +92,11 @@ namespace MinecraftLaunch.Components.Resolver {
                 try {
                     var jsonNode = JsonNode.Parse(reader.ReadToEnd());
 
-                    entry.DisplayName = jsonNode["name"].GetValue<string>();
-                    entry.Version = jsonNode["version"]?.GetValue<string>();
-                    entry.Description = jsonNode["description"]?.GetValue<string>();
-                    entry.Authors = jsonNode["authors"].AsArray()
-                        .Select(x => x.GetValue<string>())
+                    entry.DisplayName = jsonNode.GetString("name");
+                    entry.Version = jsonNode.GetString("version");
+                    entry.Description = jsonNode.GetString("description");
+                    entry.Authors = jsonNode["authors"]
+                        .GetEnumerable<string>()
                         .ToImmutableArray();
                 }
                 catch (Exception) {
@@ -136,11 +136,11 @@ namespace MinecraftLaunch.Components.Resolver {
                     var jsonNode = JsonNode.Parse(reader.ReadToEnd());
                     jsonNode = jsonNode["quilt_loader"]["metadata"];
 
-                    entry.DisplayName = jsonNode["name"].GetValue<string>();
-                    entry.Version = jsonNode["version"]?.GetValue<string>();
-                    entry.Description = jsonNode["description"]?.GetValue<string>();
-                    entry.Authors = jsonNode["authors"].AsArray()
-                        .Select(x => x.GetValue<string>())
+                    entry.DisplayName = jsonNode?.GetString("name");
+                    entry.Version = jsonNode?.GetString("version");
+                    entry.Description = jsonNode?.GetString("description");
+                    entry.Authors = jsonNode["authors"]
+                        .GetEnumerable<string>()
                         .ToImmutableArray();
                 }
                 catch (Exception) {
