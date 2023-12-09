@@ -15,13 +15,17 @@ namespace MinecraftLaunch.Utilities {
         public static bool IsWindow
             => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+        public readonly static Dictionary<Func<bool>, Platform> PlatformDirectory = new() {
+            { () => IsMac, Platform.osx },
+            { () => IsLinux, Platform.linux },
+            { () => IsWindow, Platform.windows }
+        };
+
         public static Platform GetPlatformName() {
-            if (IsMac) {
-                return Platform.osx;
-            } else if (IsLinux) {
-                return Platform.linux;
-            } else if (IsWindow) {
-                return Platform.windows;
+            foreach (var item in PlatformDirectory) {
+                if (item.Key.Invoke()) {
+                    return item.Value;
+                }
             }
 
             return Platform.unknown;

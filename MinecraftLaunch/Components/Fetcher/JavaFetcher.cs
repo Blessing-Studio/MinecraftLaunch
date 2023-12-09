@@ -17,7 +17,7 @@ namespace MinecraftLaunch.Components.Fetcher {
         private static readonly string[] _linuxJavaHomePaths = ["/usr/lib/jvm", "/usr/lib32/jvm", ".usr/lib64/jvm"];
 
         [SupportedOSPlatform(nameof(OSPlatform.Windows))]
-        private static readonly ImmutableArray<string> _windowJavaSearchTerms = ["java",
+        private static readonly string[] _windowJavaSearchTerms = ["java",
             "jdk",
             "jbr",
             "bin",

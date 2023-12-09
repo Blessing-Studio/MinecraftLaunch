@@ -5,9 +5,9 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "MinecraftLaunch\MinecraftLaunch.csproj", "{695112FD-D509-48BE-B050-0A4C1FFAC382}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F9385EFD-59A2-459A-98BA-D86144303BEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Natsurainko.FluentCore", "..\..\..\Code\Natsurainko.FluentCore.New\Natsurainko.FluentCore\Natsurainko.FluentCore.csproj", "{510C557E-E4EB-4E28-BB05-969373030054}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Test", "Tests\MinecraftLaunch.Test.csproj", "{72F099ED-FE08-4B26-A595-0EAF56F66C2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftLaunch.Test", "MinecraftLaunch.Test\MinecraftLaunch.Test.csproj", "{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,20 +25,25 @@ Global
 		{695112FD-D509-48BE-B050-0A4C1FFAC382}.Release|Any CPU.Build.0 = Release|Any CPU
 		{695112FD-D509-48BE-B050-0A4C1FFAC382}.Release|x64.ActiveCfg = Release|Any CPU
 		{695112FD-D509-48BE-B050-0A4C1FFAC382}.Release|x64.Build.0 = Release|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Debug|x64.Build.0 = Debug|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Release|x64.ActiveCfg = Release|Any CPU
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B}.Release|x64.Build.0 = Release|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Debug|x64.Build.0 = Debug|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Release|x64.ActiveCfg = Release|Any CPU
+		{510C557E-E4EB-4E28-BB05-969373030054}.Release|x64.Build.0 = Release|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Debug|x64.Build.0 = Debug|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.ActiveCfg = Release|Any CPU
+		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{72F099ED-FE08-4B26-A595-0EAF56F66C2B} = {F9385EFD-59A2-459A-98BA-D86144303BEF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83925857-C3A4-4952-B8E4-1FEB591DC9F8}

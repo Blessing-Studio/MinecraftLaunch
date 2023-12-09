@@ -1,7 +1,7 @@
-﻿using MinecraftLaunch.Classes.Interfaces;
+﻿using System.Text;
+using System.Security.Cryptography;
+using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Auth;
-using System.Xml.Linq;
-using System;
 
 namespace MinecraftLaunch.Components.Authenticator {
     /// <summary>
@@ -9,15 +9,13 @@ namespace MinecraftLaunch.Components.Authenticator {
     /// </summary>
     /// <param name="name"></param>
     /// <param name="uuid"></param>
-    public class OfflineAuthenticator(string name, Guid uuid = default) : IAuthenticator<OfflineAccount> {
-        public OfflineAccount Authenticate() => new() {
-            AccessToken = Guid.NewGuid().ToString("N"),
-            Name = name,
-            Uuid = uuid
-        };
-
-        async ValueTask<OfflineAccount> IAuthenticator<OfflineAccount>.AuthenticateAsync() {
-            return await Task.FromResult(Authenticate());
+    public class OfflineAuthenticator(string name, Guid? uuid = default) : IAuthenticator<OfflineAccount> {
+        public OfflineAccount Authenticate() {
+            return new() {
+                AccessToken = Guid.NewGuid().ToString("N"),
+                Name = name,
+                Uuid = uuid ?? new(MD5.HashData(Encoding.UTF8.GetBytes(name)))
+            };
         }
     }
 }

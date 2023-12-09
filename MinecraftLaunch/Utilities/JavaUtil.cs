@@ -1,17 +1,28 @@
-﻿using MinecraftLaunch.Classes.Models.Game;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Utilities {
     public class JavaUtil {
+        private const ushort PE_SIGNATURE = 23117;
+
+        private const ushort IMAGE_FILE_MACHINE_IA64 = 267;
+
+        private const ushort IMAGE_FILE_MACHINE_AMD64 = 523;
+
+        private const uint PE_OPTIONAL_HEADER_SIGNATURE = 17744;
+
         public static JavaEntry GetJavaInfo(string path) {
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
                 return null;
             }
 
             try {
+                string versionInfo = string.Empty;
+                bool is64 = false;
+
                 if (!EnvironmentUtil.IsWindow) {
                     using var program = new Process {
                         StartInfo = new ProcessStartInfo {
@@ -26,42 +37,28 @@ namespace MinecraftLaunch.Utilities {
 
                     program.Start();
 
-                    bool is64 = true;
-                    string versionInfo = string.Empty;
                     using var reader = program.StandardError;
-                    string pattern = "java version \"\\s*(?<version>\\S+)\\s*\"";
-                    while (reader.Peek() != -1) {
-                        string temp = reader.ReadLine()!;
-                        if (temp.Contains("java version")) {
-                            versionInfo = new Regex(pattern).Match(temp).Groups["version"].Value;
-                        } else if (temp.Contains("openjdk version")) {
-                            pattern = pattern.Replace("java", "openjdk");
-                            versionInfo = new Regex(pattern).Match(temp).Groups["version"].Value;
-                        }
-
-                        is64 = temp.Contains("64-Bit");
-                    }
-
-                    string[] versionParts = versionInfo.Split(".");
-                    return new JavaEntry {
-                        Is64Bit = is64,
-                        JavaPath = path,
-                        JavaVersion = versionInfo,
-                        JavaDirectoryPath = Directory.GetParent(path).FullName,
-                        JavaSlugVersion = (int.Parse(versionParts[0]) == 1) ? int.Parse(versionParts[1]) : int.Parse(versionParts[0]),
-                    };
+                    string output = reader.ReadToEnd();
+                    string pattern = "(java|openjdk) version \"\\s*(?<version>\\S+)\\s*\"";
+                    versionInfo = new Regex(pattern).Match(output).Groups["version"].Value;
+                    is64 = output.Contains("64-Bit");
                 } else {
                     var fileVersionInfo = FileVersionInfo.GetVersionInfo(path);
-                    return new JavaEntry {
-                        JavaPath = path,
-                        Is64Bit = GetIs64Bit(path)!,
-                        JavaVersion = fileVersionInfo.ProductVersion!,
-                        JavaSlugVersion = fileVersionInfo.ProductMajorPart,
-                        JavaDirectoryPath = Directory.GetParent(path).FullName,
-                    };
+                    versionInfo = fileVersionInfo.ProductVersion!;
+                    is64 = GetIs64Bit(path)!;
                 }
+
+                string[] versionParts = versionInfo.Split(".");
+                return new JavaEntry {
+                    Is64Bit = is64,
+                    JavaPath = path,
+                    JavaVersion = versionInfo,
+                    JavaDirectoryPath = Directory.GetParent(path).FullName,
+                    JavaSlugVersion = (int.Parse(versionParts[0]) == 1) ? int.Parse(versionParts[1]) : int.Parse(versionParts[0]),
+                };
             }
-            catch (Exception) {
+            catch (Exception ex) {
+                Console.WriteLine($"Error getting Java info: {ex.Message}");
                 return null;
             }
         }
@@ -74,19 +71,21 @@ namespace MinecraftLaunch.Utilities {
                 using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 using var binaryReader = new BinaryReader(fileStream);
 
-                if (binaryReader.ReadUInt16() == 23117) {
+                if (binaryReader.ReadUInt16() == PE_SIGNATURE) {
                     fileStream.Seek(0x3A, SeekOrigin.Current);
                     fileStream.Seek(binaryReader.ReadUInt32(), SeekOrigin.Begin);
 
-                    if (binaryReader.ReadUInt32() == 17744) {
+                    if (binaryReader.ReadUInt32() == PE_OPTIONAL_HEADER_SIGNATURE) {
                         fileStream.Seek(20, SeekOrigin.Current);
                         architecture = binaryReader.ReadUInt16();
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) {
+                Console.WriteLine($"Error checking if file is 64 bit: {ex.Message}");
+            }
 
-            return architecture is 523 or 267;
+            return architecture is IMAGE_FILE_MACHINE_AMD64 or IMAGE_FILE_MACHINE_IA64;
         }
     }
 }
