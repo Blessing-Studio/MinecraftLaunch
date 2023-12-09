@@ -17,7 +17,7 @@ namespace MinecraftLaunch.Components.Fetcher {
         private static readonly string[] _linuxJavaHomePaths = ["/usr/lib/jvm", "/usr/lib32/jvm", ".usr/lib64/jvm"];
 
         [SupportedOSPlatform(nameof(OSPlatform.Windows))]
-        private static readonly string[] _windowJavaSearchTerms = ["java",
+        private static readonly ImmutableArray<string> _windowJavaSearchTerms = ["java",
             "jdk",
             "jbr",
             "bin",
@@ -161,13 +161,9 @@ namespace MinecraftLaunch.Components.Fetcher {
                 .ToDirectoryInfo(), ref paths);
 
             paths.Sort((string x, string s) => x.CompareTo(s));
-            foreach (var item in paths) {
-                //if (item.Contains()) {
-                //    paths.Remove(item);
-                //}
-            }
 
-            return paths.AsParallel().Where(x => !x.Contains("javapath_target_"))
+            return paths.AsParallel()
+                .Where(x => !x.Contains("javapath_target_"))
                 .Select(JavaUtil.GetJavaInfo)
                 .ToImmutableArray();
         }

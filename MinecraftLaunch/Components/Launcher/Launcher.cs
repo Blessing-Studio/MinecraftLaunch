@@ -51,10 +51,8 @@ namespace MinecraftLaunch.Components.Launcher {
                 .Select(x => x.Path)
                 .ToList();
 
-            await Task.Run(() => ZipUtil.ExtractNatives(Path.Combine(versionPath, "natives"), libraries))
-                .ContinueWith(t => {
-                    process.Start();
-                });
+            await Task.Run(() => ZipUtil.ExtractNatives(Path.Combine(versionPath, "natives"), libraries));
+            process.Start();
         }
     }
 }

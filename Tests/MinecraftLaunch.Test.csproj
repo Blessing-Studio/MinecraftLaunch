@@ -18,8 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MinecraftLaunch\MinecraftLaunch.csproj" />
-    <ProjectReference Include="..\Refs\ModuleLaunch.NET\ModuleLauncher.NET\ModuleLauncher.NET.csproj" />
-    <ProjectReference Include="..\Refs\Natsurainko.FluentCore\Natsurainko.FluentCore\Natsurainko.FluentCore.csproj" />
   </ItemGroup>
 
 </Project>
