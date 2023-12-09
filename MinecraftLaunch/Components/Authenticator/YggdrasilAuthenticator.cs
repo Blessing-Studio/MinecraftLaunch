@@ -23,21 +23,14 @@ namespace MinecraftLaunch.Components.Authenticator {
 
         private YggdrasilAccount _account = account;
 
-        public YggdrasilAuthenticator(string url, 
-            string email,
-            string password) : this(default) {
+        public YggdrasilAuthenticator(string url, string email, string password) : this(default) {
             _url = url;
             _email = email;
             _password = password;
         }
 
         public IEnumerable<YggdrasilAccount> Authenticate() {
-            var task = AuthenticateAsync();
-            if (task.IsCompleted) {
-                return task.GetAwaiter().GetResult();
-            }
-
-            return null;
+            return AuthenticateAsync().GetAwaiter().GetResult();
         }
 
         public async ValueTask<IEnumerable<YggdrasilAccount>> AuthenticateAsync() {
