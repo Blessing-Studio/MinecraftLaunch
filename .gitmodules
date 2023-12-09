@@ -1,0 +1,6 @@
+[submodule "Refs/Natsurainko.FluentCore"]
+	path = Refs/Natsurainko.FluentCore
+	url = https://github.com/Xcube-Studio/Natsurainko.FluentCore
+[submodule "Refs/ModuleLaunch.NET"]
+	path = Refs/ModuleLaunch.NET
+	url = https://github.com/SinoAHpx/ModuleLauncher.Re
