@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using System.Net.Http.Headers;
 
 namespace MinecraftLaunch.Extensions {
     public static class HttpExtension {
@@ -15,6 +16,12 @@ namespace MinecraftLaunch.Extensions {
             return new FlurlResponse(new() {
                 HttpResponseMessage = result
             });
+        }
+
+        public static async Task<IFlurlResponse> EnsureSuccessStatusCode(this Task<IFlurlResponse> responseTask) {
+            var response = await responseTask;
+            response.ResponseMessage.EnsureSuccessStatusCode();
+            return response;
         }
     }
 }

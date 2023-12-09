@@ -23,6 +23,8 @@ namespace MinecraftLaunch.Classes.Models.Auth {
         public override AccountType Type => AccountType.Yggdrasil;
 
         public string YggdrasilServerUrl { get; set; }
+
+        public string ClientToken { get; set; }
     }
 
     public record OfflineAccount : Account {
