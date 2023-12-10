@@ -7,37 +7,24 @@ using MinecraftLaunch.Classes.Models.Download;
 
 using Timer = System.Timers.Timer;
 using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.DownloadProgressChangedEventArgs;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Downloader {
     public class FileDownloader {
         private int _totalBytes;
-
         private int _totalCount;
-
         private int _failedCount;
-
         private int _completedCount;
-
         private int _downloadedBytes;
-
         private readonly Timer _timer;
-
         private const int BUFFER_SIZE = 4096;
-
         private int _previousDownloadedBytes;
-
         private const int MAX_RETRY_COUNT = 3;
-
         private CancellationTokenSource _userCts;
-
         private const double UPDATE_INTERVAL = 1.0;
-
         private readonly ArrayPool<byte> _bufferPool;
-
         private readonly AutoResetEvent _autoResetEvent;
-
         private ImmutableList<DownloadRequest> _downloadRequests;
-
         private readonly ExecutionDataflowBlockOptions _parallelOptions;
 
         public event Action<bool> Completed;
@@ -112,6 +99,11 @@ namespace MinecraftLaunch.Components.Downloader {
                     return false;
                 }
             }
+        }
+
+        public void Refresh(IEnumerable<DownloadRequest> downloadRequests) {
+            _downloadRequests = downloadRequests.ToImmutableList();
+            Init();
         }
 
         private async Task ProcessDownloadRequests() {
@@ -253,7 +245,7 @@ namespace MinecraftLaunch.Components.Downloader {
             }
             catch (Exception ex) {
                 // Log the error
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
             }
             finally {
                 GC.Collect();

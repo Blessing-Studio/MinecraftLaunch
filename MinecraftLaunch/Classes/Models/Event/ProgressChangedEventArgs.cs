@@ -6,4 +6,6 @@ public class ProgressChangedEventArgs(TaskStatus status, double progress, string
     public TaskStatus Status => status;
 
     public string ProgressStatus => progressStatus;
+
+    public string Speed { get; set; }
 }

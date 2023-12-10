@@ -36,6 +36,14 @@ namespace MinecraftLaunch.Extensions {
             return node[name].GetValue<string>();
         }
 
+        public static JsonArray GetEnumerable(this JsonNode node) {
+            return node.AsArray();
+        }
+
+        public static JsonArray GetEnumerable(this JsonNode node, string name) {
+            return node[name].AsArray();
+        }
+
         public static IEnumerable<T> GetEnumerable<T>(this JsonNode node) {
             return node.AsArray()
                 .Select(x => x.GetValue<T>());
