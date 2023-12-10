@@ -21,5 +21,4 @@ installer.ProgressChanged += (_, x) => {
 };
 
 var result = await installer.InstallAsync();
-
 Console.ReadKey();
