@@ -51,11 +51,11 @@ namespace MinecraftLaunch.Extensions {
         }
 
         public static double ToPercentage(this DownloadProgressChangedEventArgs args) {
-            if (args.TotalCount > 1) {
-                return (double)args.CompletedCount / args.TotalCount * 100;
-            }
+            return (double)args.DownloadedBytes / (double)args.TotalBytes;
+        }
 
-            return (double)args.DownloadedBytes / args.TotalBytes * 100;
+        public static double ToPercentage(this double progress, double mini, double max) {
+            return mini + (max - mini) * progress;
         }
 
         public static string ToSpeedText(this DownloadProgressChangedEventArgs args) {

@@ -59,9 +59,9 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         }
     }
 
-    public IEnumerable<LibraryEntry> GetLibrariesFromJsonArray(JsonArray jsonArray) {
+    public static IEnumerable<LibraryEntry> GetLibrariesFromJsonArray(JsonArray jsonArray, string path) {
         foreach (var libNode in jsonArray) {
-            var libraryEntry = CreateLibraryEntryFromJsonNode(libNode);
+            var libraryEntry = CreateLibraryEntryFromJsonNode(libNode, path);
             if (libraryEntry != null) {
                 yield return libraryEntry;
             }
@@ -83,7 +83,7 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         return null;
     }
 
-    private IEnumerable<string> FormatLibraryName(string Name) {
+    private static IEnumerable<string> FormatLibraryName(string Name) {
         var extension = Name.Contains('@') ? Name.Split('@') : Array.Empty<string>();
         var subString = extension.Any()
             ? Name.Replace($"@{extension[1]}", string.Empty).Split(':')
@@ -154,7 +154,7 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         };
     }
 
-    private string FormatLibraryNameToRelativePath(string name) {
+    private static string FormatLibraryNameToRelativePath(string name) {
         string path = string.Empty;
         foreach (var subPath in FormatLibraryName(name)) {
             path = Path.Combine(path, subPath);
@@ -163,14 +163,14 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         return path;
     }
 
-    private LibraryEntry CreateLibraryEntryFromJsonNode(JsonNode libNode) {
+    private static LibraryEntry CreateLibraryEntryFromJsonNode(JsonNode libNode, string path) {
         var jsonNatives = libNode["natives"];
         var libJsonNode = libNode.Deserialize<LibraryJsonEntry>();
 
         AppendNativeLibraryName(ref libJsonNode, jsonNatives);
 
         var relativePath = FormatLibraryNameToRelativePath(libJsonNode.Name);
-        var absolutePath = Path.Combine(GameEntry.GameFolderPath, "libraries", relativePath);
+        var absolutePath = Path.Combine(path, "libraries", relativePath);
 
         var librariesItemEntry = new LibraryEntry {
             Path = absolutePath,
@@ -183,13 +183,13 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         return librariesItemEntry;
     }
 
-    private void AppendNativeLibraryName(ref LibraryJsonEntry libraryEntry, JsonNode jsonNatives) {
+    private static void AppendNativeLibraryName(ref LibraryJsonEntry libraryEntry, JsonNode jsonNatives) {
         if (jsonNatives != null && libraryEntry.Natives.TryGetValue(EnvironmentUtil.GetPlatformName(), out var value)) {
             libraryEntry.Name += $":{value.Replace("${arch}", EnvironmentUtil.Arch)}";
         }
     }
 
-    private void GetLibraryChecksumAndUrl(ref LibraryEntry libraryEntry, JsonNode jsonNode, LibraryJsonEntry libraryJsonNode) {
+    private static void GetLibraryChecksumAndUrl(ref LibraryEntry libraryEntry, JsonNode jsonNode, LibraryJsonEntry libraryJsonNode) {
         if (libraryEntry.IsNative) {
             if (libraryJsonNode.Natives != null && libraryJsonNode.Natives
                 .TryGetValue(EnvironmentUtil.GetPlatformName(), out string value)) {

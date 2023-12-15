@@ -112,7 +112,7 @@ namespace MinecraftLaunch.Components.Resolver {
             //    try {
             //        string tomlText = reader.ReadToEnd();
             //        _tomlResolver.Content = tomlText;
-
+            //
             //        if (_tomlResolver.Select("mods")) {
             //            entry.Description = _tomlResolver["description"];
             //            entry.DisplayName = _tomlResolver["displayName"];

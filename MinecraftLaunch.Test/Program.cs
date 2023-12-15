@@ -1,24 +1,31 @@
 ﻿using MinecraftLaunch;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Components.Authenticator;
-using MinecraftLaunch.Components.Checker;
 using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Extensions;
-using System.Diagnostics;
 
 string gameFolder = "C:\\Users\\w\\Desktop\\temp\\.minecraft";
-
-var _ = (await VanlliaInstaller.EnumerableGameCoreAsync());
-
-var installer = new VanlliaInstaller(gameFolder, "1.12.2", MirrorDownloadManager.Mcbbs);
+var installer = new VanlliaInstaller(new GameResolver(gameFolder), "1.16.5", MirrorDownloadManager.Mcbbs);
 
 installer.ProgressChanged += (_, x) => {
     Console.Clear();
     Console.SetCursorPosition(0, 0);
-    Console.WriteLine($"{x.Status} - {x.ProgressStatus} - {x.Progress:0.00} - {x.Speed}");
+    Console.WriteLine($"{x.Status} - {x.ProgressStatus} - {x.Progress.ToPercentage(0.0d, 0.65d) * 100:F2}%");
     Console.SetCursorPosition(0, 0);
 };
 
 var result = await installer.InstallAsync();
+
+var fInstaller = new FabricInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
+    (await FabricInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault(), 
+    source: MirrorDownloadManager.Mcbbs);
+
+fInstaller.ProgressChanged += (_, x) => {
+    Console.Clear();
+    Console.SetCursorPosition(0, 0);
+    Console.WriteLine($"{x.Status} - {x.ProgressStatus} - {x.Progress.ToPercentage(0.65d, 1.0d) * 100:F2}%");
+    Console.SetCursorPosition(0, 0);
+};
+
+await fInstaller.InstallAsync();
+
 Console.ReadKey();

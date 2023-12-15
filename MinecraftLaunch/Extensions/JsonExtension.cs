@@ -60,5 +60,10 @@ namespace MinecraftLaunch.Extensions {
                 .AsArray()
                 .Select(x => x[elementName].GetValue<T>());
         }
+
+        public static JsonNode SetString(this JsonNode node,string name, string value) {
+            node[name] = value;
+            return node;
+        }
     }
 }
