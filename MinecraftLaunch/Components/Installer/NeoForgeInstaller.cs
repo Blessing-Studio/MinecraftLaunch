@@ -1,4 +1,8 @@
-﻿namespace MinecraftLaunch.Components.Installer {
-    internal class NeoForgeInstaller {
+﻿
+namespace MinecraftLaunch.Components.Installer {
+    public class NeoForgeInstaller : InstallerBase {
+        public override ValueTask<bool> InstallAsync() {
+            throw new NotImplementedException();
+        }
     }
 }

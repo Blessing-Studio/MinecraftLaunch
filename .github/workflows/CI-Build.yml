@@ -36,8 +36,8 @@ jobs:
         fetch-depth: 0
     - name: Build
       run: dotnet build MinecraftLaunch/MinecraftLaunch.csproj ${{ env.compile-flags }}
-    # - name: Publish
-    #   uses: brandedoutcast/publish-nuget@v2.5.2
-    #   with: 
-    #     PROJECT_FILE_PATH: MinecraftLaunch/MinecraftLaunch.csproj
-    #     NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with: 
+        PROJECT_FILE_PATH: MinecraftLaunch/MinecraftLaunch.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
