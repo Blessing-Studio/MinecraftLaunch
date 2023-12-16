@@ -15,9 +15,8 @@ installer.ProgressChanged += (_, x) => {
 
 var result = await installer.InstallAsync();
 
-var fInstaller = new FabricInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
-    (await FabricInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault(), 
-    source: MirrorDownloadManager.Mcbbs);
+var fInstaller = new QuiltInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
+    (await QuiltInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault());
 
 fInstaller.ProgressChanged += (_, x) => {
     Console.Clear();
