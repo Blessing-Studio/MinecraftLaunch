@@ -10,11 +10,16 @@ namespace MinecraftLaunch.Components.Resolver {
     /// </summary>
     class AssetsResolver(GameEntry entity) : IResolver<AssetEntry, KeyValuePair<string, AssetJsonEntry>> {
         public AssetEntry GetAssetIndexJson() {
-            var assetIndex = JsonNode.Parse(File.ReadAllText(entity.IsInheritedFrom 
+            var assetIndex = (File.ReadAllText(entity.IsInheritedFrom 
                 ? entity.InheritsFrom.OfVersionJsonPath() 
-                : entity.OfVersionJsonPath()))!
-                ["assetIndex"].Deserialize<AssstIndex>();
-            var assetIndexFilePath = entity.IsInheritedFrom ? entity.InheritsFrom.AssetsIndexJsonPath : entity.AssetsIndexJsonPath;
+                : entity.OfVersionJsonPath()))
+                .AsNode()
+                .Select("assetIndex")
+                .Deserialize<AssstIndex>();
+
+            var assetIndexFilePath = entity.IsInheritedFrom
+                ? entity.InheritsFrom.AssetsIndexJsonPath 
+                : entity.AssetsIndexJsonPath;
 
             if(assetIndexFilePath is null) {
                 return default!;
@@ -33,7 +38,8 @@ namespace MinecraftLaunch.Components.Resolver {
             if (string.IsNullOrEmpty(entity.AssetsIndexJsonPath))
                 yield break;
 
-            var assets = JsonNode.Parse(File.ReadAllText(entity.AssetsIndexJsonPath))!["objects"]!
+            var assets = File.ReadAllText(entity.AssetsIndexJsonPath).AsNode()
+                .Select("objects")
                 .Deserialize<Dictionary<string, AssetJsonEntry>>();
 
             foreach (var keyValuePair in assets!) {

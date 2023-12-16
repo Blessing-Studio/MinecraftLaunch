@@ -12,6 +12,14 @@ namespace MinecraftLaunch.Extensions {
             return JsonSerializer.Deserialize<T>(json);
         }
 
+        public static JsonNode AsNode(this string json) {
+            return JsonNode.Parse(json);
+        }
+
+        public static JsonNode Select(this JsonNode node, string name) {
+            return node[name];
+        }
+
         public static int GetInt32(this JsonNode node) {
             return node.GetValue<int>();
         }

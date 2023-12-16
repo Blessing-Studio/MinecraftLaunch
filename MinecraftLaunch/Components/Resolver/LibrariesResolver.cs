@@ -5,6 +5,7 @@ using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Enums;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -39,9 +40,11 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         return librariesItem;
     }
 
-    public IEnumerable<LibraryEntry> GetLibraries() {
+    public IEnumerable<IDownloadEntry> GetLibraries() {
         var jsonPath = Path.Combine(GameEntry.OfVersionJsonPath());
-        var libsNode = JsonNode.Parse(File.ReadAllText(jsonPath))!["libraries"]!.AsArray();
+        var libsNode = File.ReadAllText(jsonPath).AsNode()
+            .GetEnumerable("libraries");
+
         foreach (var libNode in libsNode) {
             var lib = Resolve(libNode!);
             if (lib != null) {
@@ -68,17 +71,31 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         }
     }
 
-    private LibraryEntry GetJarEntry() {
-        var jsonClient = JsonNode.Parse(File.ReadAllText(GameEntry
-            .OfVersionJsonPath()))?["downloads"]?["client"];
+    public static string FormatLibraryNameToRelativePath(string name) {
+        string path = string.Empty;
+        foreach (var subPath in FormatLibraryName(name)) {
+            path = Path.Combine(path, subPath);
+        }
 
-        if (jsonClient != null)
-            return new LibraryEntry {
+        return path;
+    }
+
+    private JarEntry GetJarEntry() {
+        var jsonClient = File.ReadAllText(GameEntry
+            .OfVersionJsonPath()).AsNode()?
+            .Select("downloads")?
+            .Select("client");
+
+        if (jsonClient != null) {
+            Debug.WriteLine(jsonClient.GetInt32("size"));
+            return new JarEntry {
                 Path = GameEntry.JarPath,
+                McVersion = gameEntry.Version,
                 Url = jsonClient.GetString("url"),
                 Size = jsonClient.GetInt32("size"),
-                Checksum = jsonClient.GetString("sha1")
+                Checksum = jsonClient.GetString("sha1"),
             };
+        }
 
         return null;
     }
@@ -152,15 +169,6 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
             Platform.osx => osx,
             _ => false,
         };
-    }
-
-    private static string FormatLibraryNameToRelativePath(string name) {
-        string path = string.Empty;
-        foreach (var subPath in FormatLibraryName(name)) {
-            path = Path.Combine(path, subPath);
-        }
-
-        return path;
     }
 
     private static LibraryEntry CreateLibraryEntryFromJsonNode(JsonNode libNode, string path) {

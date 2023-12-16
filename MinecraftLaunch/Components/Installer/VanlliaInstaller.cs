@@ -76,7 +76,9 @@ namespace MinecraftLaunch.Components.Installer {
                 url = "http://launchermeta.mojang.com/mc/game/version_manifest.json";
             }
 
-            var node = JsonNode.Parse(await url.GetStringAsync());
+            var node = (await url.GetStringAsync())
+                .AsNode();
+
             return node.GetEnumerable("versions").Deserialize<IEnumerable<VersionManifestEntry>>();
         }
     }

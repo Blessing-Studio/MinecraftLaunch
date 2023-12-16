@@ -10,6 +10,7 @@ using MinecraftLaunch.Classes.Enums;
 
 namespace MinecraftLaunch.Components.Fetcher {
     public class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
+        #region Fields
         [SupportedOSPlatform(nameof(OSPlatform.OSX))]
         private const string _macJavaHomePath = "/Library/Java/JavaVirtualMachines";
 
@@ -61,6 +62,8 @@ namespace MinecraftLaunch.Components.Fetcher {
             "idea",
             "android",
         ];
+
+        #endregion
 
         public ImmutableArray<JavaEntry> Fetch() {
             return FetchAsync().GetAwaiter().GetResult();

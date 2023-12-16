@@ -175,7 +175,7 @@ namespace MinecraftLaunch.Components.Resolver {
                 } else if (gameInfo.IsInheritedFrom) {
                     return gameInfo.InheritsFrom.Id;
                 } else {
-                    var json = JsonNode.Parse(File.ReadAllText(path));
+                    var json = File.ReadAllText(path).AsNode();
 
                     var patches = json["patches"]; // hmcl合并核心版本号读取
                     var clientVersion = json["clientVersion"]; // pcl合并核心版本号读取

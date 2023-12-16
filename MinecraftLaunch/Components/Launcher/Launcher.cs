@@ -5,6 +5,7 @@ using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Components.Watcher;
 using MinecraftLaunch.Classes.Models.Launch;
 using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Components.Launcher {
     /// <summary>
@@ -47,7 +48,7 @@ namespace MinecraftLaunch.Components.Launcher {
 
         private async Task ExtractNativesAndStartProcess(string versionPath, LibrariesResolver librariesResolver, Process process) {
             var libraries = librariesResolver.GetLibraries()
-                .Where(x => x.IsNative)
+                .Where(x => (x as LibraryEntry).IsNative)
                 .Select(x => x.Path)
                 .ToList();
 

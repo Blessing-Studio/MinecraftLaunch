@@ -1,4 +1,5 @@
 ﻿using MinecraftLaunch;
+using MinecraftLaunch.Components.Fetcher;
 using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Extensions;
@@ -15,8 +16,8 @@ installer.ProgressChanged += (_, x) => {
 
 var result = await installer.InstallAsync();
 
-var fInstaller = new QuiltInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
-    (await QuiltInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault());
+var fInstaller = new ForgeInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
+    (await ForgeInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault(),new JavaFetcher().Fetch().First().JavaPath);
 
 fInstaller.ProgressChanged += (_, x) => {
     Console.Clear();
@@ -28,3 +29,4 @@ fInstaller.ProgressChanged += (_, x) => {
 await fInstaller.InstallAsync();
 
 Console.ReadKey();
+

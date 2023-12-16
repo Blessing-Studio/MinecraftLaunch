@@ -69,7 +69,9 @@ namespace MinecraftLaunch.Components.Resolver {
         }
 
         private void OfLegacyForgeModEntry(string text, ref ModEntry entry) {
-            var jsonNode = JsonNode.Parse(text.Replace("\u000a", "")).AsArray().FirstOrDefault()
+            var jsonNode = text.Replace("\u000a", "").AsNode()
+                .AsArray()
+                .FirstOrDefault()
                 ?? throw new InvalidDataException("Invalid mcmod.info");
 
             try {
@@ -90,7 +92,7 @@ namespace MinecraftLaunch.Components.Resolver {
             using var stream = zipEntry.Open();
             using (var reader = new StreamReader(stream)) {
                 try {
-                    var jsonNode = JsonNode.Parse(reader.ReadToEnd());
+                    var jsonNode = reader.ReadToEnd().AsNode();
 
                     entry.DisplayName = jsonNode.GetString("name");
                     entry.Version = jsonNode.GetString("version");
@@ -133,7 +135,7 @@ namespace MinecraftLaunch.Components.Resolver {
             using var stream = zipEntry.Open();
             using (var reader = new StreamReader(stream)) {
                 try {
-                    var jsonNode = JsonNode.Parse(reader.ReadToEnd());
+                    var jsonNode = reader.ReadToEnd().AsNode();
                     jsonNode = jsonNode["quilt_loader"]["metadata"];
 
                     entry.DisplayName = jsonNode?.GetString("name");

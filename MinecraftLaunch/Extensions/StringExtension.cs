@@ -1,5 +1,14 @@
-﻿namespace MinecraftLaunch.Extensions {
+﻿using MinecraftLaunch.Classes.Models.Download;
+
+namespace MinecraftLaunch.Extensions {
     public static class StringExtension {
+        public static bool IsUrl(this string str) {
+            Uri uriResult;
+            bool result = Uri.TryCreate(str, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            return result;
+        }
+
         public static string ToPath(this string raw) {
             if (!Enumerable.Contains(raw, ' ')) {
                 return raw;
@@ -14,6 +23,16 @@
             }
 
             return replacedText;
+        }
+
+        public static DownloadRequest ToDownloadRequest(this string url, string path) {
+            return new DownloadRequest {
+                Url = url,
+                Path = path,
+                IsCompleted = false,
+                DownloadedBytes = 0,
+                Name = Path.GetFileName(path),
+            };
         }
     }
 }

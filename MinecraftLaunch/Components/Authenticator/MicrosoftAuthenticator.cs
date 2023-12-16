@@ -66,7 +66,8 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
             using var xblJsonReq = await $"https://user.auth.xboxlive.com/user/authenticate"
                 .PostJsonAsync(xblContent);
 
-            var xblTokenNode = JsonNode.Parse(await xblJsonReq.GetStringAsync());
+            var xblTokenNode = (await xblJsonReq.GetStringAsync())
+                .AsNode();
 
             /*
              * Get Xbox security token service token
@@ -85,7 +86,8 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
             using var xstsJsonReq = await $"https://xsts.auth.xboxlive.com/xsts/authorize"
                 .PostJsonAsync(xstsContent);
 
-            var xstsTokenNode = JsonNode.Parse(await xstsJsonReq.GetStringAsync());
+            var xstsTokenNode = (await xstsJsonReq.GetStringAsync())
+                .AsNode();
 
             /*
              * Authenticate minecraft account
@@ -100,7 +102,9 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
             using var authenticateMinecraftPostRes = await $"https://api.minecraftservices.com/authentication/login_with_xbox"
                 .PostJsonAsync(authenticateMinecraftContent);
 
-            string access_token = JsonNode.Parse(await authenticateMinecraftPostRes.GetStringAsync())
+            string access_token = (await authenticateMinecraftPostRes
+                .GetStringAsync())
+                .AsNode()
                 .GetString("access_token");
 
             /*
@@ -111,7 +115,8 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
                     .WithHeader("Authorization", $"Bearer {access_token}")
                     .GetAsync();
 
-                var ownNode = JsonNode.Parse(await gameHasRes.GetStringAsync());
+                var ownNode = (await gameHasRes.GetStringAsync())
+                    .AsNode();
                 if (!ownNode["items"].AsArray().Any()) {
                     throw new OperationCanceledException("Game not purchased, login terminated");
                 }
@@ -124,7 +129,9 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
                 .WithHeader("Authorization", $"Bearer {access_token}")
                 .GetAsync();
 
-            var profileNode = JsonNode.Parse(await profileRes.GetStringAsync());
+            var profileNode = (await profileRes.GetStringAsync())
+                .AsNode();
+
             string refreshToken = _oAuth2TokenResponse is null && string
                 .IsNullOrEmpty(_oAuth2TokenResponse.RefreshToken)
                 ? "None"
@@ -182,7 +189,7 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
                     .PostUrlEncodedAsync(new FormUrlEncodedContent(parameters))
                     .ReceiveString();
 
-                var tempTokenResponse = JsonNode.Parse(tokenJson);
+                var tempTokenResponse = tokenJson.AsNode();
 
                 if (tempTokenResponse["error"] == null) {
                     tokenResponse = new() {

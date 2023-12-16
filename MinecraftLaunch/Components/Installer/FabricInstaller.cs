@@ -19,7 +19,9 @@ namespace MinecraftLaunch.Components.Installer {
              */
             ReportProgress(0.0d, "Start parse build", TaskStatus.Created);
             string url = $"https://meta.fabricmc.net/v2/versions/loader/{_fabricBuildEntry.McVersion}/{_fabricBuildEntry.BuildVersion}/profile/json";
-            var versionInfoNode = JsonNode.Parse(await url.GetStringAsync());
+            var versionInfoNode = (await url.GetStringAsync())
+                .AsNode();
+
             var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
                 _inheritedFrom.GameFolderPath);

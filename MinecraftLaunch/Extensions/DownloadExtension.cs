@@ -4,6 +4,7 @@ using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Components.Checker;
 using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Extensions {
     /// <summary>
@@ -14,15 +15,32 @@ namespace MinecraftLaunch.Extensions {
 
         public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry,
             MirrorDownloadSource source) {
-            if (MirrorDownloadManager.IsUseMirrorDownloadSource  && source is not null) {
+            if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
+                if (entry.Type is DownloadEntryType.Jar) {
+                    entry.Url = $"{source.Host}/version/{(entry as JarEntry).McVersion}/client";
+                }
+                
                 var urls = entry.Type is DownloadEntryType.Asset
                     ? source.AssetsUrls
                     : source.LibrariesUrls;
-                
+
                 entry.Url = entry.Url.Replace(urls);
+
             }
 
             return entry;
+        }
+
+        public static ValueTask<bool> DownloadAsync(this
+            DownloadRequest request,
+            Action<DownloadProgressChangedEventArgs> action = default!) {
+            DefaultDownloader = new(request);
+
+            DefaultDownloader.ProgressChanged += (sender, args) => {
+                action(args);
+            };
+
+            return DefaultDownloader.StartAsync();
         }
 
         public static ValueTask<bool> DownloadResourceEntryAsync(this 

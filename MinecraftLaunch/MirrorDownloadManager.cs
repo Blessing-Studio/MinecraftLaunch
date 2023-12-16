@@ -4,7 +4,7 @@ namespace MinecraftLaunch {
     /// <summary>
     /// 默认的下载镜像源管理类
     /// </summary>
-    public abstract class MirrorDownloadManager {
+    public class MirrorDownloadManager {
         public static bool IsUseMirrorDownloadSource { get; set; } = true;
 
         public static readonly MirrorDownloadSource Bmcl = new() {

@@ -20,7 +20,9 @@ namespace MinecraftLaunch.Components.Installer {
              */
             ReportProgress(0.0d, "Start parse build", TaskStatus.Created);
             string url = $"https://meta.quiltmc.org/v3/versions/loader/{_quiltBuildEntry.McVersion}/{_quiltBuildEntry.BuildVersion}/profile/json";
-            var versionInfoNode = JsonNode.Parse(await url.GetStringAsync());
+            var versionInfoNode = (await url.GetStringAsync())
+                .AsNode();
+
             var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
                 _inheritedFrom.GameFolderPath);
