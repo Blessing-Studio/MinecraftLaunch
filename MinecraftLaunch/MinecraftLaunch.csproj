@@ -1,13 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<Version>3.0.0-preview1</Version>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<PackageProjectUrl>https://github.com/Blessing-Studio/MinecraftLaunch</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
+		<Description>下一代全能高效化的 Minecraft 启动核心</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<TargetFrameworks>net8.0;net7.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>latest</LangVersion>
+		<Authors>Blessing-Studio</Authors>
+		<Title>MinecraftLaunch</Title>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
 
-  <PropertyGroup>
-	  <TargetFrameworks>net8.0;net7.0</TargetFrameworks>
-	  <ImplicitUsings>enable</ImplicitUsings>
-	  <LangVersion>latest</LangVersion>
-	  <Nullable>disable</Nullable>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Flurl.Http" Version="4.0.0-pre7" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Flurl.Http" Version="4.0.0-pre7" />
+	</ItemGroup>
 </Project>
