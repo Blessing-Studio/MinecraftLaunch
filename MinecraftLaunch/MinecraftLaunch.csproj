@@ -18,9 +18,11 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-	  <Compile Remove=".nuget\**" />
-	  <None Remove=".nuget\**" />
-	  <EmbeddedResource Remove=".nuget\**" />
+		<None Include="..\MinecraftLaunch\.nuget\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+			<Link>logo.png</Link>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
