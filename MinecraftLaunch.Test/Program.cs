@@ -5,8 +5,12 @@ using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Extensions;
 
 string gameFolder = "C:\\Users\\w\\Desktop\\temp\\.minecraft";
+foreach (var item in new GameResolver(gameFolder).GetGameEntitys().ToList())
+{
+    Console.WriteLine(item.JavaVersion);
+};
 var installer = new VanlliaInstaller(new GameResolver(gameFolder), "1.16.5", MirrorDownloadManager.Mcbbs);
-
+return;
 installer.ProgressChanged += (_, x) => {
     Console.Clear();
     Console.SetCursorPosition(0, 0);

@@ -32,7 +32,7 @@ namespace MinecraftLaunch.Components.Resolver {
                 IsInheritedFrom = false,
                 MainClass = entity.MainClass,
                 MainLoaderType = entity.GetGameLoaderType(),
-                JavaVersion = entity.JavaVersion.GetInt32("majorVersion"),
+                JavaVersion = entity.JavaVersion?.GetInt32("majorVersion") ?? 8,
             };
 
             var assetsIndexFile = Path.Combine(root, "assets", "indexes", $"{entity.AssetIndex?.Id}.json");
