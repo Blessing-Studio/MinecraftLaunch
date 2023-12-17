@@ -8,6 +8,8 @@ namespace MinecraftLaunch.Classes.Models.Game {
 
         public string Type { get; set; }
 
+        public int JavaVersion { get; set; }
+
         public LoaderType MainLoaderType { get; set; }
 
         public bool IsVanilla { get; set; }

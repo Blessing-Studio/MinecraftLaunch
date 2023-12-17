@@ -22,6 +22,9 @@ namespace MinecraftLaunch.Classes.Models.Game {
         [JsonPropertyName("assets")]
         public string Assets { get; set; }
 
+        [JsonPropertyName("javaVersion")]
+        public JsonNode JavaVersion {  get; set; }
+
         [JsonPropertyName("arguments")]
         public ArgumentsJsonEntry Arguments { get; set; }
 

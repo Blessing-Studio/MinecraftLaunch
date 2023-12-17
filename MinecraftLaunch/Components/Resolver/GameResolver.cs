@@ -31,7 +31,8 @@ namespace MinecraftLaunch.Components.Resolver {
                 GameFolderPath = root,
                 IsInheritedFrom = false,
                 MainClass = entity.MainClass,
-                MainLoaderType = entity.GetGameLoaderType()
+                MainLoaderType = entity.GetGameLoaderType(),
+                JavaVersion = entity.JavaVersion.GetInt32("majorVersion"),
             };
 
             var assetsIndexFile = Path.Combine(root, "assets", "indexes", $"{entity.AssetIndex?.Id}.json");

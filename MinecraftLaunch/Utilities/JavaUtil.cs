@@ -63,6 +63,18 @@ namespace MinecraftLaunch.Utilities {
             }
         }
 
+        public static JavaEntry GetCurrentJava(IReadOnlyList<JavaEntry> javaEntries, GameEntry entry) {
+            var result = javaEntries.FirstOrDefault(x => x.Is64Bit && x.JavaSlugVersion == entry.JavaVersion)
+                         ?? javaEntries.FirstOrDefault(x => x.JavaSlugVersion == entry.JavaVersion);
+
+            if (result == null) {
+                throw new InvalidOperationException("No suitable Java found");
+            }
+
+            return result;
+        }
+
+
         [SupportedOSPlatform(nameof(OSPlatform.Windows))]
         private static bool GetIs64Bit(string path) {
             ushort architecture = 0;
