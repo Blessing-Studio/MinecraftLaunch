@@ -1,36 +1,14 @@
-﻿using MinecraftLaunch;
+﻿//
+using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Fetcher;
-using MinecraftLaunch.Components.Installer;
+using MinecraftLaunch.Components.Launcher;
 using MinecraftLaunch.Components.Resolver;
-using MinecraftLaunch.Extensions;
 
-string gameFolder = "C:\\Users\\w\\Desktop\\temp\\.minecraft";
-foreach (var item in new GameResolver(gameFolder).GetGameEntitys().ToList())
-{
-    Console.WriteLine(item.JavaVersion);
-};
-var installer = new VanlliaInstaller(new GameResolver(gameFolder), "1.16.5", MirrorDownloadManager.Mcbbs);
-return;
-installer.ProgressChanged += (_, x) => {
-    Console.Clear();
-    Console.SetCursorPosition(0, 0);
-    Console.WriteLine($"{x.Status} - {x.ProgressStatus} - {x.Progress.ToPercentage(0.0d, 0.65d) * 100:F2}%");
-    Console.SetCursorPosition(0, 0);
-};
+var resolver = new GameResolver("C:\\Users\\w\\Desktop\\temp\\.minecraft");
+Launcher launcher = new(resolver, new(new OfflineAuthenticator("Yang114").Authenticate()) {
+    JvmConfig = new(new JavaFetcher().Fetch().FirstOrDefault().JavaPath) {
+        MaxMemory = 1024,
+    }
+});
 
-var result = await installer.InstallAsync();
-
-var fInstaller = new ForgeInstaller(new GameResolver(gameFolder).GetGameEntity("1.16.5"),
-    (await ForgeInstaller.EnumerableFromVersionAsync("1.16.5")).FirstOrDefault(),new JavaFetcher().Fetch().First().JavaPath);
-
-fInstaller.ProgressChanged += (_, x) => {
-    Console.Clear();
-    Console.SetCursorPosition(0, 0);
-    Console.WriteLine($"{x.Status} - {x.ProgressStatus} - {x.Progress.ToPercentage(0.65d, 1.0d) * 100:F2}%");
-    Console.SetCursorPosition(0, 0);
-};
-
-await fInstaller.InstallAsync();
-
-Console.ReadKey();
-
+await launcher.LaunchAsync("1.12.2");

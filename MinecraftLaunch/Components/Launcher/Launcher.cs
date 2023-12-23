@@ -48,7 +48,7 @@ namespace MinecraftLaunch.Components.Launcher {
 
         private async Task ExtractNativesAndStartProcess(string versionPath, LibrariesResolver librariesResolver, Process process) {
             var libraries = librariesResolver.GetLibraries()
-                .Where(x => (x as LibraryEntry).IsNative)
+                .Where(x => ((x as LibraryEntry)?.IsNative) != null)
                 .Select(x => x.Path)
                 .ToList();
 
