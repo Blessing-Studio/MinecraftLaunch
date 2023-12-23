@@ -1,8 +1,8 @@
 ﻿//
-using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Fetcher;
 using MinecraftLaunch.Components.Launcher;
 using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Components.Authenticator;
 
 var resolver = new GameResolver("C:\\Users\\w\\Desktop\\temp\\.minecraft");
 Launcher launcher = new(resolver, new(new OfflineAuthenticator("Yang114").Authenticate()) {

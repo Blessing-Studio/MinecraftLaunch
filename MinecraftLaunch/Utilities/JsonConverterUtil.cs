@@ -11,6 +11,7 @@ namespace MinecraftLaunch.Utilities {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             };
 
+            options.Converters.Add(new AccountJsonConverter());
             options.Converters.Add(new PlatformEnumToStringJsonConverter());
 
             return options;
