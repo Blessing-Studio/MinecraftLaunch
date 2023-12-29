@@ -4,7 +4,7 @@ namespace MinecraftLaunch {
     /// <summary>
     /// 默认的下载镜像源管理类
     /// </summary>
-    public class MirrorDownloadManager {
+    public static class MirrorDownloadManager {
         public static bool IsUseMirrorDownloadSource { get; set; } = true;
 
         public static readonly MirrorDownloadSource Bmcl = new() {
@@ -35,7 +35,7 @@ namespace MinecraftLaunch {
                 { "https://piston-meta.mojang.com", "https://download.mcbbs.net" },
                 { "https://launchermeta.mojang.com", "https://download.mcbbs.net" },
             },
-            LibrariesUrls = new Dictionary<string, string>() {
+            LibrariesUrls = new Dictionary<string, string> {
                 { "https://launcher.mojang.com" , "https://download.mcbbs.net" },
                 { "https://libraries.minecraft.net", "https://download.mcbbs.net/maven" },
                 { "https://piston-meta.mojang.com", "https://download.mcbbs.net" },

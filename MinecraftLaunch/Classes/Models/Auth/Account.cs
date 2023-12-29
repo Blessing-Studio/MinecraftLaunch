@@ -30,4 +30,12 @@ namespace MinecraftLaunch.Classes.Models.Auth {
     public record OfflineAccount : Account {
         public override AccountType Type => AccountType.Offline;
     }
+
+    public record UnifiedPassAccount : Account {
+        public override AccountType Type => AccountType.UnifiedPass;
+
+        public string ServerId { get; set; }
+
+        public string ClientToken { get; set; }
+    }
 }

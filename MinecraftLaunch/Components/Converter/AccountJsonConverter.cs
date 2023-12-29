@@ -33,6 +33,13 @@ namespace MinecraftLaunch.Components.Converter {
                     Uuid = root.GetProperty("Uuid").GetGuid(),
                     YggdrasilServerUrl = root.GetProperty("YggdrasilServerUrl").GetString()
                 },
+                AccountType.UnifiedPass => new UnifiedPassAccount {
+                    AccessToken = root.GetProperty("AccessToken").GetString(),
+                    ClientToken = root.GetProperty("ClientToken").GetString(),
+                    Name = root.GetProperty("Name").GetString(),
+                    Uuid = root.GetProperty("Uuid").GetGuid(),
+                    ServerId = root.GetProperty("ServerId").GetString()
+                },
                 _ => default!
             };
         }

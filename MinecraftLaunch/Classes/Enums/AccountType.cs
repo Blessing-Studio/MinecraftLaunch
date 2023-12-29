@@ -19,6 +19,11 @@ namespace MinecraftLaunch.Classes.Enums {
         /// <summary>
         /// Yggdrasil 第三方账户
         /// </summary>
-        Yggdrasil
+        Yggdrasil,
+        
+        /// <summary>
+        /// UnifiedPass 统一通行证
+        /// </summary>
+        UnifiedPass
     }
 }
