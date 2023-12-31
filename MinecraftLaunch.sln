@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "Minecraf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Simple", "MinecraftLaunch.Test\MinecraftLaunch.Simple.csproj", "{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjBobcat", "..\..\..\Code\ProjBobcat\ProjBobcat\ProjBobcat\ProjBobcat.csproj", "{3DF75100-069C-4D5A-9A06-12E006DB2EBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|Any CPU.Build.0 = Release|Any CPU
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.ActiveCfg = Release|Any CPU
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.Build.0 = Release|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Debug|x64.Build.0 = Debug|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Release|x64.ActiveCfg = Release|Any CPU
+		{3DF75100-069C-4D5A-9A06-12E006DB2EBF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

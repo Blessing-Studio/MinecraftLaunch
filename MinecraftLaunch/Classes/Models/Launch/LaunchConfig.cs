@@ -1,12 +1,7 @@
 ﻿using MinecraftLaunch.Classes.Models.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MinecraftLaunch.Classes.Models.Launch {
-    public record LaunchConfig {
+    public record LaunchConfig() {
         public Account Account { get; set; }
 
         public JvmConfig JvmConfig { get; set; }
@@ -22,23 +17,23 @@ namespace MinecraftLaunch.Classes.Models.Launch {
         public bool IsEnableIndependencyCore { get; set; } = true;
 
         public GameWindowConfig GameWindowConfig { get; set; } = new();
-
-        public LaunchConfig(Account account) {
+        
+        public LaunchConfig(Account account) : this() {
             Account = account;
         }
 
-        public LaunchConfig(Account account, JvmConfig jvmConfig) {
+        public LaunchConfig(Account account, JvmConfig jvmConfig) : this() {
             Account = account;
             JvmConfig = jvmConfig;
         }
 
-        public LaunchConfig(Account account, JvmConfig jvmConfig, GameWindowConfig gameWindowConfig) {
+        public LaunchConfig(Account account, JvmConfig jvmConfig, GameWindowConfig gameWindowConfig) : this() {
             Account = account;
             JvmConfig = jvmConfig;
             GameWindowConfig = gameWindowConfig;
         }
 
-        public LaunchConfig(Account account, JvmConfig jvmConfig, GameWindowConfig gameWindowConfig, ServerConfig serverConfig) {
+        public LaunchConfig(Account account, JvmConfig jvmConfig, GameWindowConfig gameWindowConfig, ServerConfig serverConfig) : this() {
             Account = account;
             JvmConfig = jvmConfig;
             GameWindowConfig = gameWindowConfig;

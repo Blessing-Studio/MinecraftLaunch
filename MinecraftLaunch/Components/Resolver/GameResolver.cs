@@ -11,9 +11,13 @@ namespace MinecraftLaunch.Components.Resolver {
     /// <summary>
     /// Minecraft 核心解析器
     /// </summary>
-    public class GameResolver(string root) : IGameResolver, IResolver<GameJsonEntry> {
-        public DirectoryInfo Root => new(root);
+    public class GameResolver() : IGameResolver, IResolver<GameJsonEntry> {
+        public DirectoryInfo Root { set; get; }
 
+        public GameResolver(string path) : this() {
+            Root = new(path);
+        }
+        
         /// <summary>
         /// 获取特定游戏实体信息
         /// </summary>
@@ -28,14 +32,14 @@ namespace MinecraftLaunch.Components.Resolver {
             var gameEntity = new GameEntry {
                 Id = entity.Id,
                 Type = entity.Type,
-                GameFolderPath = root,
+                GameFolderPath = Root.FullName,
                 IsInheritedFrom = false,
                 MainClass = entity.MainClass,
                 MainLoaderType = entity.GetGameLoaderType(),
                 JavaVersion = entity.JavaVersion?.GetInt32("majorVersion") ?? 8,
             };
 
-            var assetsIndexFile = Path.Combine(root, "assets", "indexes", $"{entity.AssetIndex?.Id}.json");
+            var assetsIndexFile = Path.Combine(Root.FullName, "assets", "indexes", $"{entity.AssetIndex?.Id}.json");
             var jarFile = Path.Combine(gameEntity.OfVersionDirectoryPath(),
                 $"{id}.jar");
 
@@ -57,7 +61,7 @@ namespace MinecraftLaunch.Components.Resolver {
                 gameEntity.BehindArguments = HandleMinecraftArguments(entity.MinecraftArguments);
             }
 
-            if (entity.Arguments != null && entity.Arguments.Game != null) {
+            if (entity.Arguments is { Game: not null }) {
                 IEnumerable<string> behindArguments;
                 if (gameEntity.BehindArguments != null) {
                     behindArguments = gameEntity.BehindArguments.Union(HandleGameArguments(entity.Arguments));
@@ -68,7 +72,7 @@ namespace MinecraftLaunch.Components.Resolver {
                 gameEntity.BehindArguments = behindArguments;
             }
 
-            if (entity.Arguments != null && entity.Arguments.Jvm != null) {
+            if (entity.Arguments is { Jvm: not null }) {
                 gameEntity.FrontArguments = HandleJvmArguments(entity.Arguments);
             } else {
                 gameEntity.FrontArguments = ["-Djava.library.path=${natives_directory}",
@@ -100,7 +104,7 @@ namespace MinecraftLaunch.Components.Resolver {
         }
 
         public GameJsonEntry Resolve(string id) {
-            var path = Path.Combine(root, "versions", id, $"{id}.json");
+            var path = Path.Combine(Root.FullName, "versions", id, $"{id}.json");
             if (!File.Exists(path)) {
                 return null!;
             }
@@ -118,10 +122,12 @@ namespace MinecraftLaunch.Components.Resolver {
             => GroupArguments(minecraftArguments.Replace("  ", " ").Split(' '));
 
         private IEnumerable<string> HandleGameArguments(ArgumentsJsonEntry entity)
-            => GroupArguments(entity.Game.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
+            => GroupArguments(entity.Game.Where(x => x.ValueKind == JsonValueKind.String)
+                .Select(x => x.GetString()!.ToPath()));
 
         private IEnumerable<string> HandleJvmArguments(ArgumentsJsonEntry entity)
-            => GroupArguments(entity.Jvm.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.ToPath()));
+            => GroupArguments(entity.Jvm.Where(x => x.ValueKind == JsonValueKind.String)
+                .Select(x => x.GetString()!.ToPath()));
 
         private static IEnumerable<string> GroupArguments(IEnumerable<string> arguments) {
             List<string> cache = new List<string>();
