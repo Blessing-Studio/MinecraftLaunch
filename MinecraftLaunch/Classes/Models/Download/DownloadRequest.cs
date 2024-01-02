@@ -15,11 +15,11 @@ namespace MinecraftLaunch.Classes.Models.Download {
 
         public int DownloadedBytes { get; set; }
 
-        public required string Url { get; set; }
+        public required string Url { get; init; }
 
-        public required string Name { get; set; }
+        public required string Name { get; init; }
 
-        public required string Path { get; set; }
+        public required string Path { get; init; }
 
         public bool IsPartialContentSupported { get; set; }
     }

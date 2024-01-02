@@ -11,7 +11,7 @@ namespace MinecraftLaunch.Extensions {
     /// 下载扩展类
     /// </summary>
     public static class DownloadExtension {
-        public static FileDownloader DefaultDownloader { get; set; }
+        public static BatchDownloader DefaultDownloader { get; set; } = new();
 
         public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry,
             MirrorDownloadSource source) {
@@ -34,30 +34,30 @@ namespace MinecraftLaunch.Extensions {
         public static ValueTask<bool> DownloadAsync(this
             DownloadRequest request,
             Action<DownloadProgressChangedEventArgs> action = default!) {
-            DefaultDownloader = new(request);
+            DefaultDownloader.Setup(Enumerable.Repeat(request, 1));
 
             DefaultDownloader.ProgressChanged += (sender, args) => {
                 action(args);
             };
 
-            return DefaultDownloader.StartAsync();
+            return DefaultDownloader.DownloadAsync();
         }
 
         public static ValueTask<bool> DownloadResourceEntryAsync(this 
             IDownloadEntry downloadEntry,
             MirrorDownloadSource source = default!) {
-            DefaultDownloader = new(downloadEntry
+            DefaultDownloader.Setup(Enumerable.Repeat(downloadEntry
                 .OfMirrorSource(source)
-                .ToDownloadRequest());
+                .ToDownloadRequest(), 1));
 
-            return DefaultDownloader.StartAsync();
+            return DefaultDownloader.DownloadAsync();
         }
 
         public static ValueTask<bool> DownloadResourceEntrysAsync(this
             IEnumerable<IDownloadEntry> entries,
             MirrorDownloadSource source = default!,
             Action<DownloadProgressChangedEventArgs> action = default!) {
-            DefaultDownloader = new(entries
+            DefaultDownloader.Setup(entries
                 .Select(x => x.OfMirrorSource(source))
                 .Select(x => x.ToDownloadRequest()));
 
@@ -65,7 +65,7 @@ namespace MinecraftLaunch.Extensions {
                 action(args);
             };
 
-            return DefaultDownloader.StartAsync();
+            return DefaultDownloader.DownloadAsync();
         }
 
         public static double ToPercentage(this DownloadProgressChangedEventArgs args) {
