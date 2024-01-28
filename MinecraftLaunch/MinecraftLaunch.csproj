@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.0.0-preview8</Version>
+		<Version>3.0.0-preview9</Version>
 	</PropertyGroup>
 	
 	<PropertyGroup>
@@ -20,8 +20,8 @@
 	<ItemGroup>
 		<None Include="..\MinecraftLaunch\.nuget\logo.png">
 			<Pack>True</Pack>
-			<PackagePath></PackagePath>
 			<Link>logo.png</Link>
+			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 
