@@ -5,11 +5,11 @@ using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Authenticator;
 
-public class UnifiedPassAuthenticator(string serverId, string userName, string passWord) : IAuthenticator<UnifiedPassAccount> {
+public sealed class UnifiedPassAuthenticator(string serverId, string userName, string passWord) : IAuthenticator<UnifiedPassAccount> {
     private string _serverId = serverId;
     private string _userName = userName;
     private string _passWord = passWord;
-    private string _baseUrl = "https://auth.mc-user.com:233/";
+    private readonly string _baseUrl = "https://auth.mc-user.com:233/";
 
     public void RefreshInformation(string serverId, string userName, string passWord) {
         _serverId = serverId;

@@ -1,15 +1,15 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Launch {
-    public record ArgumentsJsonEntry {
-        [JsonPropertyName("jvm")]
-        public List<JsonElement> Jvm { get; set; }
+namespace MinecraftLaunch.Classes.Models.Launch;
 
-        [JsonPropertyName("game")]
-        public List<JsonElement> Game { get; set; }
-    }
-    
-    [JsonSerializable(typeof(ArgumentsJsonEntry))]
-    partial class ArgumentsJsonEntryContext : JsonSerializerContext;
+public sealed record ArgumentsJsonEntry {
+    [JsonPropertyName("jvm")]
+    public List<JsonElement> Jvm { get; set; }
+
+    [JsonPropertyName("game")]
+    public List<JsonElement> Game { get; set; }
 }
+    
+[JsonSerializable(typeof(ArgumentsJsonEntry))]
+sealed partial class ArgumentsJsonEntryContext : JsonSerializerContext;

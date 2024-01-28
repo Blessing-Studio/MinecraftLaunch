@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftLaunch.Components.Fetcher {
-    //public class ModrinthFetcher : IFetcher<> {
-    //}
-}
+namespace MinecraftLaunch.Components.Fetcher; 
+//public class ModrinthFetcher : IFetcher<> {
+//}

@@ -1,34 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Auth {
-    public record OAuth2TokenResponse {
-        [JsonPropertyName("token_type")]
-        public string TokenType { get; set; }
+namespace MinecraftLaunch.Classes.Models.Auth;
 
-        [JsonPropertyName("expires_in")]
-        public int ExpiresIn { get; set; }
+public sealed record OAuth2TokenResponse {
+    [JsonPropertyName("token_type")]
+    public string TokenType { get; set; }
 
-        [JsonPropertyName("scope")]
-        public string Scope { get; set; }
+    [JsonPropertyName("expires_in")]
+    public int ExpiresIn { get; set; }
 
-        [JsonPropertyName("access_token")]
-        public string AccessToken { get; set; }
+    [JsonPropertyName("scope")]
+    public string Scope { get; set; }
 
-        [JsonPropertyName("refresh_token")]
-        public string RefreshToken { get; set; }
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; }
 
-        [JsonPropertyName("user_id")]
-        public string UserId { get; set; }
+    [JsonPropertyName("refresh_token")]
+    public string RefreshToken { get; set; }
 
-        [JsonPropertyName("foci")]
-        public string Foci { get; set; }
-    }
-    
-    [JsonSerializable(typeof(OAuth2TokenResponse))]
-    partial class OAuth2TokenResponseContext : JsonSerializerContext;
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; }
+
+    [JsonPropertyName("foci")]
+    public string Foci { get; set; }
 }
+    
+[JsonSerializable(typeof(OAuth2TokenResponse))]
+sealed partial class OAuth2TokenResponseContext : JsonSerializerContext;

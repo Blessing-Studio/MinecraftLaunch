@@ -2,7 +2,7 @@
 
 namespace MinecraftLaunch.Classes.Models.Auth;
 
-public record DeviceCodeResponse {
+public sealed record DeviceCodeResponse {
     [JsonPropertyName("user_code")]
     public string UserCode { get; set; }
 
@@ -23,4 +23,4 @@ public record DeviceCodeResponse {
 }
 
 [JsonSerializable(typeof(DeviceCodeResponse))]
-partial class DeviceCodeResponseContext : JsonSerializerContext;
+sealed partial class DeviceCodeResponseContext : JsonSerializerContext;

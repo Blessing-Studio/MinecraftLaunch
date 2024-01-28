@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Install {
-    public record HighVersionForgeProcessorEntry {
-        [JsonPropertyName("jar")]
-        public string Jar { get; set; }
+namespace MinecraftLaunch.Classes.Models.Install;
 
-        [JsonPropertyName("sides")]
-        public List<string> Sides { get; set; } = new();
+public sealed record HighVersionForgeProcessorEntry {
+    [JsonPropertyName("jar")]
+    public string Jar { get; set; }
 
-        [JsonPropertyName("classpath")]
-        public IEnumerable<string> Classpath { get; set; }
+    [JsonPropertyName("sides")]
+    public List<string> Sides { get; set; } = new();
 
-        [JsonPropertyName("args")]
-        public IEnumerable<string> Args { get; set; }
+    [JsonPropertyName("classpath")]
+    public IEnumerable<string> Classpath { get; set; }
 
-        [JsonPropertyName("outputs")]
-        public Dictionary<string, string> Outputs { get; set; } = new();
-    }
-    
-    [JsonSerializable(typeof(HighVersionForgeProcessorEntry))]
-    partial class HighVersionForgeProcessorEntryContext : JsonSerializerContext;
+    [JsonPropertyName("args")]
+    public IEnumerable<string> Args { get; set; }
+
+    [JsonPropertyName("outputs")]
+    public Dictionary<string, string> Outputs { get; set; } = new();
 }
+    
+[JsonSerializable(typeof(HighVersionForgeProcessorEntry))]
+sealed partial class HighVersionForgeProcessorEntryContext : JsonSerializerContext;

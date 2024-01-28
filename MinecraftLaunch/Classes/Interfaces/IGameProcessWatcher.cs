@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
 using MinecraftLaunch.Classes.Models.Event;
 
-namespace MinecraftLaunch.Classes.Interfaces {
-    public class IGameProcessWatcher {
-        public Process Process { get; }
+namespace MinecraftLaunch.Classes.Interfaces;
 
-        public IEnumerable<string> Arguments { get; }
+public class IGameProcessWatcher {
+    public Process Process { get; }
 
-        public event EventHandler<ExitedEventArgs> Exited;
+    public IEnumerable<string> Arguments { get; }
 
-        public event EventHandler<LogReceivedEventArgs> OutputLogReceived;
-    }
+    public event EventHandler<ExitedEventArgs> Exited;
+
+    public event EventHandler<LogReceivedEventArgs> OutputLogReceived;
 }

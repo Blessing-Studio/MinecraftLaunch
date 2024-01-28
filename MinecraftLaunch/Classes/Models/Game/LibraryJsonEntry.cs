@@ -2,27 +2,27 @@
 using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Models.Download;
 
-namespace MinecraftLaunch.Classes.Models.Game {
-    public record LibraryJsonEntry {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+namespace MinecraftLaunch.Classes.Models.Game;
 
-        [JsonPropertyName("downloads")]
-        public DownloadsEntry Downloads { get; set; }
+public sealed record LibraryJsonEntry {
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
 
-        [JsonPropertyName("natives")]
-        public Dictionary<Platform, string> Natives { get; set; }
-    }
+    [JsonPropertyName("downloads")]
+    public DownloadsEntry Downloads { get; set; }
 
-    public record RuleModel
-    {
-        [JsonPropertyName("action")]
-        public string Action { get; set; }
-
-        [JsonPropertyName("os")]
-        public Dictionary<string, Platform> System { get; set; }
-    }
-    
-    [JsonSerializable(typeof(LibraryJsonEntry))]
-    partial class LibraryJsonEntryContext : JsonSerializerContext;
+    [JsonPropertyName("natives")]
+    public Dictionary<Platform, string> Natives { get; set; }
 }
+
+public sealed record RuleModel
+{
+    [JsonPropertyName("action")]
+    public string Action { get; set; }
+
+    [JsonPropertyName("os")]
+    public Dictionary<string, Platform> System { get; set; }
+}
+    
+[JsonSerializable(typeof(LibraryJsonEntry))]
+sealed partial class LibraryJsonEntryContext : JsonSerializerContext;

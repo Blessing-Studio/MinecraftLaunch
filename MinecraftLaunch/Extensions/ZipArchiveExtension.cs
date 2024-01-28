@@ -1,20 +1,20 @@
 ﻿using System.IO.Compression;
 
-namespace MinecraftLaunch.Extensions {
-    public static class ZipArchiveExtension {
-        public static string ReadAsString(this ZipArchiveEntry archiveEntry) {
-            using var stream = archiveEntry.Open();
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
-        }
+namespace MinecraftLaunch.Extensions;
 
-        public static void ExtractTo(this ZipArchiveEntry zipArchiveEntry, string filename) {
-            var file = new FileInfo(filename);
+public static class ZipArchiveExtension {
+    public static string ReadAsString(this ZipArchiveEntry archiveEntry) {
+        using var stream = archiveEntry.Open();
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
 
-            if (!file.Directory.Exists)
-                file.Directory.Create();
+    public static void ExtractTo(this ZipArchiveEntry zipArchiveEntry, string filename) {
+        var file = new FileInfo(filename);
 
-            zipArchiveEntry.ExtractToFile(filename, true);
-        }
+        if (!file.Directory.Exists)
+            file.Directory.Create();
+
+        zipArchiveEntry.ExtractToFile(filename, true);
     }
 }

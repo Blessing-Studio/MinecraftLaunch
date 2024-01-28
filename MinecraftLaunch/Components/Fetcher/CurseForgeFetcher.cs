@@ -4,30 +4,30 @@ using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Download;
 
-namespace MinecraftLaunch.Components.Fetcher {
-    public class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceEntry>> {
-        public IEnumerable<CurseForgeResourceEntry> Fetch() {
-            return FetchAsync().GetAwaiter().GetResult();
-        }
+namespace MinecraftLaunch.Components.Fetcher;
 
-        public ValueTask<IEnumerable<CurseForgeResourceEntry>> FetchAsync() {
-            throw new NotImplementedException();
-        }
+public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceEntry>> {
+    public IEnumerable<CurseForgeResourceEntry> Fetch() {
+        return FetchAsync().GetAwaiter().GetResult();
+    }
 
-        private CurseForgeResourceEntry ResolveFromJsonNode(JsonNode node) {
-            var entry = node.Deserialize<CurseForgeResourceEntry>();
+    public ValueTask<IEnumerable<CurseForgeResourceEntry>> FetchAsync() {
+        throw new NotImplementedException();
+    }
 
-            entry.IconUrl = node["logo"]?.GetString("url");
-            entry.WebLink = node["links"]?.GetString("websiteUrl");
-            entry.Authors = node?.GetEnumerable<string>("authors", "name");
-            entry.Categories = node?.GetEnumerable<string>("categories", "name");
-            entry.ScreenshotUrls = node?.GetEnumerable<string>("screenshots", "url");
-            entry.Files = entry.Files.Select(x => {
-                x.ModId = entry.Id;
-                return x;
-            });
+    private CurseForgeResourceEntry ResolveFromJsonNode(JsonNode node) {
+        var entry = node.Deserialize<CurseForgeResourceEntry>();
 
-            return entry;
-        }
+        entry.IconUrl = node["logo"]?.GetString("url");
+        entry.WebLink = node["links"]?.GetString("websiteUrl");
+        entry.Authors = node?.GetEnumerable<string>("authors", "name");
+        entry.Categories = node?.GetEnumerable<string>("categories", "name");
+        entry.ScreenshotUrls = node?.GetEnumerable<string>("screenshots", "url");
+        entry.Files = entry.Files.Select(x => {
+            x.ModId = entry.Id;
+            return x;
+        });
+
+        return entry;
     }
 }

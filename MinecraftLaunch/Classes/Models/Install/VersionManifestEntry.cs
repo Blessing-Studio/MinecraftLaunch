@@ -1,23 +1,23 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Install {
-    public record VersionManifestEntry {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
+namespace MinecraftLaunch.Classes.Models.Install;
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
+public sealed record VersionManifestEntry {
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
 
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
 
-        [JsonPropertyName("time")]
-        public DateTime Time { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
 
-        [JsonPropertyName("releaseTime")]
-        public DateTime ReleaseTime { get; set; }
-    }
-    
-    [JsonSerializable(typeof(VersionManifestEntry))]
-    partial class VersionManifestEntryContext : JsonSerializerContext;
+    [JsonPropertyName("time")]
+    public DateTime Time { get; set; }
+
+    [JsonPropertyName("releaseTime")]
+    public DateTime ReleaseTime { get; set; }
 }
+    
+[JsonSerializable(typeof(VersionManifestEntry))]
+sealed partial class VersionManifestEntryContext : JsonSerializerContext;

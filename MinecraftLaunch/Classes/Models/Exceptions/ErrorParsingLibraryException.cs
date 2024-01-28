@@ -1,5 +1,3 @@
-﻿using System.Runtime.Serialization;
+﻿namespace MinecraftLaunch.Classes.Models.Exceptions;
 
-namespace MinecraftLaunch.Classes.Models.Exceptions {
-    public class ErrorParsingLibraryException(string message) : Exception(message);
-}
+public sealed class ErrorParsingLibraryException(string message) : Exception(message);

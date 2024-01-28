@@ -10,7 +10,7 @@ using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.Do
 
 namespace MinecraftLaunch.Components.Downloader;
 
-public class BatchDownloader : IDownloader, IDisposable {
+public sealed class BatchDownloader : IDownloader, IDisposable {
     private const int MAX_RETRY_COUNT = 3;
     private const int BUFFER_SIZE = 4096; // byte
     private const int SIZE_THRESHOLD = 1048576;

@@ -4,36 +4,36 @@ using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Components.Resolver;
 
-namespace MinecraftLaunch.Components.Checker {
-    /// <summary>
-    /// Minecraft 游戏资源检查器
-    /// </summary>
-    /// <remarks>
-    /// 包含 Assets 和 Libraries
-    /// </remarks>
-    public class ResourceChecker(GameEntry entry) : IChecker {
-        private AssetsResolver AssetsResolver => new(entry);
+namespace MinecraftLaunch.Components.Checker;
 
-        private LibrariesResolver LibraryResolver => new(entry);
+/// <summary>
+/// Minecraft 游戏资源检查器
+/// </summary>
+/// <remarks>
+/// 包含 Assets 和 Libraries
+/// </remarks>
+public sealed class ResourceChecker(GameEntry entry) : IChecker {
+    private AssetsResolver AssetsResolver => new(entry);
 
-        public IReadOnlyCollection<IDownloadEntry> MissingResources { get; protected set; }
+    private LibrariesResolver LibraryResolver => new(entry);
 
-        public async ValueTask<bool> CheckAsync() {
-            var assetIndex = AssetsResolver.GetAssetIndexJson();
-            if (!assetIndex.Verify()) {
-                await assetIndex!.DownloadResourceEntryAsync();
-            }
+    public IReadOnlyCollection<IDownloadEntry> MissingResources { get; private set; }
 
-            var assets = AssetsResolver.GetAssets();
-            var libraries = LibraryResolver.GetLibraries();
-
-            IEnumerable<IDownloadEntry> entries = [.. assets, .. libraries];
-            MissingResources = entries.AsParallel()
-                                      .Where(entry => !entry.Verify())
-                                      .ToImmutableArray();
-
-            return !MissingResources.Any();
+    public async ValueTask<bool> CheckAsync() {
+        var assetIndex = AssetsResolver.GetAssetIndexJson();
+        if (!assetIndex.Verify()) {
+            await assetIndex!.DownloadResourceEntryAsync();
         }
 
+        var assets = AssetsResolver.GetAssets();
+        var libraries = LibraryResolver.GetLibraries();
+
+        IEnumerable<IDownloadEntry> entries = [.. assets, .. libraries];
+        MissingResources = entries.AsParallel()
+            .Where(entry => !entry.Verify())
+            .ToImmutableArray();
+
+        return !MissingResources.Any();
     }
+
 }

@@ -1,17 +1,17 @@
-﻿namespace MinecraftLaunch.Utilities {
-    public class DirectoryUtil {
-        public static void DeleteAllFiles(string folder) =>
-            DeleteAllFiles(new DirectoryInfo(folder));
+﻿namespace MinecraftLaunch.Utilities;
 
-        public static void DeleteAllFiles(DirectoryInfo directory) {
-            foreach (FileInfo file in directory.EnumerateFiles()) {
-                file.Delete();
-            }
+public static class DirectoryUtil {
+    public static void DeleteAllFiles(string folder) =>
+        DeleteAllFiles(new DirectoryInfo(folder));
 
-            foreach (var item in directory.EnumerateDirectories()) {
-                DeleteAllFiles(item);
-                item.Delete();
-            }
+    public static void DeleteAllFiles(DirectoryInfo directory) {
+        foreach (FileInfo file in directory.EnumerateFiles()) {
+            file.Delete();
+        }
+
+        foreach (var item in directory.EnumerateDirectories()) {
+            DeleteAllFiles(item);
+            item.Delete();
         }
     }
 }

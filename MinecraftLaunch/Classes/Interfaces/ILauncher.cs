@@ -1,14 +1,14 @@
 ﻿using MinecraftLaunch.Classes.Models.Launch;
 
-namespace MinecraftLaunch.Classes.Interfaces {
-    /// <summary>
-    /// 启动器统一接口（IoC适应）
-    /// </summary>
-    public interface ILauncher {
-        LaunchConfig LaunchConfig { get; }
+namespace MinecraftLaunch.Classes.Interfaces;
 
-        IGameResolver GameResolver { get; }
+/// <summary>
+/// 启动器统一接口（IoC适应）
+/// </summary>
+public interface ILauncher {
+    LaunchConfig LaunchConfig { get; }
 
-        ValueTask<IGameProcessWatcher> LaunchAsync(string id);
-    }
+    IGameResolver GameResolver { get; }
+
+    ValueTask<IGameProcessWatcher> LaunchAsync(string id);
 }

@@ -1,63 +1,63 @@
 ﻿using MinecraftLaunch.Classes.Enums;
 using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Download {
-    public record CurseForgeResourceEntry {
-        [JsonIgnore]
-        public string WebLink { get; set; }
+namespace MinecraftLaunch.Classes.Models.Download;
 
-        [JsonIgnore]
-        public string IconUrl { get; set; }
+public sealed record CurseForgeResourceEntry {
+    [JsonIgnore]
+    public string WebLink { get; set; }
 
-        [JsonIgnore]
-        public IEnumerable<string> Authors { get; set; }
+    [JsonIgnore]
+    public string IconUrl { get; set; }
 
-        [JsonIgnore]
-        public IEnumerable<string> Categories { get; set; }
+    [JsonIgnore]
+    public IEnumerable<string> Authors { get; set; }
 
-        [JsonIgnore]
-        public IEnumerable<string> ScreenshotUrls { get; set; }
+    [JsonIgnore]
+    public IEnumerable<string> Categories { get; set; }
 
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
+    [JsonIgnore]
+    public IEnumerable<string> ScreenshotUrls { get; set; }
 
-        [JsonPropertyName("classId")]
-        public int ClassId { get; set; }
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("classId")]
+    public int ClassId { get; set; }
 
-        [JsonPropertyName("summary")]
-        public string Summary { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
 
-        [JsonPropertyName("downloadCount")]
-        public int DownloadCount { get; set; }
+    [JsonPropertyName("summary")]
+    public string Summary { get; set; }
 
-        [JsonPropertyName("dateModified")]
-        public DateTime DateModified { get; set; }
+    [JsonPropertyName("downloadCount")]
+    public int DownloadCount { get; set; }
 
-        [JsonPropertyName("latestFilesIndexes")]
-        public IEnumerable<CurseFileEntry> Files { get; set; }
-    }
+    [JsonPropertyName("dateModified")]
+    public DateTime DateModified { get; set; }
 
-    public record CurseFileEntry {
-        [JsonPropertyName("fileId")]
-        public int FileId { get; set; }
-
-        [JsonPropertyName("gameVersion")]
-        public string McVersion { get; set; }
-
-        [JsonPropertyName("filename")]
-        public string FileName { get; set; }
-
-        [JsonPropertyName("modLoader")]
-        public LoaderType ModLoaderType { get; set; }
-
-        public int ModId { get; set; }
-
-        public string DisplayDescription => $"{ModLoaderType} {McVersion}";
-    }
-    
-    [JsonSerializable(typeof(CurseForgeResourceEntry))]
-    partial class CurseForgeResourceEntryContext : JsonSerializerContext;
+    [JsonPropertyName("latestFilesIndexes")]
+    public IEnumerable<CurseFileEntry> Files { get; set; }
 }
+
+public sealed record CurseFileEntry {
+    [JsonPropertyName("fileId")]
+    public int FileId { get; set; }
+
+    [JsonPropertyName("gameVersion")]
+    public string McVersion { get; set; }
+
+    [JsonPropertyName("filename")]
+    public string FileName { get; set; }
+
+    [JsonPropertyName("modLoader")]
+    public LoaderType ModLoaderType { get; set; }
+
+    public int ModId { get; set; }
+
+    public string DisplayDescription => $"{ModLoaderType} {McVersion}";
+}
+    
+[JsonSerializable(typeof(CurseForgeResourceEntry))]
+sealed partial class CurseForgeResourceEntryContext : JsonSerializerContext;

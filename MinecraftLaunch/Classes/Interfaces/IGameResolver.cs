@@ -1,11 +1,11 @@
 ﻿using MinecraftLaunch.Classes.Models.Game;
 
-namespace MinecraftLaunch.Classes.Interfaces {
-    public interface IGameResolver {
-        DirectoryInfo Root {  get; }
+namespace MinecraftLaunch.Classes.Interfaces;
 
-        GameEntry GetGameEntity(string id);
+public interface IGameResolver {
+    DirectoryInfo Root {  get; }
 
-        IEnumerable<GameEntry> GetGameEntitys();
-    }
+    GameEntry GetGameEntity(string id);
+
+    IEnumerable<GameEntry> GetGameEntitys();
 }

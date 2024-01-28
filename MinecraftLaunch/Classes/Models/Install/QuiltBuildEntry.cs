@@ -1,47 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Install {
-    public record QuiltBuildEntry {
-        [JsonPropertyName("intermediary")]
-        public QuiltMavenItem Intermediary { get; set; }
+namespace MinecraftLaunch.Classes.Models.Install;
 
-        [JsonPropertyName("loader")]
-        public QuiltMavenItem Loader { get; set; }
+public sealed record QuiltBuildEntry {
+    [JsonPropertyName("intermediary")]
+    public QuiltMavenItem Intermediary { get; set; }
 
-        [JsonPropertyName("launcherMeta")]
-        public QuiltLauncherMeta LauncherMeta { get; set; }
+    [JsonPropertyName("loader")]
+    public QuiltMavenItem Loader { get; set; }
 
-        [JsonIgnore]
-        public string BuildVersion => Loader.Version;
+    [JsonPropertyName("launcherMeta")]
+    public QuiltLauncherMeta LauncherMeta { get; set; }
 
-        [JsonIgnore]
-        public string McVersion => Intermediary.Version;
+    [JsonIgnore]
+    public string BuildVersion => Loader.Version;
 
-        [JsonIgnore]
-        public string DisplayVersion => $"{McVersion}-{Loader.Version}";
-    }
+    [JsonIgnore]
+    public string McVersion => Intermediary.Version;
 
-    public record QuiltLauncherMeta {
-        [JsonPropertyName("mainClass")]
-        public Dictionary<string, string> MainClass { get; set; }
-    }
-
-    public record QuiltMavenItem {
-        [JsonPropertyName("separator")]
-        public string Separator { get; set; }
-
-        [JsonPropertyName("maven")]
-        public string Maven { get; set; }
-
-        [JsonPropertyName("version")]
-        public string Version { get; set; }
-    }
-    
-    [JsonSerializable(typeof(QuiltBuildEntry))]
-    partial class QuiltBuildEntryContext : JsonSerializerContext;
+    [JsonIgnore]
+    public string DisplayVersion => $"{McVersion}-{Loader.Version}";
 }
+
+public sealed record QuiltLauncherMeta {
+    [JsonPropertyName("mainClass")]
+    public Dictionary<string, string> MainClass { get; set; }
+}
+
+public sealed record QuiltMavenItem {
+    [JsonPropertyName("separator")]
+    public string Separator { get; set; }
+
+    [JsonPropertyName("maven")]
+    public string Maven { get; set; }
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; }
+}
+    
+[JsonSerializable(typeof(QuiltBuildEntry))]
+sealed partial class QuiltBuildEntryContext : JsonSerializerContext;
