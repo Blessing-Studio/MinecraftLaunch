@@ -12,7 +12,7 @@ public sealed record LibraryJsonEntry {
     public DownloadsEntry Downloads { get; set; }
 
     [JsonPropertyName("natives")]
-    public Dictionary<Platform, string> Natives { get; set; }
+    public Dictionary<string, string> Natives { get; set; }
 }
 
 public sealed record RuleModel
@@ -21,7 +21,7 @@ public sealed record RuleModel
     public string Action { get; set; }
 
     [JsonPropertyName("os")]
-    public Dictionary<string, Platform> System { get; set; }
+    public Dictionary<string, string> System { get; set; }
 }
     
 [JsonSerializable(typeof(LibraryJsonEntry))]

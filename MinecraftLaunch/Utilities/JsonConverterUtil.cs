@@ -16,8 +16,6 @@ public static class JsonConverterUtil {
         };
 
         options.Converters.Add(new AccountJsonConverter());
-        options.Converters.Add(new PlatformEnumToStringJsonConverter());
-
         return options;
     }
 }

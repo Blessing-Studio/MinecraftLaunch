@@ -72,9 +72,9 @@ public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
 
     public async ValueTask<ImmutableArray<JavaEntry>> FetchAsync() {
         return EnvironmentUtil.GetPlatformName() switch {
-            Platform.windows => FetchWindowJava(),
-            Platform.osx => await FetchMacJavaAsync(),
-            Platform.linux => await FetchLinuxJavaAsync(),
+            "windows" => FetchWindowJava(),
+            "osx" => await FetchMacJavaAsync(),
+            "linux" => await FetchLinuxJavaAsync(),
             _ => FetchWindowJava()
         };
     }

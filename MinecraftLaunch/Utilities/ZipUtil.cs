@@ -12,9 +12,9 @@ public static class ZipUtil {
         DirectoryUtil.DeleteAllFiles(targetFolder);
 
         var extension = EnvironmentUtil.GetPlatformName() switch {
-            Platform.windows => ".dll",
-            Platform.linux => ".so",
-            Platform.osx => ".dylib",
+            "windows" => ".dll",
+            "linux" => ".so",
+            "osx" => ".dylib",
             _ => "."
         };
 

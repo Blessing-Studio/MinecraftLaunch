@@ -130,13 +130,13 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) : IResolver<Library
 
                 foreach (var os in item.System) {
                     switch (os.Value) {
-                        case Platform.windows:
+                        case "windows":
                             windows = true;
                             break;
-                        case Platform.linux:
+                        case "linux":
                             linux = true;
                             break;
-                        case Platform.osx:
+                        case "osx":
                             osx = true;
                             break;
                     }
@@ -149,13 +149,13 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) : IResolver<Library
 
                 foreach (var os in item.System) {
                     switch (os.Value) {
-                        case Platform.windows:
+                        case "windows":
                             windows = false;
                             break;
-                        case Platform.linux:
+                        case "linux":
                             linux = false;
                             break;
-                        case Platform.osx:
+                        case "osx":
                             osx = false;
                             break;
                     }
@@ -164,9 +164,9 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) : IResolver<Library
         }
 
         return EnvironmentUtil.GetPlatformName() switch {
-            Platform.windows => windows,
-            Platform.linux=> linux,
-            Platform.osx => osx,
+            "windows" => windows,
+            "linux" => linux,
+            "osx" => osx,
             _ => false,
         };
     }

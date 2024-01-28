@@ -47,11 +47,11 @@ public static class JsonExtension {
     }
 
     public static string GetString(this JsonNode node) {
-        return node.GetValue<string>();
+        return node?.GetValue<string>();
     }
 
     public static string GetString(this JsonNode node, string name) {
-        return node[name].GetValue<string>();
+        return node[name]?.GetValue<string>();
     }
 
     public static JsonArray GetEnumerable(this JsonNode node) {

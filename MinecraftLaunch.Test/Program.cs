@@ -1,14 +1,10 @@
-﻿using System.IO.Compression;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Components.Launcher;
+﻿using MinecraftLaunch.Components.Launcher;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Launch;
-using MinecraftLaunch.Components.Downloader;
-using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Components.Authenticator;
 
 var account = new OfflineAuthenticator("Yang114").Authenticate();
-var resolver = new GameResolver(".minecraft");
+var resolver = new GameResolver("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\LauncherX\\.minecraft");
 
 var config = new LaunchConfig {
     Account = account,
@@ -30,3 +26,5 @@ gameProcessWatcher.OutputLogReceived += (sender, args) => {
 gameProcessWatcher.Exited += (sender, args) => {
     Console.WriteLine("exit");  
 };
+
+Console.ReadKey();

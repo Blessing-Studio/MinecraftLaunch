@@ -7,7 +7,7 @@ namespace MinecraftLaunch.Components.Watcher;
 /// <summary>
 /// 游戏进程监视器
 /// </summary>
-public sealed class GameProcessWatcher : IGameProcessWatcher {
+public class GameProcessWatcher : IGameProcessWatcher {
     public Process Process { get; }
 
     public IEnumerable<string> Arguments { get; }
@@ -19,9 +19,11 @@ public sealed class GameProcessWatcher : IGameProcessWatcher {
     public GameProcessWatcher(Process process, IEnumerable<string> arguments) {
         Process = process;
         Arguments = arguments;
-        process.Exited += OnExited;
+        process.Exited += OnExited;      
         process.ErrorDataReceived += OnOutputDataReceived;
         process.OutputDataReceived += OnOutputDataReceived;
+        process.Start();
+
         process.BeginErrorReadLine();
         process.BeginOutputReadLine();
     }

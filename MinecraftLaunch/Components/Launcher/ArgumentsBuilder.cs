@@ -134,9 +134,9 @@ internal sealed class ArgumentsBuilder(GameEntry gameEntity, LaunchConfig launch
     }
 
     private static IEnumerable<string> GetEnvironmentJvmArguments() {
-        Platform platformName = EnvironmentUtil.GetPlatformName();
-        if (!(platformName == Platform.windows)) {
-            if (platformName == Platform.osx)
+        string platformName = EnvironmentUtil.GetPlatformName();
+        if (!(platformName == "windows")) {
+            if (platformName == "osx")
                 yield return "-XstartOnFirstThread";
         } else {
             yield return "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";

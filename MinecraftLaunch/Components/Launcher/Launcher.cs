@@ -28,12 +28,13 @@ public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILau
         var process = CreateProcess(arguments, versionPath);
 
         LibrariesResolver librariesResolver = new(gameEntry);
-        await ExtractNativesAndStartProcess(versionPath, librariesResolver, process);
+        await ExtractNatives(versionPath, librariesResolver, process);
         return new GameProcessWatcher(process, arguments);
     }
 
     private Process CreateProcess(IEnumerable<string> arguments, string versionPath) {
         return new Process {
+            EnableRaisingEvents = true,
             StartInfo = new ProcessStartInfo {
                 FileName = LaunchConfig.JvmConfig.JavaPath.FullName,
                 Arguments = string.Join(' '.ToString(), arguments),
@@ -42,18 +43,15 @@ public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILau
                 RedirectStandardError = true,
                 WorkingDirectory = versionPath
             },
-
-            EnableRaisingEvents = true
         };
     }
 
-    private async Task ExtractNativesAndStartProcess(string versionPath, LibrariesResolver librariesResolver, Process process) {
+    private async Task ExtractNatives(string versionPath, LibrariesResolver librariesResolver, Process process) {
         var libraries = librariesResolver.GetLibraries()
             .Where(x => ((x as LibraryEntry)?.IsNative) != null)
             .Select(x => x.Path)
             .ToList();
 
         await Task.Run(() => ZipUtil.ExtractNatives(Path.Combine(versionPath, "natives"), libraries));
-        process.Start();
     }
 }
