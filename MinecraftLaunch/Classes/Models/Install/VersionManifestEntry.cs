@@ -17,4 +17,7 @@ namespace MinecraftLaunch.Classes.Models.Install {
         [JsonPropertyName("releaseTime")]
         public DateTime ReleaseTime { get; set; }
     }
+    
+    [JsonSerializable(typeof(VersionManifestEntry))]
+    partial class VersionManifestEntryContext : JsonSerializerContext;
 }

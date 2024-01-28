@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace MinecraftLaunch.Components.Installer {
     public class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, MirrorDownloadSource source = default) : InstallerBase {
         private readonly string _customId = customId;
-        private QuiltBuildEntry _quiltBuildEntry = entry;
+        private readonly QuiltBuildEntry _quiltBuildEntry = entry;
         private readonly GameEntry _inheritedFrom = inheritedFrom;
 
         public override async ValueTask<bool> InstallAsync() {
@@ -67,7 +67,7 @@ namespace MinecraftLaunch.Components.Installer {
             string url = $"https://meta.quiltmc.org/v3/versions/loader/{mcVersion}";
             string json = await url.GetStringAsync();
 
-            var entries = JsonSerializer.Deserialize<List<QuiltBuildEntry>>(json);
+            var entries = json.AsJsonEntry<IEnumerable<QuiltBuildEntry>>();
             return entries;
         }
     }

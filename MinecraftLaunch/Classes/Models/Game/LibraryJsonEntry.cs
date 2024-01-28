@@ -22,4 +22,7 @@ namespace MinecraftLaunch.Classes.Models.Game {
         [JsonPropertyName("os")]
         public Dictionary<string, Platform> System { get; set; }
     }
+    
+    [JsonSerializable(typeof(LibraryJsonEntry))]
+    partial class LibraryJsonEntryContext : JsonSerializerContext;
 }

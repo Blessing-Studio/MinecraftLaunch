@@ -28,4 +28,7 @@ namespace MinecraftLaunch.Classes.Models.Auth {
         [JsonPropertyName("foci")]
         public string Foci { get; set; }
     }
+    
+    [JsonSerializable(typeof(OAuth2TokenResponse))]
+    partial class OAuth2TokenResponseContext : JsonSerializerContext;
 }

@@ -22,4 +22,7 @@ namespace MinecraftLaunch.Classes.Models.Install {
         [JsonPropertyName("outputs")]
         public Dictionary<string, string> Outputs { get; set; } = new();
     }
+    
+    [JsonSerializable(typeof(HighVersionForgeProcessorEntry))]
+    partial class HighVersionForgeProcessorEntryContext : JsonSerializerContext;
 }

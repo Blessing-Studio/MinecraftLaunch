@@ -1,4 +1,5 @@
-﻿using MinecraftLaunch.Classes.Enums;
+﻿using System.Text.Json.Serialization;
+using MinecraftLaunch.Classes.Enums;
 
 namespace MinecraftLaunch.Classes.Models.Auth {
     public abstract record Account {
@@ -38,4 +39,7 @@ namespace MinecraftLaunch.Classes.Models.Auth {
 
         public string ClientToken { get; set; }
     }
+
+    [JsonSerializable(typeof(Account))]
+    partial class AccountContext : JsonSerializerContext;
 }

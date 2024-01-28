@@ -17,4 +17,7 @@ namespace MinecraftLaunch.Classes.Models.Install {
         [JsonPropertyName("modified")]
         public DateTime ModifiedTime { get; set; }
     }
+    
+    [JsonSerializable(typeof(ForgeInstallEntry))]
+    partial class ForgeInstallEntryContext : JsonSerializerContext;
 }

@@ -8,4 +8,7 @@ namespace MinecraftLaunch.Classes.Models.Game {
         [JsonPropertyName("hash")]
         public string Hash { get; set; }
     }
+    
+    [JsonSerializable(typeof(AssetJsonEntry))]
+    partial class AssetJsonEntryContext : JsonSerializerContext;
 }

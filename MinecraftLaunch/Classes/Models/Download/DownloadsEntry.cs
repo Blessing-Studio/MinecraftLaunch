@@ -31,4 +31,7 @@ namespace MinecraftLaunch.Classes.Models.Download {
         [JsonPropertyName("id")]
         public string Id { get; set; }
     }
+    
+    [JsonSerializable(typeof(DownloadsEntry))]
+    partial class DownloadsEntryContext : JsonSerializerContext;
 }

@@ -268,7 +268,7 @@ namespace MinecraftLaunch.Components.Installer {
             var packagesUrl = $"{host}{suffix}";
             string json = await packagesUrl.GetStringAsync();
 
-            var entries = JsonSerializer.Deserialize<List<ForgeInstallEntry>>(json);
+            var entries = json.AsJsonEntry<IEnumerable<ForgeInstallEntry>>();
             entries = entries.OrderByDescending(entry => entry.Build).ToList();
             return entries;
         }

@@ -2,19 +2,22 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace MinecraftLaunch.Utilities {
-    public class JsonConverterUtil {
-        public static JsonSerializerOptions DefaultJsonConverterOptions => Get();
+namespace MinecraftLaunch.Utilities;
 
-        private static JsonSerializerOptions Get() {
-            var options = new JsonSerializerOptions() {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            };
+public static class JsonConverterUtil {
+    public static JsonSerializerOptions DefaultJsonOptions => Get();
 
-            options.Converters.Add(new AccountJsonConverter());
-            options.Converters.Add(new PlatformEnumToStringJsonConverter());
+    private static JsonSerializerOptions Get() {
+        var options = new JsonSerializerOptions {
+            MaxDepth = 100,
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
 
-            return options;
-        }
+        options.Converters.Add(new AccountJsonConverter());
+        options.Converters.Add(new PlatformEnumToStringJsonConverter());
+
+        return options;
     }
 }

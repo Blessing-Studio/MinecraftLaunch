@@ -3,14 +3,19 @@ using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Classes.Models.Download {
     public record CurseForgeResourceEntry {
+        [JsonIgnore]
         public string WebLink { get; set; }
 
+        [JsonIgnore]
         public string IconUrl { get; set; }
 
+        [JsonIgnore]
         public IEnumerable<string> Authors { get; set; }
 
+        [JsonIgnore]
         public IEnumerable<string> Categories { get; set; }
 
+        [JsonIgnore]
         public IEnumerable<string> ScreenshotUrls { get; set; }
 
         [JsonPropertyName("id")]
@@ -52,4 +57,7 @@ namespace MinecraftLaunch.Classes.Models.Download {
 
         public string DisplayDescription => $"{ModLoaderType} {McVersion}";
     }
+    
+    [JsonSerializable(typeof(CurseForgeResourceEntry))]
+    partial class CurseForgeResourceEntryContext : JsonSerializerContext;
 }

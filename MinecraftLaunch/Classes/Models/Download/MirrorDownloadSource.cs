@@ -13,6 +13,5 @@ namespace MinecraftLaunch.Classes.Models.Download {
         public required string VersionManifestUrl { get; set; }
         public required Dictionary<string, string> AssetsUrls { get; set; }
         public required Dictionary<string, string> LibrariesUrls { get; set; }
-
     }
 }

@@ -6,8 +6,5 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MinecraftLaunch.Classes.Models.Exceptions {
-    public class GameResolveFailedException : Exception {
-        public GameResolveFailedException(string message) : base(message) { 
-        }
-    }
+    public class GameResolveFailedException(string message) : Exception(message);
 }

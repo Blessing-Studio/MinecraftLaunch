@@ -19,12 +19,12 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
         var jsonRules = libNode["rules"];
         var jsonNatives = libNode["natives"];
 
-        if (jsonRules != null && !GetLibraryEnable(jsonRules.Deserialize<IEnumerable<RuleModel>>(JsonConverterUtil
-            .DefaultJsonConverterOptions)!)) {
+        if (jsonRules != null && !GetLibraryEnable(jsonRules.Deserialize<IEnumerable<RuleModel>>(
+                JsonConverterUtil.DefaultJsonOptions)!)) {
             return null!;
         }
 
-        var libraryEntry = libNode.Deserialize<LibraryJsonEntry>();
+        var libraryEntry = libNode.Deserialize<LibraryJsonEntry>(JsonConverterUtil.DefaultJsonOptions);
         AppendNativeLibraryName(ref libraryEntry, jsonNatives);
 
         var relativePath = FormatLibraryNameToRelativePath(libraryEntry.Name);
@@ -173,7 +173,7 @@ class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode>
 
     private static LibraryEntry CreateLibraryEntryFromJsonNode(JsonNode libNode, string path) {
         var jsonNatives = libNode["natives"];
-        var libJsonNode = libNode.Deserialize<LibraryJsonEntry>();
+        var libJsonNode = libNode.Deserialize<LibraryJsonEntry>(JsonConverterUtil.DefaultJsonOptions);
 
         AppendNativeLibraryName(ref libJsonNode, jsonNatives);
 

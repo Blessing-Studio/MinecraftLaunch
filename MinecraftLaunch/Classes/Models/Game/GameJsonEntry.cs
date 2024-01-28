@@ -45,4 +45,7 @@ namespace MinecraftLaunch.Classes.Models.Game {
         [JsonPropertyName("sha1")]
         public string Sha1 { get; set; }
     }
+    
+    [JsonSerializable(typeof(GameJsonEntry))]
+    partial class GameJsonEntryContext : JsonSerializerContext;
 }

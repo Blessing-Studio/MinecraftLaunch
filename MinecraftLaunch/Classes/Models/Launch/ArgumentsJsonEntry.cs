@@ -9,4 +9,7 @@ namespace MinecraftLaunch.Classes.Models.Launch {
         [JsonPropertyName("game")]
         public List<JsonElement> Game { get; set; }
     }
+    
+    [JsonSerializable(typeof(ArgumentsJsonEntry))]
+    partial class ArgumentsJsonEntryContext : JsonSerializerContext;
 }

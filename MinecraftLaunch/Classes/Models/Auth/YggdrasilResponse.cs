@@ -47,4 +47,7 @@ namespace MinecraftLaunch.Classes.Models.Auth {
         [JsonPropertyName("id")]
         public string Id { get; set; }
     }
+    
+    [JsonSerializable(typeof(YggdrasilResponse))]
+    partial class YggdrasilResponseContext : JsonSerializerContext;
 }

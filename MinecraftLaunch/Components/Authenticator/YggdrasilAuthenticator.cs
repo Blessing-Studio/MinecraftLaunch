@@ -58,7 +58,7 @@ namespace MinecraftLaunch.Components.Authenticator {
             var json = await url.PostJsonAsync(payload)
                 .ReceiveString();
 
-            var entry = JsonSerializer.Deserialize<YggdrasilResponse>(json);
+            var entry = json.Deserialize(YggdrasilResponseContext.Default.YggdrasilResponse);
             return entry.AvailableProfiles.Select(profile => new YggdrasilAccount {
                 Name = profile.Name,
                 YggdrasilServerUrl = _url,

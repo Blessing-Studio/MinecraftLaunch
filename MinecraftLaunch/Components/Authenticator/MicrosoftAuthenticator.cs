@@ -161,7 +161,7 @@ namespace MinecraftLaunch.Components.Authenticator {//W.I.P
                 .PostUrlEncodedAsync(parameters)
                 .ReceiveString();
 
-            var codeResponse = JsonSerializer.Deserialize<DeviceCodeResponse>(json);
+            var codeResponse = json.Deserialize(DeviceCodeResponseContext.Default.DeviceCodeResponse);
             deviceCode.Invoke(codeResponse);
 
             //Polling

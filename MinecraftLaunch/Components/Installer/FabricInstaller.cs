@@ -60,7 +60,7 @@ namespace MinecraftLaunch.Components.Installer {
             string url = $"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}";
             string json = await url.GetStringAsync();
 
-            var entries = JsonSerializer.Deserialize<List<FabricBuildEntry>>(json);
+            var entries = json.AsJsonEntry<IEnumerable<FabricBuildEntry>>();
 
             entries = entries
                 .OrderByDescending(entry =>

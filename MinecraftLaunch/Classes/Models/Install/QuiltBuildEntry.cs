@@ -41,4 +41,7 @@ namespace MinecraftLaunch.Classes.Models.Install {
         [JsonPropertyName("version")]
         public string Version { get; set; }
     }
+    
+    [JsonSerializable(typeof(QuiltBuildEntry))]
+    partial class QuiltBuildEntryContext : JsonSerializerContext;
 }

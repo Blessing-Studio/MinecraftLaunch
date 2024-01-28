@@ -92,9 +92,14 @@ namespace MinecraftLaunch.Components.Resolver {
         /// </summary>
         /// <returns></returns>
         public IEnumerable<GameEntry> GetGameEntitys() {
+            GameEntry entry = default;
             var versionsPath = new DirectoryInfo(Path.Combine(Root.FullName, "versions"));
             foreach (var item in versionsPath.EnumerateDirectories()) {
-                var entry = GetGameEntity(item.Name);
+                try {
+                    entry = GetGameEntity(item.Name);
+                }
+                catch (Exception) { }
+                
                 if (entry is null) {
                     continue;
                 }
@@ -111,7 +116,7 @@ namespace MinecraftLaunch.Components.Resolver {
 
             try {
                 var json = File.ReadAllText(path);
-                return JsonSerializer.Deserialize<GameJsonEntry>(json)!;
+                return json.Deserialize(GameJsonEntryContext.Default.GameJsonEntry)!;
             }
             catch {
                 throw new GameResolveFailedException($"[{id}]解析失败");
