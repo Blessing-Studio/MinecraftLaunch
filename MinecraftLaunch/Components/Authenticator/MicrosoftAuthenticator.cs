@@ -11,12 +11,9 @@ using static System.Formats.Asn1.AsnWriter;
 namespace MinecraftLaunch.Components.Authenticator {//W.I.P
     public class MicrosoftAuthenticator(string clientId) : IAuthenticator<MicrosoftAccount> {
         private MicrosoftAccount _account;
-
         private string _clientId = clientId;
-
         private OAuth2TokenResponse _oAuth2TokenResponse;
-
-        private IEnumerable<string> _scopes => ["XboxLive.signin", "offline_access", "openid", "profile", "email"];
+        private readonly IEnumerable<string> _scopes = ["XboxLive.signin", "offline_access", "openid", "profile", "email"];
 
         public bool IsCheckOwnership {  get; set; }
 

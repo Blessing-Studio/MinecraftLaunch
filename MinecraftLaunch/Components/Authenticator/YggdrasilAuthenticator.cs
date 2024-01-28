@@ -15,13 +15,10 @@ using System.Threading.Tasks;
 
 namespace MinecraftLaunch.Components.Authenticator {
     public class YggdrasilAuthenticator(YggdrasilAccount account) : IAuthenticator<IEnumerable<YggdrasilAccount>> {
-        private string _url = account?.YggdrasilServerUrl;
-
         private string _email;
-
         private string _password;
-
         private YggdrasilAccount _account = account;
+        private string _url = account?.YggdrasilServerUrl;
 
         public YggdrasilAuthenticator(string url, string email, string password) : this(default) {
             _url = url;

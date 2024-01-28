@@ -1,61 +1,12 @@
-﻿using MinecraftLaunch.Components.Launcher;
+﻿using System.IO.Compression;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Components.Launcher;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Launch;
-using MinecraftLaunch.Components.Authenticator;
-using System.IO.Compression;
-using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Components.Downloader;
-using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Components.Authenticator;
 
-
-var list = new List<DownloadRequest> {
-    new() {
-        Url = "https://download.mcbbs.net/version/1.20.4/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "1.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.20.3/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "2.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.20.2/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "3.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.20.1/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "4.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.16.5/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "5.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.7.10/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "6.jar"
-    },
-    new() {
-        Url = "https://download.mcbbs.net/version/1.12.2/client",
-        Path = "C:\\Users\\w\\Desktop\\temp\\cache",
-        Name = "7.jar"
-    },
-};
-
-BatchDownloader downloader = new();
-downloader.Setup(list);
-
-downloader.ProgressChanged += (_, args) => {
-    Console.WriteLine($"{args.ToSpeedText()} - {args.ToPercentage() * 100:0.00}%");
-};
-
-var result = await downloader.DownloadAsync();
-Console.WriteLine(result);
-return;
 var account = new OfflineAuthenticator("Yang114").Authenticate();
 var resolver = new GameResolver(".minecraft");
 
