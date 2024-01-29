@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.0.0-preview10</Version>
+		<Version>3.0.0-preview01</Version>
 	</PropertyGroup>
 	
 	<PropertyGroup>
@@ -26,6 +26,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Flurl.Http" Version="4.0.0-pre7" />
+		<PackageReference Include="Flurl.Http" Version="4.0.2" />
 	</ItemGroup>
 </Project>

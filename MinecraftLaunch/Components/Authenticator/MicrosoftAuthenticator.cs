@@ -14,7 +14,8 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
 
     public bool IsCheckOwnership { get; set; } = isCheckOwnership;
 
-    public MicrosoftAuthenticator(MicrosoftAccount account, bool isCheckOwnership) : this(string.Empty, isCheckOwnership) {
+    public MicrosoftAuthenticator(MicrosoftAccount account, string clientId, bool isCheckOwnership)
+        : this(clientId, isCheckOwnership) {
         _account = account;
     }
 
