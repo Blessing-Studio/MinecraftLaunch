@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.0.0-preview07</Version>
+		<Version>3.0.0-preview03</Version>
 	</PropertyGroup>
 	
 	<PropertyGroup>
