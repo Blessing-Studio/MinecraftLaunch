@@ -8,11 +8,8 @@ namespace MinecraftLaunch.Utilities;
 
 public static class JavaUtil {
     private const ushort PE_SIGNATURE = 23117;
-
     private const ushort IMAGE_FILE_MACHINE_IA64 = 267;
-
     private const ushort IMAGE_FILE_MACHINE_AMD64 = 523;
-
     private const uint PE_OPTIONAL_HEADER_SIGNATURE = 17744;
 
     public static JavaEntry GetJavaInfo(string path) {
@@ -74,8 +71,7 @@ public static class JavaUtil {
 
         return result;
     }
-
-
+    
     [SupportedOSPlatform(nameof(OSPlatform.Windows))]
     private static bool GetIs64Bit(string path) {
         ushort architecture = 0;

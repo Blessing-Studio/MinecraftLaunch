@@ -93,7 +93,11 @@ public sealed class GameResolver() : IGameResolver, IResolver<GameJsonEntry> {
     /// <returns></returns>
     public IEnumerable<GameEntry> GetGameEntitys() {
         GameEntry entry = default;
-        var versionsPath = new DirectoryInfo(Path.Combine(Root.FullName, "versions"));
+        var versionsPath = Root.DiveTo("versions");
+        if (!versionsPath.Exists) {
+            versionsPath.Create();
+        }
+        
         foreach (var item in versionsPath.EnumerateDirectories()) {
             try {
                 entry = GetGameEntity(item.Name);

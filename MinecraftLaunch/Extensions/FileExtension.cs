@@ -1,6 +1,11 @@
 ﻿namespace MinecraftLaunch.Extensions;
 
 public static class FileExtension {
+    public static DirectoryInfo DiveTo(this DirectoryInfo parentDir, string childDirectoryInfo) {
+        var divePath = parentDir.FullName;
+        return divePath.AppendPath(childDirectoryInfo).ToDirectoryInfo();
+    }
+    
     public static FileInfo DiveToFile(this DirectoryInfo parentDir, string childFileNameHierarchy) {
         var divePath = parentDir.FullName;
         if (childFileNameHierarchy.Contains('/')) {
@@ -12,7 +17,7 @@ public static class FileExtension {
 
         return new FileInfo(divePath);
     }
-
+    
     public static string AppendPath(this string path, string toAppend) {
         return Path.Combine(path, toAppend);
     }
