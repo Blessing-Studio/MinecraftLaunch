@@ -58,6 +58,3 @@ public sealed record CurseFileEntry {
 
     public string DisplayDescription => $"{ModLoaderType} {McVersion}";
 }
-    
-[JsonSerializable(typeof(CurseForgeResourceEntry))]
-sealed partial class CurseForgeResourceEntryContext : JsonSerializerContext;
