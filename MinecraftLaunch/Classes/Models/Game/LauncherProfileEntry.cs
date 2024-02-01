@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MinecraftLaunch.Classes.Models.Auth;
+namespace MinecraftLaunch.Classes.Models.Game;
 
 public sealed record LauncherProfileEntry {
     /// <summary>
@@ -117,9 +117,7 @@ public sealed record ResolutionEntry
     [JsonIgnore]
     public bool FullScreen { get; set; }
 
-    public bool IsDefault() {
-        return Width == 0 && Height == 0;
-    }
+    public bool IsDefault() => Width == 0 && Height == 0;
 }
 
 [JsonSerializable(typeof(LauncherProfileEntry))]

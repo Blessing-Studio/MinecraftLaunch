@@ -1,8 +1,8 @@
 using System.Text;
-using System.Text.Json;
-using MinecraftLaunch.Classes.Models.Auth;
-using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Utilities;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -12,42 +12,11 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <remarks>
 /// 取自 launcher_profile.json
 /// </remarks>
-public sealed class LauncherProfileResolver {
-    private readonly Guid _clientToken;
-    private readonly string _proFilePath;
+public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = default) : IResolver<LauncherProfileEntry> {
+    private readonly Guid _clientToken = clientToken;
+    private readonly string _proFilePath = rootPath.OfLauncherProfilePath();
 
     public LauncherProfileEntry LauncherProfile { get; set; }
-    
-    public LauncherProfileResolver(string rootPath, Guid clientToken) {
-        _clientToken = clientToken;
-        _proFilePath = rootPath.OfLauncherProfilePath();
-
-        if (File.Exists(_proFilePath)) {
-            var launcherProfileJson = File.ReadAllText(_proFilePath, Encoding.UTF8);
-            LauncherProfile = launcherProfileJson.Deserialize(LauncherProfileEntryContext
-                .Default.LauncherProfileEntry);
-            return;
-        }
-        
-        var launcherProfile = new LauncherProfileEntry {
-            Profiles = new(),
-            ClientToken = clientToken.ToString("D"),
-            LauncherVersion = new LauncherVersionEntry {
-                Format = 114514,
-                Name = "下北泽"
-            },
-        };
-        
-        LauncherProfile = launcherProfile;
-        string profileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry), 
-            new LauncherProfileEntryContext(JsonConverterUtil.DefaultJsonOptions));
-
-        if (!Directory.Exists(rootPath)) {
-            Directory.CreateDirectory(rootPath);
-        }
-
-        File.WriteAllText(_proFilePath, profileJson);
-    }
     
     public void SaveProfile() {
         var launcherProfileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry), 
@@ -78,5 +47,34 @@ public sealed class LauncherProfileResolver {
     
     public bool AddProfile(GameProfileEntry gameProfile) { 
         return LauncherProfile.Profiles.TryAdd(gameProfile.Name, gameProfile);
+    }
+
+    public LauncherProfileEntry Resolve(string str = default) {
+        if (File.Exists(_proFilePath)) {
+            var launcherProfileJson = File.ReadAllText(_proFilePath, Encoding.UTF8);
+            LauncherProfile = launcherProfileJson.Deserialize(LauncherProfileEntryContext
+                .Default.LauncherProfileEntry);
+            return LauncherProfile;
+        }
+        
+        var launcherProfile = new LauncherProfileEntry {
+            Profiles = new(),
+            ClientToken = _clientToken.ToString("D"),
+            LauncherVersion = new LauncherVersionEntry {
+                Format = 114514,
+                Name = "下北泽"
+            },
+        };
+        
+        LauncherProfile = launcherProfile;
+        string profileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry), 
+            new LauncherProfileEntryContext(JsonConverterUtil.DefaultJsonOptions));
+
+        if (!Directory.Exists(rootPath)) {
+            Directory.CreateDirectory(rootPath);
+        }
+
+        File.WriteAllText(_proFilePath, profileJson);          
+        return LauncherProfile;
     }
 }
