@@ -2,6 +2,7 @@
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Launch;
 using MinecraftLaunch.Components.Authenticator;
+using MinecraftLaunch.Components.Fetcher;
 
 var account = new OfflineAuthenticator("Yang114").Authenticate();
 var resolver = new GameResolver("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\LauncherX\\.minecraft");

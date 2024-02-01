@@ -66,7 +66,7 @@ public static class JavaUtil {
                      ?? javaEntries.FirstOrDefault(x => x.JavaSlugVersion == entry.JavaVersion);
 
         if (result == null) {
-            throw new InvalidOperationException("No suitable Java found");
+            throw new InvalidOperationException("No suitable java found");
         }
 
         return result;

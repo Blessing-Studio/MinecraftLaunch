@@ -46,7 +46,7 @@ public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<Curs
         return result;
     }
 
-    public async ValueTask<IEnumerable<CurseForgeResourceEntry>> SearchResources(
+    public async ValueTask<IEnumerable<CurseForgeResourceEntry>> SearchResourcesAsync(
         string searchFilter,
         int classId = 6, 
         int category = -1,

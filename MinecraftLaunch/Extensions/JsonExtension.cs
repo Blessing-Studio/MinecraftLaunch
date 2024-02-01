@@ -35,7 +35,7 @@ public static class JsonExtension {
     }
 
     public static int GetInt32(this JsonNode node, string name) {
-        return node[name].GetValue<int>();
+        return node.Select(name).GetValue<int>();
     }
 
     public static bool GetBool(this JsonNode node) {
@@ -43,7 +43,7 @@ public static class JsonExtension {
     }
 
     public static bool GetBool(this JsonNode node, string name) {
-        return node[name].GetValue<bool>();
+        return node.Select(name).GetValue<bool>();
     }
 
     public static string GetString(this JsonNode node) {
@@ -51,7 +51,7 @@ public static class JsonExtension {
     }
 
     public static string GetString(this JsonNode node, string name) {
-        return node[name]?.GetValue<string>();
+        return node.Select(name)?.GetValue<string>();
     }
 
     public static JsonArray GetEnumerable(this JsonNode node) {
@@ -59,7 +59,7 @@ public static class JsonExtension {
     }
 
     public static JsonArray GetEnumerable(this JsonNode node, string name) {
-        return node[name].AsArray();
+        return node.Select(name).AsArray();
     }
 
     public static IEnumerable<T> GetEnumerable<T>(this JsonNode node) {
@@ -68,15 +68,15 @@ public static class JsonExtension {
     }
 
     public static IEnumerable<T> GetEnumerable<T>(this JsonNode node, string name) {
-        return node[name]
+        return node.Select(name)
             .AsArray()
             .Select(x => x.GetValue<T>());
     }
 
     public static IEnumerable<T> GetEnumerable<T>(this JsonNode node, string name, string elementName) {
-        return node[name]
+        return node.Select(name)
             .AsArray()
-            .Select(x => x[elementName].GetValue<T>());
+            .Select(x => x.Select(elementName).GetValue<T>());
     }
 
     public static JsonNode SetString(this JsonNode node,string name, string value) {
