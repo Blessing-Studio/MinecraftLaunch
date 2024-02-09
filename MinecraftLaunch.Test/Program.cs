@@ -1,11 +1,27 @@
-﻿using MinecraftLaunch.Components.Launcher;
+﻿using MinecraftLaunch;
+using MinecraftLaunch.Components.Launcher;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Launch;
 using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Fetcher;
+using MinecraftLaunch.Components.Installer;
+using MinecraftLaunch.Extensions;
+
+MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
 var account = new OfflineAuthenticator("Yang114").Authenticate();
 var resolver = new GameResolver("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\LauncherX\\.minecraft");
+
+var installer = new VanlliaInstaller(resolver, "1.19.4", MirrorDownloadManager.Bmcl);
+installer.ProgressChanged += (_, args) => {
+    Console.WriteLine($"{args.ProgressStatus} - {args.Progress * 100:0.00}%");
+};
+
+installer.Completed += (_, _) => {
+    Console.WriteLine("Completed!");
+};
+
+await installer.InstallAsync();
 
 var config = new LaunchConfig {
     Account = account,

@@ -132,21 +132,21 @@ public sealed class ModResolver(GameEntry entry) : IResolver<ModEntry> {
     private void OfQulitModEntry(ZipArchive zipArchive, ref ModEntry entry) {
         var zipEntry = zipArchive.GetEntry("quilt.mod.json");
         using var stream = zipEntry.Open();
-        using (var reader = new StreamReader(stream)) {
-            try {
-                var jsonNode = reader.ReadToEnd().AsNode();
-                jsonNode = jsonNode["quilt_loader"]["metadata"];
+        using var reader = new StreamReader(stream);
+        
+        try {
+            var jsonNode = reader.ReadToEnd().AsNode();
+            jsonNode = jsonNode.Select("quilt_loader").Select("metadata");
 
-                entry.DisplayName = jsonNode?.GetString("name");
-                entry.Version = jsonNode?.GetString("version");
-                entry.Description = jsonNode?.GetString("description");
-                entry.Authors = jsonNode["authors"]
-                    .GetEnumerable<string>()
-                    .ToImmutableArray();
-            }
-            catch (Exception) {
-                entry.IsError = true;
-            }
+            entry.DisplayName = jsonNode?.GetString("name");
+            entry.Version = jsonNode?.GetString("version");
+            entry.Description = jsonNode?.GetString("description");
+            entry.Authors = jsonNode["authors"]
+                .GetEnumerable<string>()
+                .ToImmutableArray();
+        }
+        catch (Exception) {
+            entry.IsError = true;
         }
     }
 }

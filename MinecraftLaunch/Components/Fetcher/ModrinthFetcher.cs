@@ -1,16 +1,11 @@
-﻿using MinecraftLaunch.Classes.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Flurl.Http;
 using System.Text;
-using System.Threading.Tasks;
-using Flurl.Http;
-using MinecraftLaunch.Classes.Models.Download;
-using MinecraftLaunch.Extensions;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Utilities;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Download;
 
 namespace MinecraftLaunch.Components.Fetcher; 
 public sealed class ModrinthFetcher : IFetcher<IEnumerable<ModrinthResourceEntry>> {
@@ -29,8 +24,7 @@ public sealed class ModrinthFetcher : IFetcher<IEnumerable<ModrinthResourceEntry
     public async ValueTask<IEnumerable<ModrinthResourceEntry>> SearchResourcesAsync(
         string searchFilter,
         string version = default,
-        ModrinthResourceType? resourceType = ModrinthResourceType.Mod)
-    {
+        ModrinthResourceType? resourceType = ModrinthResourceType.Mod) {
         var stringBuilder = new StringBuilder(_api);
         stringBuilder.Append($"search?query={searchFilter}");
 
@@ -54,7 +48,6 @@ public sealed class ModrinthFetcher : IFetcher<IEnumerable<ModrinthResourceEntry
         }
         
         var jNode = (await stringBuilder.ToString().GetStringAsync()).AsNode();
-
         return jNode?.Select("hits")?.GetEnumerable()
             .Deserialize<IEnumerable<ModrinthResourceEntry>>(JsonConverterUtil.DefaultJsonOptions);
     }

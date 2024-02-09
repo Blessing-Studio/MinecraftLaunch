@@ -13,7 +13,6 @@ namespace MinecraftLaunch.Components.Installer;
 /// </summary>
 public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, MirrorDownloadSource source = default) : InstallerBase {
     private readonly string _gameId = gameId;
-    private ResourceChecker _resourceChecker;
     private readonly MirrorDownloadSource _source = source;
     private readonly IGameResolver _gameResolver = gameFoloder;
 
@@ -39,7 +38,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
         var versionJsonFile = Path.Combine(_gameResolver.Root.FullName, "versions", _gameId,
             $"{_gameId}.json").ToFileInfo();
 
-        if (!versionJsonFile.Directory.Exists) {
+        if (versionJsonFile.Directory is { Exists: false }) {
             versionJsonFile.Directory.Create();
         }
 
@@ -50,10 +49,10 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
          * Download dependent resources
          */
         ReportProgress(0.45d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
-        _resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
-        await _resourceChecker.CheckAsync();
+        ResourceChecker resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
+        await resourceChecker.CheckAsync();
 
-        await _resourceChecker.MissingResources.DownloadResourceEntrysAsync(_source,
+        await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_source,
             x => {
                 ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
                     $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
@@ -62,15 +61,16 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
 
 
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
+        ReportCompleted();
         return true;
     }
 
     public static async ValueTask<IEnumerable<VersionManifestEntry>> EnumerableGameCoreAsync(MirrorDownloadSource source = default) {
-        string url = string.Empty;
+        string url;
         if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
             url = source.VersionManifestUrl;
         } else {
-            url = "http://launchermeta.mojang.com/mc/game/version_manifest.json";
+            url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
         }
 
         var node = (await url.GetStringAsync())

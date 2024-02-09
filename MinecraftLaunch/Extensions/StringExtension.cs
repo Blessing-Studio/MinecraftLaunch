@@ -26,13 +26,12 @@ public static class StringExtension {
         return replacedText;
     }
 
-    public static DownloadRequest ToDownloadRequest(this string url, string path) {
+    public static DownloadRequest ToDownloadRequest(this string url, FileInfo path) {
         return new DownloadRequest {
             Url = url,
-            Path = path,
+            FileInfo = path,
             IsCompleted = false,
             DownloadedBytes = 0,
-            Name = Path.GetFileName(path),
         };
     }
 }

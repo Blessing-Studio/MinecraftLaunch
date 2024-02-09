@@ -12,9 +12,7 @@ public sealed record DownloadRequest {
 
     public required string Url { get; init; }
 
-    public required string Name { get; init; }
-
-    public required string Path { get; init; }
+    public required FileInfo FileInfo { get; set; }
 
     public bool IsPartialContentSupported { get; set; }
 }

@@ -11,11 +11,10 @@ public static class DownloadEntryExtension {
     public static DownloadRequest ToDownloadRequest(this IDownloadEntry entry) {
         return new DownloadRequest {
             Url = entry.Url,
-            Path = entry.Path,
             Size = entry.Size,
             IsCompleted = false,
             DownloadedBytes = 0,
-            Name = Path.GetFileName(entry.Path),
+            FileInfo = entry.Path.ToFileInfo()
         };
     }
 

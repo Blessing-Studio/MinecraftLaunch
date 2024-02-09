@@ -32,7 +32,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
         string packagePath = Path.Combine(Path.GetTempPath(), 
             Path.GetFileName(packageUrl));
 
-        var request = packageUrl.ToDownloadRequest(packagePath);
+        var request = packageUrl.ToDownloadRequest(packagePath.ToFileInfo());
         await request.DownloadAsync(x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.0d, 0.15d),
                 "Downloading Forge installation package", 
@@ -43,7 +43,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
          * Parse package
          */
         ReportProgress(0.15d, "Start parse package", TaskStatus.Created);
-        var packageArchive = ZipFile.OpenRead(request.Path);
+        var packageArchive = ZipFile.OpenRead(request.FileInfo.FullName);
         var installProfile = packageArchive.GetEntry("install_profile.json")
             .ReadAsString()
             .AsNode();

@@ -132,8 +132,8 @@ public sealed class BatchDownloader : IDownloader, IDisposable {
 
             // Clean incomplete files
             foreach (var item in _downloadItems) {
-                if (!item.IsCompleted && File.Exists(Path.Combine(item.Path, item.Name))) {
-                    File.Delete(Path.Combine(item.Path, item.Name));
+                if (!item.IsCompleted && item.FileInfo.Exists) {
+                    item.FileInfo.Delete();
                 }
             }
 
@@ -174,13 +174,12 @@ public sealed class BatchDownloader : IDownloader, IDisposable {
         }
 
         // Make sure directory exists
-        if (Directory.Exists(item.Path)) {
-            Directory.CreateDirectory(item.Path);
+        if (!item.FileInfo.Directory.Exists) {
+            item.FileInfo.Directory.Create();
         }
 
-        var filePath = Path.Combine(item.Path, item.Name);
-        if (!File.Exists(filePath)) {
-            using (File.Create(filePath)) { }
+        if (!item.FileInfo.Exists) {
+            using var r = item.FileInfo.Create();
         }
 
         byte[] buffer = _bufferPool.Rent(BUFFER_SIZE);
@@ -220,7 +219,7 @@ public sealed class BatchDownloader : IDownloader, IDisposable {
                 response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _userCts.Token);
 
                 await using var httpStream = await response.Content.ReadAsStreamAsync();
-                await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.Write);
+                await using var fileStream = new FileStream(item.FileInfo.FullName, FileMode.Open, FileAccess.Write, FileShare.Write);
                 fileStream.Position = chunkStart;
 
                 int bytesRead;

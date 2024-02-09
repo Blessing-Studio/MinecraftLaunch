@@ -50,6 +50,7 @@ public static class DownloadExtension {
             .OfMirrorSource(source)
             .ToDownloadRequest(), 1));
 
+        Console.WriteLine(downloadEntry.Path);
         return DefaultDownloader.DownloadAsync();
     }
 

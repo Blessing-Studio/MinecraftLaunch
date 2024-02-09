@@ -10,7 +10,11 @@ public abstract class InstallerBase : IInstaller {
 
     public abstract ValueTask<bool> InstallAsync();
 
-    public virtual void ReportProgress(double progress, string progressStatus, TaskStatus status) {
+    public void ReportCompleted() {
+        Completed?.Invoke(this, EventArgs.Empty);
+    }
+    
+    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status) {
         ProgressChanged?.Invoke(this, new(status, progress, progressStatus));
     }
 }

@@ -18,11 +18,7 @@ public sealed class TomlResolver() : IResolver {
     public string this[string key] => GetString(key);
 
     public string GetString(string key) {
-        if (_data.TryGetValue(key, out var value)) {
-            return value;
-        }
-
-        return null;
+        return _data.GetValueOrDefault(key);
     }
 
     private void Parse(string content) {
