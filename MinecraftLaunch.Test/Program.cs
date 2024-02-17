@@ -10,9 +10,10 @@ using MinecraftLaunch.Extensions;
 MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
 var account = new OfflineAuthenticator("Yang114").Authenticate();
-var resolver = new GameResolver("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\LauncherX\\.minecraft");
+Directory.CreateDirectory(".minecraft");
+var resolver = new GameResolver(".minecraft");
 
-var installer = new VanlliaInstaller(resolver, "1.19.4", MirrorDownloadManager.Bmcl);
+var installer = new VanlliaInstaller(resolver, "1.12.2");
 installer.ProgressChanged += (_, args) => {
     Console.WriteLine($"{args.ProgressStatus} - {args.Progress * 100:0.00}%");
 };
@@ -26,7 +27,7 @@ await installer.InstallAsync();
 var config = new LaunchConfig {
     Account = account,
     IsEnableIndependencyCore = true,
-    JvmConfig = new(@"C:\Program Files\Java\jdk1.8.0_301\bin\javaw.exe") {
+    JvmConfig = new(@"C:\Program Files\Java\jdk-17\bin\javaw.exe") {
         MaxMemory = 1024,
     }
 };

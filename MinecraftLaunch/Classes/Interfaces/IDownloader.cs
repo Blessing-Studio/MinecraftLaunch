@@ -1,5 +1,16 @@
-﻿namespace MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Classes.Models.Event;
 
-public interface IDownloader {
-    ValueTask<bool> DownloadAsync();
+namespace MinecraftLaunch.Classes.Interfaces
+{
+    public interface IDownloader
+    {
+        event Action<bool> Completed;
+        event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
+
+        void Cancel();
+        ValueTask<bool> DownloadAsync();
+        void Retry();
+        void Setup(IEnumerable<DownloadRequest> downloadItems);
+    }
 }
