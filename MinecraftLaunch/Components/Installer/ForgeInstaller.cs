@@ -259,13 +259,8 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
         return true;
     }
 
-    public static async ValueTask<IEnumerable<ForgeInstallEntry>> EnumerableFromVersionAsync(string mcVersion, MirrorDownloadSource source = default) {
-        var suffix = $"/forge/minecraft/{mcVersion}";
-        var host = MirrorDownloadManager.IsUseMirrorDownloadSource
-            ? MirrorDownloadManager.Bmcl.Host
-            : source.Host;
-
-        var packagesUrl = $"{host}{suffix}";
+    public static async ValueTask<IEnumerable<ForgeInstallEntry>> EnumerableFromVersionAsync(string mcVersion) {
+        var packagesUrl = $"https://bmclapi2.bangbang93.com/forge/minecraft/{mcVersion}";
         string json = await packagesUrl.GetStringAsync();
 
         var entries = json.AsJsonEntry<IEnumerable<ForgeInstallEntry>>();

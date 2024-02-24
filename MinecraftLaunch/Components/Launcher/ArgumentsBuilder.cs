@@ -4,6 +4,7 @@ using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Launch;
+using System.Collections.Immutable;
 
 namespace MinecraftLaunch.Components.Launcher;
 
@@ -46,17 +47,17 @@ internal sealed class ArgumentsBuilder(GameEntry gameEntity, LaunchConfig launch
     public IEnumerable<string> GetBehindArguments() {
         var keyValuePairs = new Dictionary<string, string>() {
             { "${user_properties}", "{}" },
-            { "${version_name}", GameEntry.Id },
-            { "${version_type}", LaunchConfig.LauncherName },
+            { "${version_name}", GameEntry.Id.ToPath() },
             { "${auth_player_name}", LaunchConfig.Account.Name },
             { "${auth_session}", LaunchConfig.Account.AccessToken },
+            { "${version_type}", LaunchConfig.LauncherName.ToPath() },
             { "${auth_uuid}", LaunchConfig.Account.Uuid.ToString("N") },
             { "${auth_access_token}", LaunchConfig.Account.AccessToken },
             { "${assets_root}", Path.Combine(GameEntry.GameFolderPath, "assets").ToPath() },
             { "${game_assets}", Path.Combine(GameEntry.GameFolderPath, "assets").ToPath() },
             { "${assets_index_name}", Path.GetFileNameWithoutExtension(GameEntry.AssetsIndexJsonPath) },
             { "${user_type}", LaunchConfig.Account.Type.Equals(AccountType.Microsoft) ? "MSA" : "Mojang" },
-            { "${game_directory}", GameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore) },
+            { "${game_directory}", GameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore).ToPath() },
         };
 
         var args = new List<string>(GameEntry.BehindArguments);
@@ -115,10 +116,10 @@ internal sealed class ArgumentsBuilder(GameEntry gameEntity, LaunchConfig launch
 
     private string GetClasspath() {
         var libraries = new LibrariesResolver(gameEntity)
-            .GetLibraries();
+            .GetLibraries().ToImmutableArray();
 
         var classPath = string.Join(Path.PathSeparator,
-            libraries.Select(lib => lib.Path));
+            libraries.Select(lib => lib?.Path));
 
         if (!string.IsNullOrEmpty(gameEntity.JarPath)) {
             classPath += Path.PathSeparator + gameEntity.JarPath;

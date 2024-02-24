@@ -23,12 +23,12 @@ public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILau
         var gameEntry = GameResolver.GetGameEntity(id);
         var versionPath = gameEntry.OfVersionDirectoryPath(config.IsEnableIndependencyCore);
         _argumentsBuilder = new(gameEntry, config);
-
+        
         var arguments = _argumentsBuilder.Build();
         var process = CreateProcess(arguments, versionPath);
 
         LibrariesResolver librariesResolver = new(gameEntry);
-        await ExtractNatives(versionPath, librariesResolver, process);
+        await ExtractNatives(versionPath, librariesResolver);
         return new GameProcessWatcher(process, arguments);
     }
 
@@ -46,7 +46,7 @@ public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILau
         };
     }
 
-    private async Task ExtractNatives(string versionPath, LibrariesResolver librariesResolver, Process process) {
+    private async Task ExtractNatives(string versionPath, LibrariesResolver librariesResolver) {
         var libraries = librariesResolver.GetLibraries()
             .Where(x => ((x as LibraryEntry)?.IsNative) != null)
             .Select(x => x.Path)

@@ -27,24 +27,4 @@ public static class MirrorDownloadManager {
             { "https://maven.neoforged.net/releases/net/neoforged/forge", "https://bmclapi2.bangbang93.com/maven/net/neoforged/forge" }
         }
     };
-
-    public static readonly MirrorDownloadSource Mcbbs = new() {
-        Host = "https://download.mcbbs.net",
-        VersionManifestUrl = "https://download.mcbbs.net/mc/game/version_manifest_v2.json",
-        AssetsUrls = new Dictionary<string, string>() {
-            { "https://resources.download.minecraft.net", "https://download.mcbbs.net/assets" },
-            { "https://piston-meta.mojang.com", "https://download.mcbbs.net" },
-            { "https://launchermeta.mojang.com", "https://download.mcbbs.net" },
-        },
-        LibrariesUrls = new Dictionary<string, string> {
-            { "https://launcher.mojang.com" , "https://download.mcbbs.net" },
-            { "https://libraries.minecraft.net", "https://download.mcbbs.net/maven" },
-            { "https://piston-meta.mojang.com", "https://download.mcbbs.net" },
-            { "https://maven.minecraftforge.net", "https://download.mcbbs.net/maven" },
-            { "https://files.minecraftforge.net/maven", "https://download.mcbbs.net/maven" },
-            { "https://maven.fabricmc.net", "https://download.mcbbs.net/maven" },
-            { "https://meta.fabricmc.net", "https://download.mcbbs.net/fabric-meta" },
-            { "https://maven.neoforged.net/releases/net/neoforged/forge", "https://download.mcbbs.net/maven/net/neoforged/forge" }
-        }
-    };
 }
