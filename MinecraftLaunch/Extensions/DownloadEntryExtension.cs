@@ -11,9 +11,6 @@ public static class DownloadEntryExtension {
     public static DownloadRequest ToDownloadRequest(this IDownloadEntry entry) {
         return new DownloadRequest {
             Url = entry.Url,
-            Size = entry.Size,
-            IsCompleted = false,
-            DownloadedBytes = 0,
             FileInfo = entry.Path.ToFileInfo()
         };
     }

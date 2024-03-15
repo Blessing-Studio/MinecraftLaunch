@@ -30,8 +30,6 @@ public static class StringExtension {
         return new DownloadRequest {
             Url = url,
             FileInfo = path,
-            IsCompleted = false,
-            DownloadedBytes = 0,
         };
     }
 }
