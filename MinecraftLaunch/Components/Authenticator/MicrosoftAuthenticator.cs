@@ -6,7 +6,7 @@ using MinecraftLaunch.Classes.Models.Auth;
 
 namespace MinecraftLaunch.Components.Authenticator;
 
-public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnership) : IAuthenticator<MicrosoftAccount> {
+public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnership = true) : IAuthenticator<MicrosoftAccount> {
     private readonly MicrosoftAccount _account;
     private readonly string _clientId = clientId;
     private OAuth2TokenResponse _oAuth2TokenResponse;
@@ -21,7 +21,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
 
     public MicrosoftAccount Authenticate() {
         var task = AuthenticateAsync();
-        if (task.IsCompleted) {
+        if (task is { IsFaulted: false, IsCompleted: true }) {
             return task.GetAwaiter().GetResult();
         }
 
