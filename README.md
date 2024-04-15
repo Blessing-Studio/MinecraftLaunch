@@ -1,6 +1,6 @@
 <div align="center">
 
-<img Height="100" Width="100" src="https://raw.githubusercontent.com/Blessing-Studio/WonderLab.Override/master/wonderlab/Assets/wonderlab.ico"/>
+<img Height="100" Width="100" src="https://raw.githubusercontent.com/Blessing-Studio/MinecraftLaunch/master/MinecraftLaunch/.nuget/logo.png"/>
 
 # MinecraftLaunch
 
