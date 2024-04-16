@@ -6,6 +6,7 @@ namespace MinecraftLaunch.Components.Checker {//W.I.P
         public bool IsCheckResource { get; set; }
 
         public bool IsCheckAccount { get; set; }
+        public GameEntry Entry => entry;
 
         public ValueTask<bool> CheckAsync() {
             /*

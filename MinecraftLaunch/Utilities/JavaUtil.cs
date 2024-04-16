@@ -43,7 +43,7 @@ public static class JavaUtil {
             } else {
                 var fileVersionInfo = FileVersionInfo.GetVersionInfo(path);
                 versionInfo = fileVersionInfo.ProductVersion!;
-                is64 = GetIs64Bit(path)!;
+                is64 = GetIs64BitWindows(path)!;
             }
 
             string[] versionParts = versionInfo.Split(".");
@@ -72,8 +72,7 @@ public static class JavaUtil {
         return result;
     }
     
-    [SupportedOSPlatform(nameof(OSPlatform.Windows))]
-    private static bool GetIs64Bit(string path) {
+    private static bool GetIs64BitWindows(string path) {
         ushort architecture = 0;
 
         try {

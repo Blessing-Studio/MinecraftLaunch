@@ -25,7 +25,6 @@ public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<Curs
             excludedModIds = new[] { 0 },
             gameVersionTypeId = null as string
         };
-
         try {
             using var responseMessage = await $"{_api}/featured"
                 .WithHeader("x-api-key", _key)
@@ -40,8 +39,7 @@ public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<Curs
             foreach (var resource in resources) {
                 result.Add(ResolveFromJsonNode(resource));
             }
-        }
-        catch (Exception e) { }
+        } catch (Exception) { }
         
         return result;
     }

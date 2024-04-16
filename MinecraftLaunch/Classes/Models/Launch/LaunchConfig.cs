@@ -9,7 +9,7 @@ public sealed record LaunchConfig() {
 
     public ServerConfig ServerConfig { get; set; }
 
-    public DirectoryInfo? NativesFolder { get; set; }
+    public DirectoryInfo NativesFolder { get; set; }
 
     public string LauncherName { get; set; } = "release";
 

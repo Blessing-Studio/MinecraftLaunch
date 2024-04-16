@@ -8,8 +8,9 @@ using System.Threading.Tasks.Dataflow;
 
 namespace MinecraftLaunch.Components.Downloader;
 
-public class ResourceDownloader(IEnumerable<IDownloadEntry> downloadEntries,
+public class ResourceDownloader(
     DownloadRequest request, 
+    IEnumerable<IDownloadEntry> downloadEntries,
     MirrorDownloadSource downloadSource = default,
     CancellationTokenSource tokenSource = default) : IDownloader {
     public event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
@@ -24,7 +25,7 @@ public class ResourceDownloader(IEnumerable<IDownloadEntry> downloadEntries,
             }
 
             if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-                downloadEntries.Select(x => x.OfMirrorSource(default));
+                downloadEntries = downloadEntries.Select(x => x.OfMirrorSource(downloadSource));
             }
 
             return e;
@@ -67,20 +68,19 @@ public class ResourceDownloader(IEnumerable<IDownloadEntry> downloadEntries,
         var transformManyBlock = new TransformManyBlock<IEnumerable<IDownloadEntry>, IDownloadEntry>(chunk => chunk,
             new ExecutionDataflowBlockOptions());
 
-        var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
+        var linkOptions = new DataflowLinkOptions { 
+            PropagateCompletion = true 
+        };
 
         transformManyBlock.LinkTo(transformBlock, linkOptions);
         transformBlock.LinkTo(actionBlock, linkOptions);
 
-        if (downloadEntries != null) transformManyBlock.Post(downloadEntries);
+        if (downloadEntries != null) {
+            transformManyBlock.Post(downloadEntries);
+        }
 
         transformManyBlock.Complete();
-
-        //DownloadElementsPosted?.Invoke(this, filteredLibraries.Count + filteredAssets.Count);
         await actionBlock.Completion.WaitAsync(tokenSource is null ? default : tokenSource.Token);
         return true;
-
-        //foreach (var downloadResult in _errorDownload.Where(x => !x.DownloadElement.VerifyFile()).ToList())
-        //    _errorDownload.Remove(downloadResult);
     }
 }

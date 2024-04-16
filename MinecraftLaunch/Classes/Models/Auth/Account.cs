@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace MinecraftLaunch.Classes.Models.Auth;
 
 public abstract record Account {
-    public virtual AccountType Type { get; init; }
+    public virtual AccountType Type { get; }
 
     public string Name { get; set; }
 

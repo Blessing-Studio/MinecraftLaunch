@@ -57,7 +57,7 @@ public sealed record GameProfileEntry {
     ///     游戏窗口分辨率
     /// </summary>
     [JsonPropertyName("resolution")]
-    public ResolutionEntry? Resolution { get; set; }
+    public ResolutionEntry Resolution { get; set; }
 
     /// <summary>
     ///     游戏图标

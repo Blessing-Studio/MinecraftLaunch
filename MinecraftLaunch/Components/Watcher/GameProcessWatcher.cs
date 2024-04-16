@@ -28,7 +28,7 @@ public class GameProcessWatcher : IGameProcessWatcher {
         process.BeginOutputReadLine();
     }
 
-    private void OnExited(object? sender, EventArgs e) {
+    private void OnExited(object sender, EventArgs e) {
         using (Process) {
             Exited?.Invoke(this, new(Process.ExitCode));
         }
