@@ -77,7 +77,7 @@ public static class DownloadExtension {
             });
         }
 
-        ResourceDownloader downloader = new(entries, downloadRequest, source);
+        ResourceDownloader downloader = new(downloadRequest, entries, source);
         downloader.ProgressChanged += (sender, args) => {
             action(args);
         };

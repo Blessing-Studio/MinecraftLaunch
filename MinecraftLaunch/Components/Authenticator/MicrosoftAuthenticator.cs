@@ -134,7 +134,6 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
 
         return new MicrosoftAccount {
             AccessToken = access_token,
-            Type = AccountType.Microsoft,
             Name = profileNode.GetString("name"),
             Uuid = Guid.Parse(profileNode.GetString("id")),
             RefreshToken = refreshToken
