@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<OutputType>Exe</OutputType>
+		<PublishAot>true</PublishAot>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TargetFramework>net8.0</TargetFramework>
+		<InvariantGlobalization>true</InvariantGlobalization>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MinecraftLaunch\MinecraftLaunch.csproj" />
+	</ItemGroup>
+</Project>

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "Minecraf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Simple", "MinecraftLaunch.Test\MinecraftLaunch.Simple.csproj", "{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftLaunch.BanchTest", "MinecraftLaunch.BanchTest\MinecraftLaunch.BanchTest.csproj", "{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|Any CPU.Build.0 = Release|Any CPU
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.ActiveCfg = Release|Any CPU
 		{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}.Release|x64.Build.0 = Release|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Debug|x64.Build.0 = Debug|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|x64.ActiveCfg = Release|Any CPU
+		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
