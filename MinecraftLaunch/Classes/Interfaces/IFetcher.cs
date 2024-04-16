@@ -4,7 +4,13 @@
 /// 统一搜寻器接口
 /// </summary>
 public interface IFetcher<T> {
-    public T Fetch();
+    /// <summary>
+    /// 同步搜寻 <typeparamref name="T"/> 类型方法
+    /// </summary>
+    T Fetch();
 
-    public ValueTask<T> FetchAsync();
+    /// <summary>
+    /// 异步搜寻 <typeparamref name="T"/> 类型方法
+    /// </summary>
+    ValueTask<T> FetchAsync();
 }
