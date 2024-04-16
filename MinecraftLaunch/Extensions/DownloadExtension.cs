@@ -12,7 +12,7 @@ namespace MinecraftLaunch.Extensions;
 /// 下载扩展类
 /// </summary>
 public static class DownloadExtension {
-    public static BatchDownloader DefaultDownloader { get; set; } = new();
+    //public static BatchDownloader DefaultDownloader { get; set; } = new();
 
     public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry,
         MirrorDownloadSource source) {

@@ -1,11 +1,12 @@
 ﻿using Flurl.Http;
 using System.Net;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Download;
-using Timer = System.Timers.Timer;
+using System.Buffers;
 using System.Net.Http.Headers;
 using System.Threading.Tasks.Dataflow;
-using System.Buffers;
+using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Download;
+
+using Timer = System.Timers.Timer;
 
 namespace MinecraftLaunch.Utilities;
 

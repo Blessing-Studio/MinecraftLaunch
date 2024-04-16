@@ -1,5 +1,4 @@
-﻿using MinecraftLaunch.Classes.Enums;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace MinecraftLaunch.Utilities;
 
@@ -16,19 +15,15 @@ public static class EnvironmentUtil {
     public static bool IsWindow
         => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    public readonly static Dictionary<Func<bool>, string> PlatformDirectory = new() {
-        { () => IsMac, "osx" },
-        { () => IsLinux, "linux" },
-        { () => IsWindow, "windows" }
-    };
-
     public static string GetPlatformName() {
-        foreach (var item in PlatformDirectory) {
-            if (item.Key.Invoke()) {
-                return item.Value;
-            }
+        if (IsMac) {
+            return "osx";
+        } else if (IsLinux) {
+            return "linux";
+        } else if (IsWindow) {
+            return "windows";
         }
 
-        return "";
+        return "114514";
     }
 }
