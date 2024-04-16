@@ -12,7 +12,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <remarks>
 /// 取自 launcher_profile.json
 /// </remarks>
-public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = default) : IResolver<LauncherProfileEntry> {
+public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = default) {
     private readonly Guid _clientToken = clientToken;
     private readonly string _proFilePath = rootPath.OfLauncherProfilePath();
 

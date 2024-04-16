@@ -2,5 +2,5 @@
 
 namespace MinecraftLaunch.Components.Resolver;
 
-public sealed class ResourcePackResolver : IResolver {
+public sealed class ResourcePackResolver {
 }

@@ -13,7 +13,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <remarks>
 /// 取自 launcher_accounts.json
 /// </remarks>
-public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = default) : IResolver<LauncherAccountEntry> {
+public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = default) {
     private readonly Guid _clientToken = clientToken;
     private readonly string _accountPath = rootPath.OfLauncherAccountPath();
     

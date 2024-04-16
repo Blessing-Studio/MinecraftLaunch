@@ -6,7 +6,7 @@ using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Components.Resolver;
 
-public sealed class ModResolver(GameEntry entry) : IResolver<ModEntry> {
+public sealed class ModResolver(GameEntry entry) {
     private readonly GameEntry _gameEntry = entry;
     private readonly TomlResolver _tomlResolver = new();
 

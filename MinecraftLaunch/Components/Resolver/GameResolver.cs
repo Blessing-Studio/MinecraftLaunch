@@ -11,7 +11,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <summary>
 /// Minecraft 核心解析器
 /// </summary>
-public sealed class GameResolver() : IGameResolver, IResolver<GameJsonEntry> {
+public sealed class GameResolver() : IGameResolver {
     public DirectoryInfo Root { set; get; }
 
     public GameResolver(string path) : this() {

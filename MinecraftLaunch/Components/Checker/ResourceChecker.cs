@@ -35,5 +35,4 @@ public sealed class ResourceChecker(GameEntry entry) : IChecker {
 
         return !MissingResources.Any();
     }
-
 }

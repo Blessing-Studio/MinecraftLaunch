@@ -6,7 +6,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <summary>
 /// Toml 文件解析器
 /// </summary>
-public sealed class TomlResolver() : IResolver {
+public sealed class TomlResolver() {
     private readonly char[] _separator = ['\r', '\n'];
     private readonly Dictionary<string, string> _data = new();
     private readonly Regex _regex = new(@"(?<=(" + "\"" + "))[.\\s\\S]*?(?=(" + "\"" + "))");

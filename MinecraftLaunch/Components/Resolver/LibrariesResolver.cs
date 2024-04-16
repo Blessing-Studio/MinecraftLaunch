@@ -12,7 +12,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <summary>
 /// Minecraft 运行库解析器
 /// </summary>
-internal sealed class LibrariesResolver(GameEntry gameEntry) : IResolver<LibraryEntry, JsonNode> {
+internal sealed class LibrariesResolver(GameEntry gameEntry) {
     private GameEntry GameEntry => gameEntry;
 
     public LibraryEntry Resolve(JsonNode libNode) {

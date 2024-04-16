@@ -8,7 +8,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <summary>
 /// Minecraft 资源材质库解析器
 /// </summary>
-internal sealed class AssetsResolver(GameEntry entity) : IResolver<AssetEntry, KeyValuePair<string, AssetJsonEntry>> {
+internal sealed class AssetsResolver(GameEntry entity) {
     public AssetEntry GetAssetIndexJson() {
         var assetIndex = (File.ReadAllText(entity.IsInheritedFrom 
                 ? entity.InheritsFrom.OfVersionJsonPath() 
