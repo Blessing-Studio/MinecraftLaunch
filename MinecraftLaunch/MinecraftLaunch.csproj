@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.0.05</Version>
+		<Version>3.0.06</Version>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<PackageProjectUrl>https://github.com/Blessing-Studio/MinecraftLaunch</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
@@ -16,7 +16,7 @@
 		<Title>MinecraftLaunch</Title>
 		<Nullable>disable</Nullable>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<None Include="..\MinecraftLaunch\.nuget\logo.png">
 			<Pack>True</Pack>
