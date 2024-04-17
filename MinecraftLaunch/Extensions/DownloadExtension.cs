@@ -32,30 +32,16 @@ public static class DownloadExtension {
         return entry;
     }
 
-    public static ValueTask<bool> DownloadAsync(this DownloadRequest request,
-        Action<DownloadProgressChangedEventArgs> action = default!) {
-        //DefaultDownloader.Setup(Enumerable.Repeat(request, 1));
-
-        //DefaultDownloader.ProgressChanged += (sender, args) => {
-        //    action(args);
-        //};
-
-        //return DefaultDownloader.DownloadAsync();
-        throw new NotImplementedException();
+    public static ValueTask<bool> DownloadAsync(
+        this DownloadRequest request,
+        Action<double> action = default!) {
+        return DownloadUitl.DownloadAsync(request, default, action);
     }
 
     public static ValueTask<bool> DownloadResourceEntryAsync(this 
         IDownloadEntry downloadEntry,
         MirrorDownloadSource source = default!) {
         return DownloadUitl.DownloadAsync(downloadEntry, DownloadUitl.DefaultDownloadRequest,default,x=>{});
-
-        //DefaultDownloader.Setup(Enumerable.Repeat(downloadEntry
-        //    .OfMirrorSource(source)
-        //    .ToDownloadRequest(), 1));
-
-        //Console.WriteLine(downloadEntry.Path);
-        //return DefaultDownloader.DownloadAsync();
-        //throw new NotImplementedException();
     }
 
     public static ValueTask<bool> DownloadResourceEntrysAsync(this

@@ -22,7 +22,7 @@ public sealed record DownloadRequest {
     /// <summary>
     /// 下载链接
     /// </summary>
-    public string Url { get; init; }
+    public string Url { get; set; }
 
     /// <summary>
     /// 保存文件信息

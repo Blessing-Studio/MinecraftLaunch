@@ -42,7 +42,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
             versionJsonFile.Directory.Create();
         }
 
-        await File.WriteAllTextAsync(versionJsonFile.FullName, 
+        await File.WriteAllTextAsync(versionJsonFile.FullName,
             await coreInfo.Url.GetStringAsync());
 
         /*
@@ -50,15 +50,14 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
          */
         ReportProgress(0.45d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
         ResourceChecker resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
-        await resourceChecker.CheckAsync();
-
-        await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_source,
-            x => {
+        var hasMissResource = await resourceChecker.CheckAsync();
+        if (!hasMissResource) {
+            await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_source, x => {
                 ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
                     $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
                     TaskStatus.Running);
             });
-
+        }
 
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         ReportCompleted();

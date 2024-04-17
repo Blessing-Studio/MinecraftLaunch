@@ -22,6 +22,60 @@ public static class DownloadUitl {
     };
 
     public static async ValueTask<bool> DownloadAsync(
+        DownloadRequest downloadRequest,
+        CancellationTokenSource tokenSource = default,
+        Action<double> perSecondProgressChangedAction = default) {
+        Timer timer = default;
+        downloadRequest ??= DefaultDownloadRequest;
+        tokenSource ??= new CancellationTokenSource();
+        perSecondProgressChangedAction ??= x => { };
+        var responseMessage = (await downloadRequest.Url.GetAsync(cancellationToken: tokenSource.Token))
+            .ResponseMessage;
+        
+        if (responseMessage.StatusCode.Equals(HttpStatusCode.Found)) {
+            downloadRequest.Url = responseMessage.Headers.Location.AbsoluteUri;
+            return await DownloadAsync(downloadRequest, tokenSource);
+        }
+
+        if (perSecondProgressChangedAction != null) {
+            timer = new Timer(1000);
+        }
+
+        responseMessage.EnsureSuccessStatusCode();
+        var contentLength = responseMessage.Content.Headers.ContentLength ?? 0;
+
+        //use multipart download method
+        if (downloadRequest.IsPartialContentSupported && contentLength > downloadRequest.FileSizeThreshold) {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, responseMessage.RequestMessage.RequestUri.AbsoluteUri);
+            requestMessage.Headers.Range = new RangeHeaderValue(0, 1);
+
+            return await MultiPartDownloadAsync(responseMessage, downloadRequest, downloadRequest.FileInfo.FullName, tokenSource)
+                .AsTask()
+                .ContinueWith(task => {
+                    return !task.IsFaulted;
+                });
+        }
+
+        return await WriteFileFromHttpResponseAsync(downloadRequest.FileInfo.FullName, responseMessage, tokenSource, (timer, perSecondProgressChangedAction, contentLength))
+            .AsTask()
+            .ContinueWith(task => {
+                if (timer != null) {
+                    try {
+                        perSecondProgressChangedAction(responseMessage.Content.Headers.ContentLength != null ?
+                            task.Result / (double)responseMessage.Content.Headers.ContentLength : 0);
+                    } catch (Exception) {
+
+                    }
+
+                    timer.Stop();
+                    timer.Dispose();
+                }
+
+                return !task.IsFaulted;
+            });
+    }
+
+    public static async ValueTask<bool> DownloadAsync(
         IDownloadEntry downloadEntry,
         DownloadRequest downloadRequest = default,
         CancellationTokenSource tokenSource = default,

@@ -23,10 +23,12 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
         /*
          * Download Forge installation package
          */
-        var suffix = $"/forge/download/{_installEntry.Build}";
+        var suffix = $"/net/minecraftforge/forge/{_installEntry.McVersion}-{_installEntry.ForgeVersion}/forge-{_installEntry
+            .McVersion}-{_installEntry.ForgeVersion}-installer.jar";
+
         var host = MirrorDownloadManager.IsUseMirrorDownloadSource 
-            ? MirrorDownloadManager.Bmcl.Host
-            : _mirrorDownloadSource.Host;
+            ? _mirrorDownloadSource.Host
+            : "https://files.minecraftforge.net/maven";
         var packageUrl = $"{host}{suffix}";
 
         string packagePath = Path.Combine(Path.GetTempPath(), 
@@ -34,7 +36,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
         var request = packageUrl.ToDownloadRequest(packagePath.ToFileInfo());
         await request.DownloadAsync(x => {
-            ReportProgress(x.ToPercentage().ToPercentage(0.0d, 0.15d),
+            ReportProgress(x.ToPercentage(0.0d, 0.15d),
                 "Downloading Forge installation package", 
                 TaskStatus.Running);
         });
@@ -60,8 +62,10 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
                 .GetEnumerable("libraries"),
             _inheritedFrom.GameFolderPath).ToList();
 
-        foreach (var lib in libraries) {
-            lib.Url = $"https://download.mcbbs.net/maven/{lib.RelativePath.Replace("\\", "/")}";
+        if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
+            foreach (var lib in libraries) {
+                lib.Url = $"https://bmclapi2.bangbang93.com/maven/{lib.RelativePath.Replace("\\", "/")}";
+            }
         }
 
         if (!isLegacyForgeVersion) {
