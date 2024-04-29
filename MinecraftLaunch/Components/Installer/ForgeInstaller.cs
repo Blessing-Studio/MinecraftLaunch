@@ -192,8 +192,6 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
         Dictionary<string, List<string>> _outputs = new();
         Dictionary<string, List<string>> _errorOutputs = new();
 
-
-
         foreach (var processor in highVersionForgeProcessors) {
             var fileName = Path.Combine(
                 _inheritedFrom.GameFolderPath,

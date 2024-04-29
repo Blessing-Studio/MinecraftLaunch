@@ -52,7 +52,7 @@ public static class DownloadExtension {
         downloadRequest ??= DownloadUitl.DefaultDownloadRequest;
 
         if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
-            entries.Select(x => {
+            entries = entries.Select(x => {
                 if (x.Type is DownloadEntryType.Jar) {
                     x.Url = $"{source.Host}/version/{(x as JarEntry).McVersion}/client";
                 } else {

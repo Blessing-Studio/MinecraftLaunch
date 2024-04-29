@@ -1,31 +1,31 @@
-﻿using MinecraftLaunch;
-using MinecraftLaunch.Components.Resolver;
+﻿using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Components.Installer;
-using MinecraftLaunch.Components.Watcher;
-using MinecraftLaunch.Classes.Models.Event;
+using MinecraftLaunch;
 
-# region ServerPing 
+MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
-ServerPingWatcher serverPingWatcher = new(25565, "mc.163mc.cn", 47);
+#region ServerPing 
 
-serverPingWatcher.ServerConnectionProgressChanged += OnServerConnectionProgressChanged;
+//ServerPingWatcher serverPingWatcher = new(25565, "mc.163mc.cn", 47);
 
-serverPingWatcher.ServerLatencyChanged += (_, args) => {
-    Console.WriteLine($"{args.Latency}ms");
-};
+//serverPingWatcher.ServerConnectionProgressChanged += OnServerConnectionProgressChanged;
 
-await serverPingWatcher.StartAsync();
+//serverPingWatcher.ServerLatencyChanged += (_, args) => {
+//    Console.WriteLine($"{args.Latency}ms");
+//};
 
-void OnServerConnectionProgressChanged(object? sender, ProgressChangedEventArgs args) {
-    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
-    if (args.Status == TaskStatus.Canceled) {
-        serverPingWatcher.ServerConnectionProgressChanged -= OnServerConnectionProgressChanged;
-    }
-}
+//await serverPingWatcher.StartAsync();
+
+//void OnServerConnectionProgressChanged(object? sender, ProgressChangedEventArgs args) {
+//    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
+//    if (args.Status == TaskStatus.Canceled) {
+//        serverPingWatcher.ServerConnectionProgressChanged -= OnServerConnectionProgressChanged;
+//    }
+//}
 
 #endregion
 
-# region Forge Install
+#region Forge Install
 
 //GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
 
@@ -36,10 +36,6 @@ void OnServerConnectionProgressChanged(object? sender, ProgressChangedEventArgs 
 
 //await vanlliaInstaller.InstallAsync();
 
-//Console.WriteLine();
-//Console.WriteLine();
-//Console.WriteLine();
-//Console.WriteLine();
 //Console.WriteLine();
 
 //ForgeInstaller forgeInstaller = new(gameResolver.GetGameEntity("1.12.2"),
@@ -52,6 +48,58 @@ void OnServerConnectionProgressChanged(object? sender, ProgressChangedEventArgs 
 //};
 
 //await forgeInstaller.InstallAsync();
+
+#endregion
+
+#region Fabric Install
+
+//GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
+//VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.16.5");
+//vanlliaInstaller.ProgressChanged += (_, args) => {
+//    Console.WriteLine($"{args.Progress * 100:0.00}% - {args.Status} - {args.ProgressStatus}");
+//};
+
+//await vanlliaInstaller.InstallAsync();
+
+//FabricInstaller fabricInstaller = new(gameResolver.GetGameEntity("1.16.5"), 
+//    (await FabricInstaller.EnumerableFromVersionAsync("1.16.5")).First(),
+//    "1.16.5-fabric-114514");
+
+//fabricInstaller.ProgressChanged += (_, args) => {
+//    Console.WriteLine($"{args.Progress * 100:0.00}% - {args.Status} - {args.ProgressStatus}");
+//};
+
+//await fabricInstaller.InstallAsync();
+
+//foreach (var item in gameResolver.GetGameEntitys()){
+//    Console.WriteLine(item.Id);
+//};
+
+#endregion
+
+#region Optifine Install
+
+GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
+
+VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.12.2", MirrorDownloadManager.Bmcl);
+vanlliaInstaller.ProgressChanged += (_, args) => {
+    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
+};
+
+await vanlliaInstaller.InstallAsync();
+
+Console.WriteLine();
+
+OptifineInstaller forgeInstaller = new(gameResolver.GetGameEntity("1.12.2"),
+    (await OptifineInstaller.EnumerableFromVersionAsync("1.12.2")).First(),
+    "C:\\Program Files\\Java\\jdk1.8.0_301\\bin\\javaw.exe",
+    "1.12.2-optifine-114514");
+
+forgeInstaller.ProgressChanged += (_, args) => {
+    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
+};
+
+await forgeInstaller.InstallAsync();
 
 #endregion
 
