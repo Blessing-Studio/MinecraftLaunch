@@ -7,12 +7,30 @@ namespace MinecraftLaunch.Components.Resolver;
 /// <summary>
 /// 游戏日志解析器
 /// </summary>
-public sealed class GameLogResolver {
+public sealed partial class GameLogResolver {
+    [GeneratedRegex("(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d")]
+    private partial Regex TimeRegex();
+
+    [GeneratedRegex("(at .*)")]
+    private partial Regex StackTraceRegex();
+
+    [GeneratedRegex("(?m)^.*?Exception.*")]
+    private partial Regex ExceptionRegex();
+
+    [GeneratedRegex("FATAL|ERROR|WARN|INFO|DEBUG")]
+    private partial Regex LogTypeRegex();
+
+    [GeneratedRegex("[\\w\\W\\s]{2,}/(FATAL|ERROR|WARN|INFO|DEBUG)")]
+    private partial Regex SourceRegex();
+
+    [GeneratedRegex("\\[(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d\\] \\[[\\w\\W\\s]{2,}/(FATAL|ERROR|WARN|INFO|DEBUG)\\]")]
+    private partial Regex TotalPrefixRegex();
+
     public GameLogEntry Resolve(string log) {
         return new GameLogEntry {
             Log = GetLog(log),
             Source = GetSource(log),
-            Time = Regex.IsMatch(log, "(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d", RegexOptions.Compiled) ? GetLogTime(log) : DateTime.Now.ToString(),
+            Time = TimeRegex().IsMatch(log) ? GetLogTime(log) : DateTime.Now.ToString(),
             LogType = GetLogType(log) switch {
                 "FATAL" => LogType.Fatal,
                 "ERROR" => LogType.Error,
@@ -39,16 +57,16 @@ public sealed class GameLogResolver {
     /// <returns></returns>
     public string GetLogType(string log) {
         //是否是堆栈信息
-        if (Regex.IsMatch(log, "(at .*)", RegexOptions.Compiled)) {
+        if (StackTraceRegex().IsMatch(log)) {
             return "STACK";
         }
 
         //是否是异常信息
-        if (Regex.IsMatch(log, "(?m)^.*?Exception.*", RegexOptions.Compiled)) {
+        if (ExceptionRegex().IsMatch(log)) {
             return "Exception";
         }
 
-        return Regex.Match(log, "FATAL|ERROR|WARN|INFO|DEBUG", RegexOptions.Compiled).Value;
+        return LogTypeRegex().Match(log).Value;
     }
 
     /// <summary>
@@ -57,12 +75,11 @@ public sealed class GameLogResolver {
     /// <param name="log"></param>
     /// <returns></returns>
     public string GetSource(string log) {
-        var content = Regex.Match(log, $"[\\w\\W\\s]{{2,}}/(FATAL|ERROR|WARN|INFO|DEBUG)", RegexOptions.Compiled)
+        var content = SourceRegex().Match(log)
             .Value.Split('/')
             .FirstOrDefault();
 
-        return content?.Replace($"{Regex.Match(log,
-            $"\\[(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d\\]").Value} [",
+        return content?.Replace($"{TimeRegex().Match(log).Value} [",
             string.Empty)!;
     }
 
@@ -72,8 +89,7 @@ public sealed class GameLogResolver {
     /// <param name="log"></param>
     /// <returns></returns>
     public string GetLogTime(string log) {
-        return Regex.Match(log, "(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d",
-            RegexOptions.Compiled).Value;
+        return TimeRegex().Match(log).Value;
     }
 
     /// <summary>
@@ -82,8 +98,6 @@ public sealed class GameLogResolver {
     /// <param name="log"></param>
     /// <returns></returns>
     public string GetTotalPrefix(string log) {
-        return Regex.Match(log,
-            $"\\[(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d\\] \\[[\\w\\W\\s]{{2,}}/(FATAL|ERROR|WARN|INFO|DEBUG)\\]",
-            RegexOptions.Compiled).Value;
+        return TotalPrefixRegex().Match(log).Value;
     }
 }
