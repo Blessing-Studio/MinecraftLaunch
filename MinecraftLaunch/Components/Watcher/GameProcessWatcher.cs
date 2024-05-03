@@ -44,7 +44,7 @@ public sealed class GameProcessWatcher : IWatcher, IGameProcessWatcher {
     private void OnOutputDataReceived(object sender, DataReceivedEventArgs e) {
         if (!string.IsNullOrEmpty(e.Data)) {
             var log = _gameLogResolver.Resolve(e.Data);
-            OutputLogReceived?.Invoke(this, new(log.Log, log.Time, log.Time, log.LogType));
+            OutputLogReceived?.Invoke(this, new(e.Data, log.Log, log.Time, log.Time, log.LogType));
         }
     }
 }

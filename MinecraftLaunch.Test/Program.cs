@@ -1,6 +1,8 @@
-﻿using MinecraftLaunch.Components.Resolver;
+﻿using MinecraftLaunch;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Components.Analyzer;
 using MinecraftLaunch.Components.Installer;
-using MinecraftLaunch;
+using MinecraftLaunch.Components.Authenticator;
 
 MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
@@ -101,6 +103,29 @@ MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
 //await optifineInstaller.InstallAsync();
 
+#endregion
+
+#region MicrosoftAuthenticator
+
+//MicrosoftAuthenticator microsoftAuthenticator = new("Your Client ID");
+//await microsoftAuthenticator.DeviceFlowAuthAsync(x => {
+//    Console.WriteLine(x.UserCode);
+//    Console.WriteLine(x.VerificationUrl);
+//});
+
+//var account = await microsoftAuthenticator.AuthenticateAsync();
+
+#endregion
+
+#region Crash Analysis
+GameResolver gameResolver = new("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\BakaXL\\.minecraft");
+
+var crashAnalyzer = new GameCrashAnalyzer(gameResolver.GetGameEntity("1.20.1"), true);
+var reports = crashAnalyzer.AnalysisLogs();
+
+foreach (var report in reports) {
+    Console.WriteLine(report);
+}
 #endregion
 
 Console.ReadKey();
