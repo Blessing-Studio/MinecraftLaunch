@@ -36,6 +36,7 @@ public enum CrashCauses {
     DecompressedMod,
     IncorrectModConfig,
     ModCausedGameCrash,
+    MissingOrUnsupportedMandatoryMod,
 
     #endregion
 

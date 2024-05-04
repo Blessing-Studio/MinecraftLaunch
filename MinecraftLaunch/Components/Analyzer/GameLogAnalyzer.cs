@@ -242,6 +242,13 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
                 };
             }
 
+            if (log.Contains("Missing or unsupported mandatory dependencies")) {
+                yield return new CrashReport {
+                    Original = log,
+                    CrashCauses = CrashCauses.MissingOrUnsupportedMandatoryMod,
+                };
+            }
+
             if (log.Contains("java.lang.NoSuchMethodError: net.minecraft.world.server.ChunkManager$ProxyTicketManager.shouldForceTicks(J)Z")
                 && log.Contains("OptiFine")) {
                 yield return new CrashReport {
