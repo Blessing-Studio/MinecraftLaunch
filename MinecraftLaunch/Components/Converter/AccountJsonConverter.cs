@@ -46,6 +46,30 @@ public sealed class AccountJsonConverter : JsonConverter<Account> {
     }
 
     public override void Write(Utf8JsonWriter writer, Account value, JsonSerializerOptions options) {
-        throw new NotImplementedException();
+        writer.WriteStartObject();
+
+        // Write common properties
+        writer.WriteString("Name", value.Name);
+        writer.WriteString("Uuid", value.Uuid.ToString());
+        writer.WriteString("AccessToken", value.AccessToken);
+
+        // Write specific properties based on account type
+        switch (value) {
+            case OfflineAccount offlineAccount:
+                writer.WriteNumber("Type", (int)AccountType.Offline);
+                break;
+            case MicrosoftAccount microsoftAccount:
+                writer.WriteNumber("Type", (int)AccountType.Microsoft);
+                writer.WriteString("RefreshToken", microsoftAccount.RefreshToken);
+                break;
+            case YggdrasilAccount yggdrasilAccount:
+                writer.WriteNumber("Type", (int)AccountType.Yggdrasil);
+                writer.WriteString("ClientToken", yggdrasilAccount.ClientToken);
+                writer.WriteString("YggdrasilServerUrl", yggdrasilAccount.YggdrasilServerUrl);
+                break;
+        }
+
+        writer.WriteEndObject();
     }
+
 }

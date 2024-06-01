@@ -3,6 +3,8 @@ using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Components.Analyzer;
 using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Authenticator;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Classes.Models.Auth;
 
 MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 
@@ -118,14 +120,14 @@ MirrorDownloadManager.IsUseMirrorDownloadSource = true;
 #endregion
 
 #region Crash Analysis
-GameResolver gameResolver = new("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\BakaXL\\.minecraft");
+//GameResolver gameResolver = new("C:\\Users\\w\\Desktop\\总整包\\MC\\mc启动器\\BakaXL\\.minecraft");
 
-var crashAnalyzer = new GameCrashAnalyzer(gameResolver.GetGameEntity("1.20.1"), true);
-var reports = crashAnalyzer.AnalysisLogs();
+//var crashAnalyzer = new GameCrashAnalyzer(gameResolver.GetGameEntity("1.20.1"), true);
+//var reports = crashAnalyzer.AnalysisLogs();
 
-foreach (var report in reports) {
-    Console.WriteLine(report);
-}
+//foreach (var report in reports) {
+//    Console.WriteLine(report);
+//}
 #endregion
 
 Console.ReadKey();
