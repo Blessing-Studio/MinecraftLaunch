@@ -155,6 +155,10 @@ public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
 
         var drives = DriveInfo.GetDrives();
         foreach (var drive in drives) {
+            if (!drive.IsReady) {
+                continue;
+            }
+
             FetchJavaw(drive.Name.ToDirectoryInfo(), ref paths);
         }
 
