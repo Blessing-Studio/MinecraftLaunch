@@ -13,7 +13,7 @@ namespace MinecraftLaunch.Components.Analyzer;
 // Reference: https://github.com/Corona-Studio/ProjBobcat
 
 /// <summary>
-/// 游戏崩溃分析器
+/// Game crash analyzer.
 /// </summary>
 public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndependencyCore) {
     private IEnumerable<string> _gameLogs;
@@ -160,7 +160,7 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
     #endregion
 
     /// <summary>
-    /// 分析日志
+    /// Analyzes logs.
     /// </summary>
     public IEnumerable<CrashReport> AnalysisLogs() {
         GetAllLogs();
@@ -176,9 +176,6 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
         }
     }
 
-    /// <summary>
-    /// 获取所有日志
-    /// </summary>
     private void GetAllLogs() {
         var gamePath = Path.Combine(_isIndependencyCore
             ? _gameEntry.OfVersionDirectoryPath(_isIndependencyCore)
@@ -201,9 +198,6 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
         }
     }
 
-    /// <summary>
-    /// 模糊处理日志
-    /// </summary>
     private IEnumerable<CrashReport> FuzzyProcessLogs() {
         var allLogs = _gameLogs.Union(_crashLogs).ToImmutableArray();
         return allLogs.SelectMany(log => _logCrashCauses, (log, item) => new { log, item })
@@ -214,9 +208,6 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
             });
     }
 
-    /// <summary>
-    /// 精确处理游戏日志
-    /// </summary>
     private IEnumerable<CrashReport> SpecificProcessGameLogs() {
         foreach (var log in _gameLogs.ToImmutableArray()) {
             if (MainClassMatch1().IsMatch(log) || (MainClassMatch2().IsMatch(log) && !log.Contains("at net."))) {
@@ -347,10 +338,6 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
         }
     }
 
-    /// <summary>
-    /// 精确处理崩溃日志
-    /// </summary>
-    /// <returns></returns>
     private IEnumerable<CrashReport> SpecificProcessCrashLogs() {
         foreach (var log in _crashLogs.ToImmutableArray()) {
             if (log.Contains("-- MOD ")) {

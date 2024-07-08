@@ -8,12 +8,13 @@ using MinecraftLaunch.Utilities;
 
 namespace MinecraftLaunch.Extensions;
 
-/// <summary>
-/// 下载扩展类
-/// </summary>
 public static class DownloadExtension {
-    //public static BatchDownloader DefaultDownloader { get; set; } = new();
-
+    /// <summary>
+    /// Applies the mirror source to the download entry if the use of mirror download source is enabled.
+    /// </summary>
+    /// <param name="entry">The download entry to which the mirror source is to be applied.</param>
+    /// <param name="source">The mirror download source to be applied.</param>
+    /// <returns>The download entry with the applied mirror source.</returns>
     public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry,
         MirrorDownloadSource source) {
         if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
@@ -32,18 +33,38 @@ public static class DownloadExtension {
         return entry;
     }
 
+    /// <summary>
+    /// Initiates an asynchronous download operation for the specified download request.
+    /// </summary>
+    /// <param name="request">The download request to be processed.</param>
+    /// <param name="action">The action to be performed during the download operation.</param>
+    /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
     public static ValueTask<bool> DownloadAsync(
         this DownloadRequest request,
         Action<double> action = default!) {
         return DownloadUitl.DownloadAsync(request, default, action);
     }
 
+    /// <summary>
+    /// Initiates an asynchronous download operation for the specified download entry.
+    /// </summary>
+    /// <param name="downloadEntry">The download entry to be downloaded.</param>
+    /// <param name="source">The mirror download source to be used.</param>
+    /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
     public static ValueTask<bool> DownloadResourceEntryAsync(this 
         IDownloadEntry downloadEntry,
         MirrorDownloadSource source = default!) {
         return DownloadUitl.DownloadAsync(downloadEntry, DownloadUitl.DefaultDownloadRequest,default,x=>{});
     }
 
+    /// <summary>
+    /// Initiates an asynchronous download operation for the specified collection of download entries.
+    /// </summary>
+    /// <param name="entries">The collection of download entries to be downloaded.</param>
+    /// <param name="source">The mirror download source to be used.</param>
+    /// <param name="action">The action to be performed during the download operation.</param>
+    /// <param name="downloadRequest">The download request to be processed.</param>
+    /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
     public static ValueTask<bool> DownloadResourceEntrysAsync(this
         IEnumerable<IDownloadEntry> entries,
         MirrorDownloadSource source = default!,
@@ -71,10 +92,22 @@ public static class DownloadExtension {
         return downloader.DownloadAsync();
     }
 
+    /// <summary>
+    /// Converts the download progress to a percentage.
+    /// </summary>
+    /// <param name="args">The download progress arguments.</param>
+    /// <returns>The download progress as a percentage.</returns>
     public static double ToPercentage(this DownloadProgressChangedEventArgs args) {
         return (double)args.CompletedCount / (double)args.TotalCount;
     }
 
+    /// <summary>
+    /// Converts the specified progress value to a percentage within the specified range.
+    /// </summary>
+    /// <param name="progress">The progress value to be converted.</param>
+    /// <param name="mini">The minimum value of the range.</param>
+    /// <param name="max">The maximum value of the range.</param>
+    /// <returns>The progress value as a percentage within the specified range.</returns>
     public static double ToPercentage(this double progress, double mini, double max) {
         return mini + (max - mini) * progress;
     }

@@ -14,11 +14,18 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
 
     public bool IsCheckOwnership { get; set; } = isCheckOwnership;
 
+    /// <summary>
+    /// Authenticator for Microsoft accounts.
+    /// </summary>
     public MicrosoftAuthenticator(MicrosoftAccount account, string clientId, bool isCheckOwnership)
         : this(clientId, isCheckOwnership) {
         _account = account;
     }
 
+    /// <summary>
+    /// Authenticates the Microsoft account.
+    /// </summary>
+    /// <returns>The authenticated Microsoft account.</returns>
     public MicrosoftAccount Authenticate() {
         var task = AuthenticateAsync();
         if (task is { IsFaulted: false, IsCompleted: true }) {
@@ -28,6 +35,10 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         return null;
     }
 
+    /// <summary>
+    /// Asynchronously authenticates the Microsoft account.
+    /// </summary>
+    /// <returns>A ValueTask that represents the asynchronous operation. The task result contains the authenticated Microsoft account.</returns>
     public async ValueTask<MicrosoftAccount> AuthenticateAsync() {
         /*
          * Refresh token
@@ -140,6 +151,12 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         };
     }
 
+    /// <summary>
+    /// Asynchronously authenticates the Microsoft account using device flow authentication.
+    /// </summary>
+    /// <param name="deviceCode">The action to be performed with the device code response.</param>
+    /// <param name="source">The cancellation token source to be used to cancel the operation.</param>
+    /// <returns>A Task that represents the asynchronous operation. The task result contains the OAuth2 token response.</returns>
     public async Task<OAuth2TokenResponse> DeviceFlowAuthAsync(Action<DeviceCodeResponse> deviceCode,
         CancellationTokenSource source = default) {
         if (string.IsNullOrEmpty(_clientId)) {
