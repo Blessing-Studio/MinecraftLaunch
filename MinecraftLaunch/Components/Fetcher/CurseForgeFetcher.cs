@@ -10,14 +10,34 @@ using MinecraftLaunch.Classes.Models.Download;
 
 namespace MinecraftLaunch.Components.Fetcher;
 
-public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<CurseForgeResourceEntry>> {
-    private readonly string _key = apiKey;
-    private readonly string _api = "https://api.curseforge.com/v1/mods";
-    
+/// <summary>
+/// Fetches resources from CurseForge.
+/// </summary>
+public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceEntry>> {
+    private const string BASE_API = "https://api.curseforge.com/v1/mods";
+
+    private readonly string _key;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CurseForgeFetcher"/> class.
+    /// </summary>
+    /// <param name="apiKey">The API key for CurseForge.</param>
+    public CurseForgeFetcher(string apiKey) {
+        _key = apiKey;
+    }
+
+    /// <summary>
+    /// Fetches the CurseForge resources synchronously.
+    /// </summary>
+    /// <returns>An enumerable collection of CurseForge resources.</returns>
     public IEnumerable<CurseForgeResourceEntry> Fetch() {
         return FetchAsync().GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// Fetches the CurseForge resources asynchronously.
+    /// </summary>
+    /// <returns>A ValueTask that represents the asynchronous operation. The task result contains an enumerable collection of CurseForge resources.</returns>
     public async ValueTask<IEnumerable<CurseForgeResourceEntry>> FetchAsync() {
         var result = new List<CurseForgeResourceEntry>();
         var payload = new {
@@ -26,7 +46,7 @@ public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<Curs
             gameVersionTypeId = null as string
         };
         try {
-            using var responseMessage = await $"{_api}/featured"
+            using var responseMessage = await $"{BASE_API}/featured"
                 .WithHeader("x-api-key", _key)
                 .PostJsonAsync(payload);
 
@@ -44,13 +64,22 @@ public sealed class CurseForgeFetcher(string apiKey) : IFetcher<IEnumerable<Curs
         return result;
     }
 
+    /// <summary>
+    /// Searches for CurseForge resources asynchronously based on the provided search filter and other parameters.
+    /// </summary>
+    /// <param name="searchFilter">The search filter.</param>
+    /// <param name="classId">The class ID. Defaults to 6.</param>
+    /// <param name="category">The category. Defaults to -1.</param>
+    /// <param name="gameVersion">The game version. Defaults to null.</param>
+    /// <param name="modLoaderType">The mod loader type. Defaults to LoaderType.Any.</param>
+    /// <returns>A ValueTask that represents the asynchronous operation. The task result contains an enumerable collection of CurseForge resources.</returns>
     public async ValueTask<IEnumerable<CurseForgeResourceEntry>> SearchResourcesAsync(
         string searchFilter,
         int classId = 6, 
         int category = -1,
         string gameVersion = null, 
         LoaderType modLoaderType = LoaderType.Any) {
-        var stringBuilder = new StringBuilder(_api);
+        var stringBuilder = new StringBuilder(BASE_API);
         stringBuilder.Append("/search?gameId=432");
         stringBuilder.Append("&sortField=Featured");
         stringBuilder.Append("&sortOrder=desc");

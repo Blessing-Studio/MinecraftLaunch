@@ -10,25 +10,43 @@ using MinecraftLaunch.Classes.Models.Launch;
 namespace MinecraftLaunch.Components.Launcher;
 
 /// <summary>
-/// 标准 Java版 Minecraft 启动器
+/// Launcher for the Java version of Minecraft.
 /// </summary>
-public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILauncher {
+public sealed class Launcher : ILauncher {
     private ArgumentsBuilder _argumentsBuilder;
 
-    public LaunchConfig LaunchConfig => config;
+    /// <summary>
+    /// Gets the launch configuration.
+    /// </summary>
+    public LaunchConfig LaunchConfig { get; }
 
-    public IGameResolver GameResolver => resolver;
+    public IGameResolver GameResolver { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Launcher"/> class.
+    /// </summary>
+    /// <param name="resolver">The game resolver.</param>
+    /// <param name="config">The launch configuration.</param>
+    public Launcher(IGameResolver resolver, LaunchConfig config) {
+        GameResolver = resolver;
+        LaunchConfig = config;
+    }
+
+    /// <summary>
+    /// Launches the game asynchronously.
+    /// </summary>
+    /// <param name="id">The ID of the game to launch.</param>
+    /// <returns>A ValueTask that represents the asynchronous operation. The task result contains a <see cref="GameProcessWatcher"/>.</returns>
     public async ValueTask<IGameProcessWatcher> LaunchAsync(string id) {
-        var gameEntry = GameResolver.GetGameEntity(id);
-        var versionPath = gameEntry.OfVersionDirectoryPath(config.IsEnableIndependencyCore);
-        _argumentsBuilder = new(gameEntry, config);
+    var gameEntry = GameResolver.GetGameEntity(id);
+        var versionPath = gameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore);
+        _argumentsBuilder = new(gameEntry, LaunchConfig);
         
         var arguments = _argumentsBuilder.Build();
         var process = CreateProcess(arguments, versionPath);
 
         LibrariesResolver librariesResolver = new(gameEntry);
-        await ExtractNatives(versionPath, librariesResolver);
+        await Launcher.ExtractNatives(versionPath, librariesResolver);
         return new GameProcessWatcher(process, arguments);
     }
 
@@ -46,7 +64,7 @@ public sealed class Launcher(IGameResolver resolver, LaunchConfig config) : ILau
         };
     }
 
-    private async Task ExtractNatives(string versionPath, LibrariesResolver librariesResolver) {
+    private static async Task ExtractNatives(string versionPath, LibrariesResolver librariesResolver) {
         var libraries = librariesResolver.GetLibraries()
             .Where(x => ((x as LibraryEntry)?.IsNative) != null)
             .Select(x => x.Path)

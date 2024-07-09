@@ -10,6 +10,9 @@ using MinecraftLaunch.Classes.Enums;
 
 namespace MinecraftLaunch.Components.Fetcher;
 
+/// <summary>
+/// Fetches Java installations on the system.
+/// </summary>
 public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
     #region Fields
     [SupportedOSPlatform(nameof(OSPlatform.OSX))]
@@ -66,10 +69,18 @@ public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
 
     #endregion
 
+    /// <summary>
+    /// Fetches the Java installations synchronously.
+    /// </summary>
+    /// <returns>An immutable array of Java entries.</returns>
     public ImmutableArray<JavaEntry> Fetch() {
         return FetchAsync().GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// Fetches the Java installations asynchronously.
+    /// </summary>
+    /// <returns>A ValueTask that represents the asynchronous operation. The task result contains an immutable array of Java entries.</returns>
     public async ValueTask<ImmutableArray<JavaEntry>> FetchAsync() {
         return EnvironmentUtil.GetPlatformName() switch {
             "windows" => FetchWindowJava(),
