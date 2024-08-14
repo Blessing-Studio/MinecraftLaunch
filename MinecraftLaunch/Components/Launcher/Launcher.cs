@@ -46,7 +46,7 @@ public sealed class Launcher : ILauncher {
         var process = CreateProcess(arguments, versionPath);
 
         LibrariesResolver librariesResolver = new(gameEntry);
-        await Launcher.ExtractNatives(versionPath, librariesResolver);
+        await ExtractNatives(versionPath, librariesResolver);
         return new GameProcessWatcher(process, arguments);
     }
 
