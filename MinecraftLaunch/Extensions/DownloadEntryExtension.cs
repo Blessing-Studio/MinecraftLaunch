@@ -22,6 +22,9 @@ public static class DownloadEntryExtension {
         if(!File.Exists(entry.Path))
             return false;
 
+        if (entry.Checksum == null)
+            return true;
+
         using var sha1Provider = SHA1.Create();
         using var fileStream = File.OpenRead(entry.Path);
         byte[] sha1Bytes = sha1Provider.ComputeHash(fileStream);
