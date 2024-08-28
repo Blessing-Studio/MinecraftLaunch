@@ -8,9 +8,10 @@ using MinecraftLaunch.Classes.Models.Download;
 namespace MinecraftLaunch.Components.Installer;
 
 public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry entry, string customId = default, MirrorDownloadSource source = default) : InstallerBase {
-    private readonly string _customId = customId;   
+    private readonly string _customId = customId;
     private readonly FabricBuildEntry _fabricBuildEntry = entry;
-    private readonly GameEntry _inheritedFrom = inheritedFrom;
+
+    public override GameEntry InheritedFrom => inheritedFrom;
 
     public override async ValueTask<bool> InstallAsync() {
         /*
@@ -23,7 +24,7 @@ public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry en
 
         var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
-            _inheritedFrom.GameFolderPath);
+            InheritedFrom.GameFolderPath);
 
         /*
          * Download dependent resources
@@ -43,7 +44,7 @@ public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry en
         }
 
         var id = versionInfoNode.GetString("id");
-        var jsonFile = new FileInfo(Path.Combine(_inheritedFrom.GameFolderPath,
+        var jsonFile = new FileInfo(Path.Combine(InheritedFrom.GameFolderPath,
             "versions", id, $"{id}.json"));
 
         if (!jsonFile.Directory.Exists) {

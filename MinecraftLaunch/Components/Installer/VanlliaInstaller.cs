@@ -5,6 +5,7 @@ using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Components.Checker;
 using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Components.Installer;
 
@@ -15,6 +16,8 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
     private readonly string _gameId = gameId;
     private readonly MirrorDownloadSource _source = source;
     private readonly IGameResolver _gameResolver = gameFoloder;
+
+    public override GameEntry InheritedFrom => throw new NotSupportedException();
 
     public override async ValueTask<bool> InstallAsync() {
         /*

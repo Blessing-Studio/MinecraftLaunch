@@ -17,7 +17,7 @@ public static class DownloadUitl {
     public static DownloadRequest DefaultDownloadRequest { get; set; } = new() {
         IsPartialContentSupported = true,
         FileSizeThreshold = 1024 * 1024 * 3,
-        MultiThreadsCount = 64,
+        MultiThreadsCount = 256,
         MultiPartsCount = 8
     };
 

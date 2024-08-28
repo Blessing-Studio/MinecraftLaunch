@@ -11,7 +11,8 @@ namespace MinecraftLaunch.Components.Installer;
 public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, MirrorDownloadSource source = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly QuiltBuildEntry _quiltBuildEntry = entry;
-    private readonly GameEntry _inheritedFrom = inheritedFrom;
+
+    public override GameEntry InheritedFrom => inheritedFrom;
 
     public override async ValueTask<bool> InstallAsync() {
         /*
@@ -24,7 +25,7 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
 
         var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
-            _inheritedFrom.GameFolderPath);
+            InheritedFrom.GameFolderPath);
 
 
         /*
@@ -49,7 +50,7 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
         }
 
         var id = versionInfoNode.GetString("id");
-        var jsonFile = new FileInfo(Path.Combine(_inheritedFrom.GameFolderPath,
+        var jsonFile = new FileInfo(Path.Combine(InheritedFrom.GameFolderPath,
             "versions", id, $"{id}.json"));
 
         if (!jsonFile.Directory.Exists) {

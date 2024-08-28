@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
 		<OutputType>Exe</OutputType>
-		<PublishAot>true</PublishAot>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TargetFramework>net8.0</TargetFramework>
 		<InvariantGlobalization>true</InvariantGlobalization>

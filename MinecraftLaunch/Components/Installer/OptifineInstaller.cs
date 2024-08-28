@@ -1,27 +1,27 @@
 using Flurl.Http;
 using System.Text.Json;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Text.Json.Serialization;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Classes.Models.Download;
-using System;
-using MinecraftLaunch.Extensions;
-using System.IO.Compression;
-using System.Text.Json.Serialization;
-using MinecraftLaunch.Components.Resolver;
-using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class OptifineInstaller(GameEntry inheritedFrom,
+public sealed class OptifineInstaller(
+    GameEntry inheritedFrom,
     OptiFineInstallEntity installEntry,
     string javaPath, string customId = default,
     MirrorDownloadSource mirror = default) : InstallerBase {
-
     private readonly string _customId = customId;
     private readonly string _javaPath = javaPath;
-    private readonly GameEntry _inheritedFrom = inheritedFrom;
     private readonly OptiFineInstallEntity _installEntry = installEntry;
     private readonly MirrorDownloadSource _mirrorDownloadSource = mirror;
+
+    public override GameEntry InheritedFrom => inheritedFrom;
 
     public override async ValueTask<bool> InstallAsync() {
         /*
@@ -74,15 +74,15 @@ public sealed class OptifineInstaller(GameEntry inheritedFrom,
             minecraftArguments = "  --tweakClass optifine.OptiFineTweaker"
         };
 
-        var jarFilePath = Path.Combine(_inheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.jar");
-        var jsonFilePath = Path.Combine(_inheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.json");
+        var jarFilePath = Path.Combine(InheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.jar");
+        var jsonFilePath = Path.Combine(InheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.json");
         var launchwrapperFile = Path.Combine(
-                _inheritedFrom.GameFolderPath,
+                InheritedFrom.GameFolderPath,
                 "libraries",
                 LibrariesResolver.FormatLibraryNameToRelativePath(jsonEntity.libraries[1].Name));
 
         var optifineLibraryPath = Path.Combine(
-                _inheritedFrom.GameFolderPath,
+                InheritedFrom.GameFolderPath,
                 "libraries",
                 LibrariesResolver.FormatLibraryNameToRelativePath(jsonEntity.libraries[0].Name));
 
@@ -98,21 +98,21 @@ public sealed class OptifineInstaller(GameEntry inheritedFrom,
             }));
 
         packageArchive.GetEntry($"launchwrapper-of-{launchwrapper}.jar").ExtractToFile(launchwrapperFile, true);
-        File.Copy(_inheritedFrom.JarPath, jarFilePath, true);
+        File.Copy(InheritedFrom.JarPath, jarFilePath, true);
 
         /*
          * Running install processor
          */
         using var process = Process.Start(new ProcessStartInfo(_javaPath) {
             UseShellExecute = false,
-            WorkingDirectory = _inheritedFrom.GameFolderPath,
+            WorkingDirectory = InheritedFrom.GameFolderPath,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             Arguments = string.Join(" ", [
                 "-cp",
                 packagePath.ToPath(),
                 "optifine.Patcher",
-                _inheritedFrom.JarPath.ToPath(),
+                InheritedFrom.JarPath.ToPath(),
                 packagePath.ToPath(),
                 optifineLibraryPath.ToPath()
                 ])

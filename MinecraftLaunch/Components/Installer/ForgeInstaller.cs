@@ -13,12 +13,14 @@ namespace MinecraftLaunch.Components.Installer;
 public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, MirrorDownloadSource mirror = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly string _javaPath = javaPath;
-    private readonly GameEntry _inheritedFrom = inheritedFrom;
     private readonly ForgeInstallEntry _installEntry = installEntry;
     private readonly MirrorDownloadSource _mirrorDownloadSource = mirror;
 
+    public override GameEntry InheritedFrom => inheritedFrom;
+
     public override async ValueTask<bool> InstallAsync() {
         List<HighVersionForgeProcessorEntry> highVersionForgeProcessors = default;
+
 
         /*
          * Download Forge installation package
@@ -60,7 +62,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
         var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoJson
                 .GetEnumerable("libraries"),
-            _inheritedFrom.GameFolderPath).ToList();
+            InheritedFrom.GameFolderPath).ToList();
 
         if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
             foreach (var lib in libraries) {
@@ -70,8 +72,8 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
         if (!isLegacyForgeVersion) {
             libraries.AddRange(LibrariesResolver.GetLibrariesFromJsonArray(installProfile
-                    .GetEnumerable("libraries"), 
-                _inheritedFrom.GameFolderPath));
+                    .GetEnumerable("libraries"),
+                InheritedFrom.GameFolderPath));
 
             var highVersionForgeDataDictionary = installProfile
                 .Select("data")
@@ -87,11 +89,11 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
             var replaceValues = new Dictionary<string, string> {
                 { "{SIDE}", "client" },
-                { "{MINECRAFT_JAR}", _inheritedFrom.JarPath.ToPath() },
+                { "{MINECRAFT_JAR}", InheritedFrom.JarPath.ToPath() },
                 { "{MINECRAFT_VERSION}", installProfile.GetString("minecraft") },
-                { "{ROOT}", _inheritedFrom.GameFolderPath.ToPath() },
+                { "{ROOT}", InheritedFrom.GameFolderPath.ToPath() },
                 { "{INSTALLER}", packagePath.ToPath() },
-                { "{LIBRARY_DIR}", Path.Combine(_inheritedFrom.GameFolderPath, "libraries").ToPath() }
+                { "{LIBRARY_DIR}", Path.Combine(InheritedFrom.GameFolderPath, "libraries").ToPath() }
             };
 
             var replaceProcessorArgs = highVersionForgeDataDictionary.ToDictionary(
@@ -100,7 +102,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
                     if (!value.StartsWith('[')) {
                         return value;
                     }
-                    return Path.Combine(_inheritedFrom.GameFolderPath,
+                    return Path.Combine(InheritedFrom.GameFolderPath,
                             "libraries",
                             LibrariesResolver.FormatLibraryNameToRelativePath(value.TrimStart('[').TrimEnd(']')))
                         .ToPath();
@@ -116,7 +118,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
                 processor.Args = processor.Args.Select(x => {
                     if (x.StartsWith("["))
                         return Path.Combine(
-                                _inheritedFrom.GameFolderPath,
+                                InheritedFrom.GameFolderPath,
                                 "libraries",
                                 LibrariesResolver.FormatLibraryNameToRelativePath(x.TrimStart('[').TrimEnd(']')))
                             .ToPath();
@@ -144,7 +146,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
          * Write information to version json
          */
         ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
-        string forgeLibsFolder = Path.Combine(_inheritedFrom.GameFolderPath,
+        string forgeLibsFolder = Path.Combine(InheritedFrom.GameFolderPath,
             "libraries\\net\\minecraftforge\\forge",
             forgeVersion);
 
@@ -168,7 +170,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
         }
 
         var jsonFile = new FileInfo(Path.Combine(
-            _inheritedFrom.GameFolderPath,
+            InheritedFrom.GameFolderPath,
             "versions",
             versionInfoJson.GetString("id"),
             $"{versionInfoJson.GetString("id")}.json"));
@@ -194,7 +196,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
         foreach (var processor in highVersionForgeProcessors) {
             var fileName = Path.Combine(
-                _inheritedFrom.GameFolderPath,
+                InheritedFrom.GameFolderPath,
                 "libraries",
                 LibrariesResolver.FormatLibraryNameToRelativePath(processor.Jar));
 
@@ -207,7 +209,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
 
             string classPath = string.Join(Path.PathSeparator.ToString(), new List<string>() { fileName }
                 .Concat(processor.Classpath.Select(x => Path.Combine(
-                    _inheritedFrom.GameFolderPath,
+                    InheritedFrom.GameFolderPath,
                     "libraries",
                     LibrariesResolver.FormatLibraryNameToRelativePath(x)))));
 
@@ -220,11 +222,11 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
             args.AddRange(processor.Args);
 
             using var process = Process.Start(new ProcessStartInfo(_javaPath) {
-                Arguments = string.Join(" ", args),
                 UseShellExecute = false,
-                WorkingDirectory = _inheritedFrom.GameFolderPath,
                 RedirectStandardError = true,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                Arguments = string.Join(" ", args),
+                WorkingDirectory = InheritedFrom.GameFolderPath
             });
 
             var outputs = new List<string>();
