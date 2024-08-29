@@ -1,5 +1,4 @@
-﻿
-using MinecraftLaunch.Classes.Models.Event;
+﻿using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Extensions;

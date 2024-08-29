@@ -24,7 +24,7 @@ public sealed record GameJsonEntry {
     public string Assets { get; set; }
 
     [JsonPropertyName("javaVersion")]
-    public JsonNode JavaVersion {  get; set; }
+    public JsonNode JavaVersion { get; set; }
 
     [JsonPropertyName("arguments")]
     public ArgumentsJsonEntry Arguments { get; set; }
@@ -46,6 +46,6 @@ public sealed record AssstIndex {
     [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }
 }
-    
+
 [JsonSerializable(typeof(GameJsonEntry))]
-sealed partial class GameJsonEntryContext : JsonSerializerContext;
+internal sealed partial class GameJsonEntryContext : JsonSerializerContext;

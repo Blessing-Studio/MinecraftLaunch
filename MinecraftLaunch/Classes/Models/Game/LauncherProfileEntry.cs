@@ -6,13 +6,13 @@ public sealed record LauncherProfileEntry {
     /// <summary>
     /// 客户端令牌
     /// </summary>
-    [JsonPropertyName("clientToken")] 
+    [JsonPropertyName("clientToken")]
     public string ClientToken { get; set; }
 
     /// <summary>
     /// 活动账户信息
     /// </summary>
-    [JsonPropertyName("selectedUser")] 
+    [JsonPropertyName("selectedUser")]
     public SelectedUserEntry SelectedAccount { get; set; }
 
     /// <summary>
@@ -24,7 +24,7 @@ public sealed record LauncherProfileEntry {
     /// <summary>
     /// 档案信息
     /// </summary>
-    [JsonPropertyName("profiles")] 
+    [JsonPropertyName("profiles")]
     public Dictionary<string, GameProfileEntry> Profiles { get; set; }
 }
 
@@ -91,7 +91,7 @@ public sealed record GameProfileEntry {
 }
 
 public sealed record SelectedUserEntry {
-    [JsonPropertyName("account")] 
+    [JsonPropertyName("account")]
     public string Account { get; set; }
 
     [JsonPropertyName("profile")]
@@ -106,12 +106,11 @@ public sealed record LauncherVersionEntry {
     public int Format { get; set; }
 }
 
-public sealed record ResolutionEntry
-{
-    [JsonPropertyName("width")] 
+public sealed record ResolutionEntry {
+    [JsonPropertyName("width")]
     public uint Width { get; set; }
 
-    [JsonPropertyName("height")] 
+    [JsonPropertyName("height")]
     public uint Height { get; set; }
 
     [JsonIgnore]
@@ -121,4 +120,4 @@ public sealed record ResolutionEntry
 }
 
 [JsonSerializable(typeof(LauncherProfileEntry))]
-sealed partial class LauncherProfileEntryContext : JsonSerializerContext;
+internal sealed partial class LauncherProfileEntryContext : JsonSerializerContext;

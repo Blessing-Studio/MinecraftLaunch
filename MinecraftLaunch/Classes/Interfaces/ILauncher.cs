@@ -6,6 +6,7 @@ namespace MinecraftLaunch.Classes.Interfaces;
 /// 启动器统一接口
 /// </summary>
 public interface ILauncher {
+
     /// <summary>
     /// 游戏启动配置
     /// </summary>

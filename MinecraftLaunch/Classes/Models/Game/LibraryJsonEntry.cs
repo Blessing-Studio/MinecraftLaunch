@@ -1,6 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using MinecraftLaunch.Classes.Enums;
-using MinecraftLaunch.Classes.Models.Download;
+﻿using MinecraftLaunch.Classes.Models.Download;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Classes.Models.Game;
 
@@ -15,14 +14,13 @@ public sealed record LibraryJsonEntry {
     public Dictionary<string, string> Natives { get; set; }
 }
 
-public sealed record RuleModel
-{
+public sealed record RuleModel {
     [JsonPropertyName("action")]
     public string Action { get; set; }
 
     [JsonPropertyName("os")]
     public Dictionary<string, string> System { get; set; }
 }
-    
+
 [JsonSerializable(typeof(LibraryJsonEntry))]
-sealed partial class LibraryJsonEntryContext : JsonSerializerContext;
+internal sealed partial class LibraryJsonEntryContext : JsonSerializerContext;

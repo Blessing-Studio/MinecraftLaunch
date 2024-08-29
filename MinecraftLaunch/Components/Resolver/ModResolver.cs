@@ -1,8 +1,7 @@
-﻿using System.IO.Compression;
+﻿using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Extensions;
 using System.Collections.Immutable;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Game;
+using System.IO.Compression;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -29,8 +28,7 @@ public sealed class ModResolver(GameEntry entry) {
             }
 
             return result;
-        }
-        catch (Exception) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -38,7 +36,7 @@ public sealed class ModResolver(GameEntry entry) {
     public Task<ImmutableArray<ModEntry>> LoadAllAsync() {
         List<ModEntry> entries = new();
         var mods = Directory.EnumerateFiles(_gameEntry
-            .OfModDirectorypath());
+            .ToModDirectorypath());
 
         Parallel.ForEach(mods, path => {
             entries.Add(Resolve(path));
@@ -57,8 +55,7 @@ public sealed class ModResolver(GameEntry entry) {
         try {
             File.Move(rawFilePath, entry.Path);
             return true;
-        }
-        catch (Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -80,8 +77,7 @@ public sealed class ModResolver(GameEntry entry) {
             entry.Authors = (jsonNode["authorList"] ?? jsonNode["authors"])
                 .GetEnumerable<string>()
                 .ToImmutableArray();
-        }
-        catch (Exception) {
+        } catch (Exception) {
             entry.IsError = true;
         }
     }
@@ -99,8 +95,7 @@ public sealed class ModResolver(GameEntry entry) {
                 entry.Authors = jsonNode["authors"]
                     .GetEnumerable<string>()
                     .ToImmutableArray();
-            }
-            catch (Exception) {
+            } catch (Exception) {
                 entry.IsError = true;
             }
         }
@@ -133,7 +128,7 @@ public sealed class ModResolver(GameEntry entry) {
         var zipEntry = zipArchive.GetEntry("quilt.mod.json");
         using var stream = zipEntry.Open();
         using var reader = new StreamReader(stream);
-        
+
         try {
             var jsonNode = reader.ReadToEnd().AsNode();
             jsonNode = jsonNode.Select("quilt_loader").Select("metadata");
@@ -144,8 +139,7 @@ public sealed class ModResolver(GameEntry entry) {
             entry.Authors = jsonNode["authors"]
                 .GetEnumerable<string>()
                 .ToImmutableArray();
-        }
-        catch (Exception) {
+        } catch (Exception) {
             entry.IsError = true;
         }
     }

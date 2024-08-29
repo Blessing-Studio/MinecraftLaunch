@@ -1,11 +1,11 @@
 ﻿using Flurl.Http;
-using System.Text;
-using System.Text.Json;
-using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
+using System.Text;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Fetcher;
 
@@ -50,8 +50,7 @@ public sealed class ModrinthFetcher : IFetcher<IEnumerable<ModrinthResourceEntry
         var facets = new List<string>();
 
         if (resourceType != null) {
-            facets.Add($"[\"project_type:{resourceType switch
-            {
+            facets.Add($"[\"project_type:{resourceType switch {
                 ModrinthResourceType.ModPack => "modpack",
                 ModrinthResourceType.Resourcepack => "resourcepack",
                 _ => "mod"
@@ -65,7 +64,7 @@ public sealed class ModrinthFetcher : IFetcher<IEnumerable<ModrinthResourceEntry
         if (facets.Any()) {
             stringBuilder.Append($"&facets=[{string.Join(',', facets)}]");
         }
-        
+
         var jNode = (await stringBuilder.ToString().GetStringAsync()).AsNode();
         return jNode?.Select("hits")?.GetEnumerable()
             .Deserialize<IEnumerable<ModrinthResourceEntry>>(JsonConverterUtil.DefaultJsonOptions);

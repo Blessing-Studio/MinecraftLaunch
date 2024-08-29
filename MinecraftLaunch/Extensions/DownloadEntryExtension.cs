@@ -1,10 +1,11 @@
-﻿using System.Security.Cryptography;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Download;
+using System.Security.Cryptography;
 
 namespace MinecraftLaunch.Extensions;
 
 public static class DownloadEntryExtension {
+
     private static readonly char[] _hexTable =
         { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -16,10 +17,10 @@ public static class DownloadEntryExtension {
     }
 
     public static bool Verify(this IDownloadEntry entry) {
-        if(entry == null) 
+        if (entry == null)
             return true;
 
-        if(!File.Exists(entry.Path))
+        if (!File.Exists(entry.Path))
             return false;
 
         if (entry.Checksum == null)

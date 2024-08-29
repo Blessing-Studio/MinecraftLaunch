@@ -10,6 +10,6 @@ public sealed record ArgumentsJsonEntry {
     [JsonPropertyName("game")]
     public List<JsonElement> Game { get; set; }
 }
-    
+
 [JsonSerializable(typeof(ArgumentsJsonEntry))]
-sealed partial class ArgumentsJsonEntryContext : JsonSerializerContext;
+internal sealed partial class ArgumentsJsonEntryContext : JsonSerializerContext;

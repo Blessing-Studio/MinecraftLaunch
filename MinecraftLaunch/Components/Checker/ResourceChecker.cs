@@ -1,8 +1,8 @@
-﻿using MinecraftLaunch.Extensions;
-using System.Collections.Immutable;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Extensions;
+using System.Collections.Immutable;
 
 namespace MinecraftLaunch.Components.Checker;
 

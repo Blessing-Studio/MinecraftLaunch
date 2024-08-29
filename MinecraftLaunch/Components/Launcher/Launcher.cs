@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
-using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Components.Watcher;
-using MinecraftLaunch.Components.Resolver;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Launch;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Components.Watcher;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Launcher;
 
@@ -38,13 +39,13 @@ public sealed class Launcher : ILauncher {
     /// <param name="id">The ID of the game to launch.</param>
     /// <returns>A ValueTask that represents the asynchronous operation. The task result contains a <see cref="GameProcessWatcher"/>.</returns>
     public async ValueTask<IGameProcessWatcher> LaunchAsync(string id) {
-    var gameEntry = GameResolver.GetGameEntity(id);
-        var versionPath = gameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore);
+        var gameEntry = GameResolver.GetGameEntity(id);
+        var versionPath = gameEntry.ToVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore);
         _argumentsBuilder = new(gameEntry, LaunchConfig);
-        
-        var arguments = _argumentsBuilder.Build();
-        var process = CreateProcess(arguments, versionPath);
 
+        var arguments = _argumentsBuilder.Build().ToImmutableArray();
+        var process = CreateProcess(arguments, versionPath);
+        Console.WriteLine(string.Join(Environment.NewLine, arguments));
         LibrariesResolver librariesResolver = new(gameEntry);
         await ExtractNatives(versionPath, librariesResolver);
         return new GameProcessWatcher(process, arguments);

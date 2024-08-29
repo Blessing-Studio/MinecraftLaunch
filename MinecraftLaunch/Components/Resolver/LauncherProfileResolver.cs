@@ -1,8 +1,7 @@
-using System.Text;
-using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
+using System.Text;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -14,27 +13,27 @@ namespace MinecraftLaunch.Components.Resolver;
 /// </remarks>
 public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = default) {
     private readonly Guid _clientToken = clientToken;
-    private readonly string _proFilePath = rootPath.OfLauncherProfilePath();
+    private readonly string _proFilePath = rootPath.ToLauncherProfilePath();
 
     public LauncherProfileEntry LauncherProfile { get; set; }
-    
+
     public void SaveProfile() {
-        var launcherProfileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry), 
+        var launcherProfileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry),
             new LauncherProfileEntryContext(JsonConverterUtil.DefaultJsonOptions));
-        
+
         File.WriteAllText(_proFilePath, launcherProfileJson);
     }
 
     public bool HasProfile(string name) {
         return LauncherProfile.Profiles.Any(x => x.Value.Name.Equals(name, StringComparison.Ordinal));
     }
-    
+
     public bool RemoveProfile(string name) {
         return LauncherProfile.Profiles.Remove(name);
     }
 
     public GameProfileEntry GetProfile(string name) {
-        var profile = LauncherProfile.Profiles.FirstOrDefault(pe => 
+        var profile = LauncherProfile.Profiles.FirstOrDefault(pe =>
             pe.Value.Name.Equals(name, StringComparison.Ordinal)).Value;
 
         if (profile == null) {
@@ -44,8 +43,8 @@ public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = 
         profile.Resolution ??= new ResolutionEntry();
         return profile;
     }
-    
-    public bool AddProfile(GameProfileEntry gameProfile) { 
+
+    public bool AddProfile(GameProfileEntry gameProfile) {
         return LauncherProfile.Profiles.TryAdd(gameProfile.Name, gameProfile);
     }
 
@@ -56,7 +55,7 @@ public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = 
                 .Default.LauncherProfileEntry);
             return LauncherProfile;
         }
-        
+
         var launcherProfile = new LauncherProfileEntry {
             Profiles = new(),
             ClientToken = _clientToken.ToString("D"),
@@ -65,16 +64,16 @@ public sealed class LauncherProfileResolver(string rootPath, Guid clientToken = 
                 Name = "下北泽"
             },
         };
-        
+
         LauncherProfile = launcherProfile;
-        string profileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry), 
+        string profileJson = LauncherProfile.Serialize(typeof(LauncherProfileEntry),
             new LauncherProfileEntryContext(JsonConverterUtil.DefaultJsonOptions));
 
         if (!Directory.Exists(rootPath)) {
             Directory.CreateDirectory(rootPath);
         }
 
-        File.WriteAllText(_proFilePath, profileJson);          
+        File.WriteAllText(_proFilePath, profileJson);
         return LauncherProfile;
     }
 }

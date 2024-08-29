@@ -23,4 +23,4 @@ public sealed record DeviceCodeResponse {
 }
 
 [JsonSerializable(typeof(DeviceCodeResponse))]
-sealed partial class DeviceCodeResponseContext : JsonSerializerContext;
+internal sealed partial class DeviceCodeResponseContext : JsonSerializerContext;

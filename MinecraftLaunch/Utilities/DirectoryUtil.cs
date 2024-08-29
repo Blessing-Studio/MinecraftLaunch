@@ -1,6 +1,7 @@
 ﻿namespace MinecraftLaunch.Utilities;
 
 public static class DirectoryUtil {
+
     public static void DeleteAllFiles(string folder) =>
         DeleteAllFiles(new DirectoryInfo(folder));
 

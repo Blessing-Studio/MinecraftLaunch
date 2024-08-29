@@ -1,10 +1,10 @@
-﻿using System.Text;
-using System.Net.Sockets;
-using MinecraftLaunch.Classes.Interfaces;
-using System.Diagnostics;
-using System.Text.Json;
-using MinecraftLaunch.Classes.Models.ServerPing;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Event;
+using MinecraftLaunch.Classes.Models.ServerPing;
+using System.Diagnostics;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Watcher;
 
@@ -18,6 +18,7 @@ public sealed class ServerPingWatcher(ushort port, string address, int versionId
     private CancellationTokenSource _cancellationTokenSource = tokenSource;
 
     public event EventHandler<ServerLatencyChangedEventArgs> ServerLatencyChanged;
+
     public event EventHandler<ProgressChangedEventArgs> ServerConnectionProgressChanged;
 
     public ushort Port => port;
@@ -93,7 +94,7 @@ public sealed class ServerPingWatcher(ushort port, string address, int versionId
         await Flush(0);
 
         /*
-         * If you are using a modded server then use a larger buffer to account, 
+         * If you are using a modded server then use a larger buffer to account,
          * see link for explanation and a motd to HTML snippet
          * https://gist.github.com/csh/2480d14fbbb33b4bbae3#gistcomment-2672658
          */
@@ -216,5 +217,5 @@ public sealed class ServerPingWatcher(ushort port, string address, int versionId
         ServerConnectionProgressChanged?.Invoke(this, new(status, progress, progressStatus));
     }
 
-    #endregion
+    #endregion Read/Write methods
 }

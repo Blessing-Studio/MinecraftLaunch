@@ -1,10 +1,10 @@
 ﻿using Flurl.Http;
-using System.Diagnostics;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Extensions;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Installer;
 
@@ -26,7 +26,6 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
         var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
             InheritedFrom.GameFolderPath);
-
 
         /*
          * Download dependent resources
@@ -60,7 +59,6 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
         File.WriteAllText(jsonFile.FullName, versionInfoNode.ToString());
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         return true;
-
     }
 
     public static async ValueTask<IEnumerable<QuiltBuildEntry>> EnumerableFromVersionAsync(string mcVersion) {

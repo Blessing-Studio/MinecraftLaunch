@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using System.Runtime.Versioning;
-using System.Runtime.InteropServices;
+﻿using MinecraftLaunch.Classes.Models.Game;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
-using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Utilities;
 
@@ -54,8 +52,7 @@ public static class JavaUtil {
                 JavaDirectoryPath = Directory.GetParent(path).FullName,
                 JavaSlugVersion = (int.Parse(versionParts[0]) == 1) ? int.Parse(versionParts[1]) : int.Parse(versionParts[0]),
             };
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Console.WriteLine($"Error getting Java info: {ex.Message}");
             return null;
         }
@@ -71,7 +68,7 @@ public static class JavaUtil {
 
         return result;
     }
-    
+
     private static bool GetIs64BitWindows(string path) {
         ushort architecture = 0;
 
@@ -88,8 +85,7 @@ public static class JavaUtil {
                     architecture = binaryReader.ReadUInt16();
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Console.WriteLine($"Error checking if file is 64 bit: {ex.Message}");
         }
 

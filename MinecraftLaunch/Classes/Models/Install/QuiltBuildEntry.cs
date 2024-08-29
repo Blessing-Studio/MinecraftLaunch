@@ -37,6 +37,6 @@ public sealed record QuiltMavenItem {
     [JsonPropertyName("version")]
     public string Version { get; set; }
 }
-    
+
 [JsonSerializable(typeof(QuiltBuildEntry))]
-sealed partial class QuiltBuildEntryContext : JsonSerializerContext;
+internal sealed partial class QuiltBuildEntryContext : JsonSerializerContext;

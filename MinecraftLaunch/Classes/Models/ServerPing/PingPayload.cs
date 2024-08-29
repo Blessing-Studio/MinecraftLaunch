@@ -12,4 +12,4 @@ public sealed class PingPayload {
 }
 
 [JsonSerializable(typeof(PingPayload))]
-sealed partial class PingPayloadContext : JsonSerializerContext;
+internal sealed partial class PingPayloadContext : JsonSerializerContext;

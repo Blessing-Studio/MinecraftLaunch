@@ -1,9 +1,8 @@
-using System.Text;
-using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Auth;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Utilities;
+using System.Text;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -15,26 +14,26 @@ namespace MinecraftLaunch.Components.Resolver;
 /// </remarks>
 public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = default) {
     private readonly Guid _clientToken = clientToken;
-    private readonly string _accountPath = rootPath.OfLauncherAccountPath();
-    
+    private readonly string _accountPath = rootPath.ToLauncherAccountPath();
+
     public LauncherAccountEntry LauncherAccount { get; set; }
-    
+
     public LauncherAccountEntry Resolve(string str = default) {
         if (File.Exists(_accountPath)) {
             var launcherAccountJson = File.ReadAllText(_accountPath, Encoding.UTF8);
             LauncherAccount = launcherAccountJson.Deserialize(LauncherAccountEntryContext
                 .Default.LauncherAccountEntry);
-            
+
             return LauncherAccount;
         }
-        
+
         var launcherAccount = new LauncherAccountEntry {
             Accounts = new(),
             MojangClientToken = _clientToken.ToString("N")
         };
-        
+
         LauncherAccount = launcherAccount;
-        string profileJson = LauncherAccount.Serialize(typeof(LauncherProfileEntry), 
+        string profileJson = LauncherAccount.Serialize(typeof(LauncherProfileEntry),
             new LauncherProfileEntryContext(JsonConverterUtil.DefaultJsonOptions));
 
         if (!Directory.Exists(rootPath)) {
@@ -44,16 +43,15 @@ public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = d
         File.WriteAllText(_accountPath, profileJson);
         return LauncherAccount;
     }
-    
+
     public void Save() {
-        var launcherProfileJson = LauncherAccount.Serialize(typeof(LauncherAccountEntry), 
+        var launcherProfileJson = LauncherAccount.Serialize(typeof(LauncherAccountEntry),
             new LauncherAccountEntryContext(JsonConverterUtil.DefaultJsonOptions));
-        
+
         File.WriteAllText(_accountPath, launcherProfileJson);
     }
-    
-    public bool Remove(Guid id)
-    {
+
+    public bool Remove(Guid id) {
         var result = Find(id);
         if (!result.HasValue) {
             return false;
@@ -63,7 +61,7 @@ public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = d
         if (value == default) {
             return false;
         }
-        
+
         return LauncherAccount.Accounts.Remove(key);
     }
 
@@ -75,14 +73,14 @@ public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = d
         LauncherAccount.ActiveAccountLocalId = uuid;
         return true;
     }
-    
+
     public Guid Add(string uuid, AccountEntry account) {
         if (LauncherAccount == null || LauncherAccount.Accounts?.ContainsKey(uuid) == true) {
             return default;
         }
 
         var oldRecord = LauncherAccount.Accounts
-            !.FirstOrDefault(a => 
+            !.FirstOrDefault(a =>
                 a.Value.MinecraftProfile.Uuid == account.MinecraftProfile.Uuid).Value;
 
         if (oldRecord != null) {
@@ -93,14 +91,13 @@ public sealed class LauncherAccountReslver(string rootPath, Guid clientToken = d
         if (findResult is { Key: not null, Value: not null }) {
             LauncherAccount.Accounts[findResult.Value.Key] = account;
             return account.Id;
-        }
-        else {
+        } else {
             Guid newId = account.Id == default ? Guid.NewGuid() : account.Id;
             LauncherAccount.Accounts.Add(uuid, account);
             return newId;
         }
     }
-    
+
     public KeyValuePair<string, AccountEntry>? Find(Guid id) {
         return LauncherAccount?.Accounts?.FirstOrDefault(a => a.Value.Id == id);
     }

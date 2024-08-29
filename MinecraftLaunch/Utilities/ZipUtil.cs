@@ -1,11 +1,11 @@
-﻿using MinecraftLaunch.Classes.Enums;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 namespace MinecraftLaunch.Utilities;
 
 public static class ZipUtil {
+
     public static void ExtractNatives(string targetFolder, IEnumerable<string> files) {
-		try {
+        try {
             if (!Directory.Exists(targetFolder)) {
                 Directory.CreateDirectory(targetFolder);
             }
@@ -28,7 +28,6 @@ public static class ZipUtil {
                     }
                 }
             }
-        }
-		catch (Exception) {}
+        } catch (Exception) { }
     }
 }

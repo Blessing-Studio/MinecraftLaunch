@@ -1,6 +1,7 @@
 ﻿namespace MinecraftLaunch.Classes.Enums;
 
 public enum AccountType {
+
     /// <summary>
     /// 离线账户
     /// </summary>
@@ -15,7 +16,7 @@ public enum AccountType {
     /// Yggdrasil 第三方账户
     /// </summary>
     Yggdrasil,
-        
+
     /// <summary>
     /// UnifiedPass 统一通行证
     /// </summary>

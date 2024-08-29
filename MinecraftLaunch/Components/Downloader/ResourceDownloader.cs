@@ -9,10 +9,11 @@ using System.Threading.Tasks.Dataflow;
 namespace MinecraftLaunch.Components.Downloader;
 
 public class ResourceDownloader(
-    DownloadRequest request, 
+    DownloadRequest request,
     IEnumerable<IDownloadEntry> downloadEntries,
     MirrorDownloadSource downloadSource = default,
     CancellationTokenSource tokenSource = default) : IDownloader {
+
     public event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
 
     public async ValueTask<bool> DownloadAsync() {
@@ -68,8 +69,8 @@ public class ResourceDownloader(
         var transformManyBlock = new TransformManyBlock<IEnumerable<IDownloadEntry>, IDownloadEntry>(chunk => chunk,
             new ExecutionDataflowBlockOptions());
 
-        var linkOptions = new DataflowLinkOptions { 
-            PropagateCompletion = true 
+        var linkOptions = new DataflowLinkOptions {
+            PropagateCompletion = true
         };
 
         transformManyBlock.LinkTo(transformBlock, linkOptions);

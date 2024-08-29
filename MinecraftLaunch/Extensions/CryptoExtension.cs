@@ -1,6 +1,7 @@
 ﻿namespace MinecraftLaunch.Extensions;
 
 public static class CryptoExtension {
+
     public static string BytesToString(this byte[] bytes) {
         return BitConverter.ToString(bytes).Replace("-", string.Empty);
     }

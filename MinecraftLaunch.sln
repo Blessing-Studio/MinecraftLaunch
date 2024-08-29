@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "Minecraf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Simple", "MinecraftLaunch.Test\MinecraftLaunch.Simple.csproj", "{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftLaunch.BanchTest", "MinecraftLaunch.BanchTest\MinecraftLaunch.BanchTest.csproj", "{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Banchmark", "MinecraftLaunch.BanchTest\MinecraftLaunch.Banchmark.csproj", "{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Natsurainko.FluentCore", "..\..\..\Code\Natsurainko.FluentLauncher\Natsurainko.FluentCore\Natsurainko.FluentCore\Natsurainko.FluentCore.csproj", "{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|x64.ActiveCfg = Release|Any CPU
 		{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}.Release|x64.Build.0 = Release|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Debug|x64.Build.0 = Debug|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Release|x64.ActiveCfg = Release|Any CPU
+		{0EEEF9C0-49BE-4D3D-80B4-B01ED15CF7CA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

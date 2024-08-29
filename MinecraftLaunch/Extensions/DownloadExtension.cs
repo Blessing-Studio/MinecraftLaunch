@@ -1,14 +1,15 @@
 ﻿using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Download;
-using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Components.Downloader;
 using MinecraftLaunch.Utilities;
 
 namespace MinecraftLaunch.Extensions;
 
 public static class DownloadExtension {
+
     /// <summary>
     /// Applies the mirror source to the download entry if the use of mirror download source is enabled.
     /// </summary>
@@ -21,13 +22,12 @@ public static class DownloadExtension {
             if (entry.Type is DownloadEntryType.Jar) {
                 entry.Url = $"{source.Host}/version/{(entry as JarEntry).McVersion}/client";
             }
-                
+
             var urls = entry.Type is DownloadEntryType.Asset
                 ? source.AssetsUrls
                 : source.LibrariesUrls;
 
             entry.Url = entry.Url.Replace(urls);
-
         }
 
         return entry;
@@ -51,10 +51,10 @@ public static class DownloadExtension {
     /// <param name="downloadEntry">The download entry to be downloaded.</param>
     /// <param name="source">The mirror download source to be used.</param>
     /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
-    public static ValueTask<bool> DownloadResourceEntryAsync(this 
+    public static ValueTask<bool> DownloadResourceEntryAsync(this
         IDownloadEntry downloadEntry,
         MirrorDownloadSource source = default!) {
-        return DownloadUitl.DownloadAsync(downloadEntry, DownloadUitl.DefaultDownloadRequest,default,x=>{});
+        return DownloadUitl.DownloadAsync(downloadEntry, DownloadUitl.DefaultDownloadRequest, default, x => { });
     }
 
     /// <summary>

@@ -18,6 +18,6 @@ public sealed record VersionManifestEntry {
     [JsonPropertyName("releaseTime")]
     public DateTime ReleaseTime { get; set; }
 }
-    
+
 [JsonSerializable(typeof(VersionManifestEntry))]
-sealed partial class VersionManifestEntryContext : JsonSerializerContext;
+internal sealed partial class VersionManifestEntryContext : JsonSerializerContext;

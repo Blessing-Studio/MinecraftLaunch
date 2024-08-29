@@ -1,11 +1,12 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using MinecraftLaunch.Classes.Enums;
+﻿using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Models.Auth;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Components.Converter;
 
 public sealed class AccountJsonConverter : JsonConverter<Account> {
+
     public override bool CanConvert(Type typeToConvert) {
         return typeToConvert == typeof(Account);
     }
@@ -58,10 +59,12 @@ public sealed class AccountJsonConverter : JsonConverter<Account> {
             case OfflineAccount offlineAccount:
                 writer.WriteNumber("Type", (int)AccountType.Offline);
                 break;
+
             case MicrosoftAccount microsoftAccount:
                 writer.WriteNumber("Type", (int)AccountType.Microsoft);
                 writer.WriteString("RefreshToken", microsoftAccount.RefreshToken);
                 break;
+
             case YggdrasilAccount yggdrasilAccount:
                 writer.WriteNumber("Type", (int)AccountType.Yggdrasil);
                 writer.WriteString("ClientToken", yggdrasilAccount.ClientToken);
@@ -71,5 +74,4 @@ public sealed class AccountJsonConverter : JsonConverter<Account> {
 
         writer.WriteEndObject();
     }
-
 }

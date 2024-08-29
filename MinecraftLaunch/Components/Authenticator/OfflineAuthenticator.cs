@@ -1,7 +1,7 @@
-﻿using System.Text;
-using System.Security.Cryptography;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Auth;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MinecraftLaunch.Components.Authenticator;
 
@@ -11,6 +11,7 @@ namespace MinecraftLaunch.Components.Authenticator;
 /// <param name="name">The name of the account.</param>
 /// <param name="uuid">The UUID of the account. If not provided, a new UUID will be generated based on the account name.</param>
 public sealed class OfflineAuthenticator(string name, Guid? uuid = default) : IAuthenticator<OfflineAccount> {
+
     /// <summary>
     /// Authenticates the offline account.
     /// </summary>

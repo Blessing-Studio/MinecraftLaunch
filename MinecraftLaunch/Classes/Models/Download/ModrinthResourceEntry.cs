@@ -8,16 +8,16 @@ public sealed record ModrinthResourceEntry {
 
     [JsonPropertyName("slug")]
     public string Slug { get; set; }
-    
+
     [JsonPropertyName("title")]
     public string Name { get; set; }
 
     [JsonPropertyName("author")]
     public string Author { get; set; }
-    
+
     [JsonPropertyName("description")]
     public string Summary { get; set; }
-    
+
     [JsonPropertyName("icon_url")]
     public string IconUrl { get; set; }
 
@@ -26,10 +26,10 @@ public sealed record ModrinthResourceEntry {
 
     [JsonPropertyName("project_type")]
     public string ProjectType { get; set; }
-    
+
     [JsonPropertyName("date_modified")]
     public DateTime DateModified { get; set; }
-    
+
     [JsonPropertyName("display_categories")]
     public IEnumerable<string> Categories { get; set; }
 
@@ -41,4 +41,4 @@ public sealed record ModrinthResourceEntry {
 }
 
 [JsonSerializable(typeof(ModrinthResourceEntry))]
-sealed partial class ModrinthResourceEntryContext : JsonSerializerContext;
+internal sealed partial class ModrinthResourceEntryContext : JsonSerializerContext;

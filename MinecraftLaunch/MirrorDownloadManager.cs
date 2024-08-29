@@ -6,6 +6,7 @@ namespace MinecraftLaunch;
 /// The default manager for mirror download sources.
 /// </summary>
 public static class MirrorDownloadManager {
+
     /// <summary>
     /// Gets or sets a value indicating whether to use mirror download source.
     /// </summary>

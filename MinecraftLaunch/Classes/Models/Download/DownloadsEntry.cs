@@ -27,6 +27,6 @@ public sealed record FileEntry {
     [JsonPropertyName("id")]
     public string Id { get; set; }
 }
-    
+
 [JsonSerializable(typeof(DownloadsEntry))]
-sealed partial class DownloadsEntryContext : JsonSerializerContext;
+internal sealed partial class DownloadsEntryContext : JsonSerializerContext;

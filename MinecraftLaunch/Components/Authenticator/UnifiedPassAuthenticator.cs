@@ -1,7 +1,7 @@
 using Flurl.Http;
-using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Auth;
+using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Authenticator;
 
@@ -56,7 +56,7 @@ public sealed class UnifiedPassAuthenticator(string serverId, string userName, s
             clientToken = null as string,
             requestUser = true,
         };
-        
+
         var node = (await (await authUrl.PostJsonAsync(content))
             .GetStringAsync())
             .AsNode();

@@ -48,6 +48,6 @@ public sealed record ProfileModel {
     [JsonPropertyName("id")]
     public string Id { get; set; }
 }
-    
+
 [JsonSerializable(typeof(YggdrasilResponse))]
-sealed partial class YggdrasilResponseContext : JsonSerializerContext;
+internal sealed partial class YggdrasilResponseContext : JsonSerializerContext;

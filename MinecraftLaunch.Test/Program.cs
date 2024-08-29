@@ -114,30 +114,30 @@ try {
 
     GameResolver gameResolver = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
 
-    VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.18.2", MirrorDownloadManager.Bmcl);
-    vanlliaInstaller.ProgressChanged += (_, args) => {
-        Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
-    };
+    //VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.18.2", MirrorDownloadManager.Bmcl);
+    //vanlliaInstaller.ProgressChanged += (_, args) => {
+    //    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
+    //};
 
-    await vanlliaInstaller.InstallAsync();
+    //await vanlliaInstaller.InstallAsync();
 
-    Console.WriteLine();
+    //Console.WriteLine();
 
-    ForgeInstaller forgeInstaller = new(gameResolver.GetGameEntity("1.18.2"),
-        (await ForgeInstaller.EnumerableFromVersionAsync("1.18.2")).First(),
-        "C:\\Users\\wxysd\\AppData\\Roaming\\.minecraft\\runtime\\java-runtime-gamma\\bin\\javaw.exe",
-        "1.18.2-Composition-114514",
-        MirrorDownloadManager.Bmcl);
+    //ForgeInstaller forgeInstaller = new(gameResolver.GetGameEntity("1.18.2"),
+    //    (await ForgeInstaller.EnumerableFromVersionAsync("1.18.2")).First(),
+    //    "C:\\Users\\wxysd\\AppData\\Roaming\\.minecraft\\runtime\\java-runtime-gamma\\bin\\javaw.exe",
+    //    "1.18.2-Composition-114514",
+    //    MirrorDownloadManager.Bmcl);
 
-    CompositionInstaller compositionInstaller = new(forgeInstaller,
-        "1.18.2-Composition-114514",
-        (await OptifineInstaller.EnumerableFromVersionAsync("1.18.2")).First());
+    //CompositionInstaller compositionInstaller = new(forgeInstaller,
+    //    "1.18.2-Composition-114514",
+    //    (await OptifineInstaller.EnumerableFromVersionAsync("1.18.2")).First());
 
-    compositionInstaller.ProgressChanged += (_, args) => {
-        Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
-    };
+    //compositionInstaller.ProgressChanged += (_, args) => {
+    //    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
+    //};
 
-    await compositionInstaller.InstallAsync();
+    //await compositionInstaller.InstallAsync();
 
     #endregion
 

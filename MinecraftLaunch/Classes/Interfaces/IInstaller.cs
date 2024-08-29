@@ -3,6 +3,7 @@
 namespace MinecraftLaunch.Classes.Interfaces;
 
 public interface IInstaller {
+
     /// <summary>
     /// 异步安装方法
     /// </summary>

@@ -1,12 +1,12 @@
-﻿using System.Text;
+﻿using Flurl.Http;
+using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Extensions;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Web;
-using Flurl.Http;
-using MinecraftLaunch.Classes.Enums;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Download;
 
 namespace MinecraftLaunch.Components.Fetcher;
 
@@ -60,7 +60,7 @@ public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceE
                 result.Add(ResolveFromJsonNode(resource));
             }
         } catch (Exception) { }
-        
+
         return result;
     }
 
@@ -75,9 +75,9 @@ public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceE
     /// <returns>A ValueTask that represents the asynchronous operation. The task result contains an enumerable collection of CurseForge resources.</returns>
     public async ValueTask<IEnumerable<CurseForgeResourceEntry>> SearchResourcesAsync(
         string searchFilter,
-        int classId = 6, 
+        int classId = 6,
         int category = -1,
-        string gameVersion = null, 
+        string gameVersion = null,
         LoaderType modLoaderType = LoaderType.Any) {
         var stringBuilder = new StringBuilder(BASE_API);
         stringBuilder.Append("/search?gameId=432");
@@ -87,7 +87,7 @@ public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceE
         stringBuilder.Append($"modLoaderType={(int)modLoaderType}");
         stringBuilder.Append($"gameVersion={gameVersion}");
         stringBuilder.Append($"&searchFilter={HttpUtility.UrlEncode(searchFilter)}");
-        
+
         var jsonNode = (await stringBuilder.ToString()
             .WithHeader("x-api-key", _key)
             .GetStringAsync())
@@ -95,7 +95,7 @@ public sealed class CurseForgeFetcher : IFetcher<IEnumerable<CurseForgeResourceE
 
         return jsonNode.GetEnumerable("data").Select(ResolveFromJsonNode);
     }
-    
+
     private CurseForgeResourceEntry ResolveFromJsonNode(JsonNode node) {
         var entry = node.Deserialize<CurseForgeResourceEntry>();
 

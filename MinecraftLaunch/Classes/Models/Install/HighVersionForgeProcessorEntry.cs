@@ -18,6 +18,6 @@ public sealed record HighVersionForgeProcessorEntry {
     [JsonPropertyName("outputs")]
     public Dictionary<string, string> Outputs { get; set; } = new();
 }
-    
+
 [JsonSerializable(typeof(HighVersionForgeProcessorEntry))]
-sealed partial class HighVersionForgeProcessorEntryContext : JsonSerializerContext;
+internal sealed partial class HighVersionForgeProcessorEntryContext : JsonSerializerContext;

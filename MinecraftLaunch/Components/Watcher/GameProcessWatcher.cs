@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Components.Resolver;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Event;
+using MinecraftLaunch.Components.Resolver;
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Watcher;
 
@@ -15,6 +15,7 @@ public sealed class GameProcessWatcher : IWatcher, IGameProcessWatcher {
     public IEnumerable<string> Arguments { get; }
 
     public event EventHandler<ExitedEventArgs> Exited;
+
     public event EventHandler<LogReceivedEventArgs> OutputLogReceived;
 
     public GameProcessWatcher(Process process, IEnumerable<string> arguments) {

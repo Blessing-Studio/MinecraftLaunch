@@ -1,5 +1,4 @@
 ﻿using MinecraftLaunch.Classes.Enums;
-using MinecraftLaunch.Classes.Models.Game;
 
 namespace MinecraftLaunch.Classes.Models.Event;
 

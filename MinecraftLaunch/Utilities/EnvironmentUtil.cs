@@ -3,6 +3,7 @@
 namespace MinecraftLaunch.Utilities;
 
 public static class EnvironmentUtil {
+
     public static string Arch
         => Environment.Is64BitOperatingSystem ? "64" : "32";
 

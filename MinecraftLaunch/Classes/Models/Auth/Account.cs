@@ -42,4 +42,4 @@ public sealed record UnifiedPassAccount : Account {
 }
 
 [JsonSerializable(typeof(Account))]
-sealed partial class AccountContext : JsonSerializerContext;
+internal sealed partial class AccountContext : JsonSerializerContext;

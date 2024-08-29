@@ -1,13 +1,13 @@
 using Flurl.Http;
-using System.Text.Json;
-using System.Diagnostics;
-using System.IO.Compression;
-using System.Text.Json.Serialization;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Extensions;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Components.Installer;
 

@@ -1,11 +1,11 @@
 ﻿using Flurl.Http;
-using System.Text.Json;
-using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Components.Checker;
-using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Classes.Models.Install;
+using MinecraftLaunch.Components.Checker;
+using MinecraftLaunch.Extensions;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Installer;
 

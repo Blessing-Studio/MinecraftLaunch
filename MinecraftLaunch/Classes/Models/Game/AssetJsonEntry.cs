@@ -9,6 +9,6 @@ public sealed record AssetJsonEntry {
     [JsonPropertyName("hash")]
     public string Hash { get; set; }
 }
-    
+
 [JsonSerializable(typeof(AssetJsonEntry))]
-sealed partial class AssetJsonEntryContext : JsonSerializerContext;
+internal sealed partial class AssetJsonEntryContext : JsonSerializerContext;

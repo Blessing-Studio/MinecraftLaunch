@@ -1,152 +1,131 @@
-﻿using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
+﻿using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Enums;
-using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Game;
+using MinecraftLaunch.Components.Resolver;
 using MinecraftLaunch.Classes.Models.Launch;
+using MinecraftLaunch.Components.Resolver.Arguments;
 using System.Collections.Immutable;
+
+#if NET8_0
+
+using System.Collections.Frozen;
+
+#endif
 
 namespace MinecraftLaunch.Components.Launcher;
 
-internal sealed class ArgumentsBuilder(GameEntry gameEntity, LaunchConfig launchConfig) {
-    private GameEntry GameEntry => gameEntity;
-
-    private LaunchConfig LaunchConfig => launchConfig;
-
-    private IEnumerable<string> DefaultAdvancedArguments =>
-    ["-XX:-OmitStackTraceInFastThrow",
-        "-XX:-DontCompileHugeMethods",
-        "-Dfile.encoding=GB18030",
-        "-Dfml.ignoreInvalidMinecraftCertificates=true",
-        "-Dfml.ignorePatchDiscrepancies=true",
-        "-Djava.rmi.server.useCodebaseOnly=true",
-        "-Dcom.sun.jndi.rmi.object.trustURLCodebase=false",
-        "-Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false"];
-
-    private IEnumerable<string> DefaultGCArguments =>
-    ["-XX:+UseG1GC",
-        "-XX:+UnlockExperimentalVMOptions",
-        "-XX:G1NewSizePercent=20",
-        "-XX:G1ReservePercent=20",
-        "-XX:MaxGCPauseMillis=50",
-        "-XX:G1HeapRegionSize=16m",
-        "-XX:-UseAdaptiveSizePolicy"];
-
+internal sealed class ArgumentsBuilder(GameEntry _gameEntity, LaunchConfig _launchConfig) {
     public IEnumerable<string> Build() {
-        foreach (string frontArgument in GetFrontArguments()) {
-            yield return frontArgument;
+        var jvmArguments = JvmArgumentResolver.Resolve(_gameEntity.GameJsonEntry);
+        var gameArguments = GameArgumentResolver.Resolve(_gameEntity.GameJsonEntry);
+
+        //合并父级核心参数
+        if (_gameEntity.IsInheritedFrom) {
+            jvmArguments = JvmArgumentResolver
+                .Resolve(_gameEntity.InheritsFrom.GameJsonEntry)
+                .Union(jvmArguments);
+
+            gameArguments = GameArgumentResolver
+                .Resolve(_gameEntity.InheritsFrom.GameJsonEntry)
+                .Union(gameArguments);
         }
 
-        yield return GameEntry.MainClass;
-
-        foreach (string behindArgument in GetBehindArguments()) {
-            yield return behindArgument;
-        }
-    }
-
-    public IEnumerable<string> GetBehindArguments() {
-        var keyValuePairs = new Dictionary<string, string>() {
-            { "${user_properties}", "{}" },
-            { "${version_name}", GameEntry.Id.ToPath() },
-            { "${auth_player_name}", LaunchConfig.Account.Name },
-            { "${auth_session}", LaunchConfig.Account.AccessToken },
-            { "${version_type}", LaunchConfig.LauncherName.ToPath() },
-            { "${auth_uuid}", LaunchConfig.Account.Uuid.ToString("N") },
-            { "${auth_access_token}", LaunchConfig.Account.AccessToken },
-            { "${assets_root}", Path.Combine(GameEntry.GameFolderPath, "assets").ToPath() },
-            { "${game_assets}", Path.Combine(GameEntry.GameFolderPath, "assets").ToPath() },
-            { "${assets_index_name}", Path.GetFileNameWithoutExtension(GameEntry.AssetsIndexJsonPath) },
-            { "${user_type}", LaunchConfig.Account.Type.Equals(AccountType.Microsoft) ? "MSA" : "Mojang" },
-            { "${game_directory}", GameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore).ToPath() },
-        };
-
-        var args = new List<string>(GameEntry.BehindArguments);
-
-        if (LaunchConfig.GameWindowConfig != null) {
-            args.Add($"--width {LaunchConfig.GameWindowConfig.Width}");
-            args.Add($"--height {LaunchConfig.GameWindowConfig.Height}");
-            if (LaunchConfig.GameWindowConfig.IsFullscreen) {
-                args.Add("--fullscreen");
-            }
-        }
-
-        if (LaunchConfig.ServerConfig != null && !string.IsNullOrEmpty(LaunchConfig.ServerConfig.Ip) 
-                                              && LaunchConfig.ServerConfig.Port != 0) {
-            args.Add($"--server {LaunchConfig.ServerConfig.Ip}");
-            args.Add($"--port {LaunchConfig.ServerConfig.Port}");
-        }
-
-        return args.Select(arg => arg.Replace(keyValuePairs));
-    }
-
-    public IEnumerable<string> GetFrontArguments() {
-        var keyValuePairs = new Dictionary<string, string>() {
+        var jvmArgumentsReplace = new Dictionary<string, string>()
+        {
+            { "${launcher_version}", "4" },
             { "${launcher_name}", "MinecraftLaunch" },
-            { "${launcher_version}", "3" },
-            { "${classpath_separator}", Path.PathSeparator.ToString() },
+
             { "${classpath}", GetClasspath().ToPath() },
-            { "${client}", GameEntry.JarPath.ToPath() },
-            { "${min_memory}", LaunchConfig.JvmConfig.MinMemory.ToString() },
-            { "${max_memory}", LaunchConfig.JvmConfig.MaxMemory.ToString() },
-            { "${library_directory}", Path.Combine(GameEntry.GameFolderPath, "libraries").ToPath() },
-            { "${version_name}", GameEntry.InheritsFrom is null ? GameEntry.Id : GameEntry.InheritsFrom.Id },
-            { "${natives_directory}", GetNativesDirectory() }
+            { "${natives_directory}", GetNativesDirectory() },
+            { "${classpath_separator}", Path.PathSeparator.ToString() },
+            { "${library_directory}", _gameEntity.ToLibrariesPath().ToPath() },
+            {
+                "${version_name}", _gameEntity.IsInheritedFrom
+                ? _gameEntity.InheritsFrom.Id
+                : _gameEntity.Id
+            },
         };
 
-        if (!Directory.Exists(keyValuePairs["${natives_directory}"])) {
-            Directory.CreateDirectory(keyValuePairs["${natives_directory}"].Trim('"'));
+        var gameArgumentsReplace = new Dictionary<string, string>() {
+                { "${user_properties}", "{}" },
+                { "${auth_player_name}", _launchConfig.Account.Name },
+                { "${auth_session}", _launchConfig.Account.AccessToken },
+                { "${auth_uuid}", _launchConfig.Account.Uuid.ToString("N") },
+                { "${auth_access_token}", _launchConfig.Account.AccessToken },
+                { "${user_type}", _launchConfig.Account.Type.Equals(AccountType.Microsoft) ? "MSA" : "Mojang" },
+
+                { "${game_assets}", Path.Combine(_gameEntity.GameFolderPath, "assets").ToPath() },
+                { "${assets_root}", Path.Combine(_gameEntity.GameFolderPath, "assets").ToPath() },
+                { "${assets_index_name}", Path.GetFileNameWithoutExtension(_gameEntity.AssetsIndexJsonPath) },
+                { "${game_directory}", _gameEntity.ToVersionDirectoryPath(_launchConfig.IsEnableIndependencyCore).ToPath() },
+
+                { "${version_name}", _gameEntity.Id.ToPath() },
+                { "${version_type}", _launchConfig.LauncherName.ToPath() },
+            };
+
+#if NET8_0
+        var fastJvmParametersReplace = jvmArgumentsReplace.ToFrozenDictionary();
+        var fastGameParametersReplace = gameArgumentsReplace.ToFrozenDictionary();
+#else
+        var fastJvmParametersReplace = jvmArgumentsReplace.ToImmutableDictionary();
+        var fastGameParametersReplace = gameArgumentsReplace.ToImmutableDictionary();
+#endif
+
+        yield return $"-Dlog4j2.formatMsgNoLookups=true";
+        yield return $"-Xms{_launchConfig.JvmConfig.MinMemory}M";
+        yield return $"-Xmx{_launchConfig.JvmConfig.MaxMemory}M";
+        yield return $"-Dminecraft.client.jar={_gameEntity.JarPath.ToPath()}";
+
+        foreach (var arg in JvmArgumentResolver.GetEnvironmentJVMArguments()) {
+            yield return arg;
         }
 
-        var args = new List<string> {
-            "-Xmn${min_memory}m",
-            "-Xmx${max_memory}m",
-            "-Dminecraft.client.jar=${client}",
-            "-Dlog4j2.formatMsgNoLookups=true"
-        };
-
-        args.AddRange(GetEnvironmentJvmArguments());
-        args.AddRange(LaunchConfig.JvmConfig.GCArguments ?? DefaultGCArguments);
-        args.AddRange(LaunchConfig.JvmConfig.AdvancedArguments ?? DefaultAdvancedArguments);
-        args.AddRange(GameEntry.FrontArguments);
-
-        foreach (string arg in args) {
-            yield return arg.Replace(keyValuePairs);
+        foreach (var arg in jvmArguments) {
+            yield return arg.Replace(fastJvmParametersReplace);
         }
+
+        yield return _gameEntity.MainClass;
+
+        foreach (var arg in gameArguments) {
+            yield return arg.Replace(fastGameParametersReplace);
+        }
+
+        //Custom args
+        if (_launchConfig.GameWindowConfig != null) {
+            yield return $"--width {_launchConfig.GameWindowConfig.Width}";
+            yield return $"--height {_launchConfig.GameWindowConfig.Height}";
+
+            if (_launchConfig.GameWindowConfig.IsFullscreen) yield return "--fullscreen";
+        }
+
+        if (_launchConfig.ServerConfig != null
+            && _launchConfig.ServerConfig.Port != 0
+            && !string.IsNullOrEmpty(_launchConfig.ServerConfig.Ip)) {
+            yield return $"--server {_launchConfig.ServerConfig.Ip}";
+            yield return $"--port {_launchConfig.ServerConfig.Port}";
+        }
+
     }
 
     private string GetClasspath() {
-        var libraries = new LibrariesResolver(gameEntity)
-            .GetLibraries().ToImmutableArray();
+        var libraries = new LibrariesResolver(_gameEntity)
+            .GetLibraries()
+            .Where(x => x is not null)
+            .ToImmutableArray();
 
         var classPath = string.Join(Path.PathSeparator,
             libraries.Select(lib => lib?.Path));
 
-        if (!string.IsNullOrEmpty(gameEntity.JarPath)) {
-            classPath += Path.PathSeparator + gameEntity.JarPath;
+        if (!string.IsNullOrEmpty(_gameEntity.JarPath)) {
+            classPath += $"{Path.PathSeparator}{_gameEntity.JarPath}";
         }
 
         return classPath;
     }
 
     private string GetNativesDirectory() {
-        return LaunchConfig.NativesFolder != null && LaunchConfig.NativesFolder.Exists
-            ? LaunchConfig.NativesFolder.FullName.ToString()
-            : Path.Combine(GameEntry.OfVersionDirectoryPath(LaunchConfig.IsEnableIndependencyCore), "natives").ToPath();
-    }
-
-    private static IEnumerable<string> GetEnvironmentJvmArguments() {
-        string platformName = EnvironmentUtil.GetPlatformName();
-        if (!(platformName == "windows")) {
-            if (platformName == "osx")
-                yield return "-XstartOnFirstThread";
-        } else {
-            yield return "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-            if (Environment.OSVersion.Version.Major == 10) {
-                yield return "-Dos.name=\"Windows 10\"";
-                yield return "-Dos.version=10.0";
-            }
-        }
-        if (EnvironmentUtil.Arch == "32")
-            yield return "-Xss1M";
+        return _launchConfig.NativesFolder != null && _launchConfig.NativesFolder.Exists
+            ? _launchConfig.NativesFolder.FullName.ToString()
+            : Path.Combine(_gameEntity.ToVersionDirectoryPath(_launchConfig.IsEnableIndependencyCore), "natives").ToPath();
     }
 }

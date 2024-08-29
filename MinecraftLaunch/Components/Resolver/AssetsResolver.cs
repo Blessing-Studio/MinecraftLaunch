@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
+﻿using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Game;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -9,19 +8,20 @@ namespace MinecraftLaunch.Components.Resolver;
 /// Minecraft 资源材质库解析器
 /// </summary>
 internal sealed class AssetsResolver(GameEntry entity) {
+
     public AssetEntry GetAssetIndexJson() {
-        var assetIndex = (File.ReadAllText(entity.IsInheritedFrom 
-                ? entity.InheritsFrom.OfVersionJsonPath() 
-                : entity.OfVersionJsonPath()))
+        var assetIndex = (File.ReadAllText(entity.IsInheritedFrom
+                ? entity.InheritsFrom.ToVersionJsonPath()
+                : entity.ToVersionJsonPath()))
             .AsNode()
             .Select("assetIndex")
             .Deserialize<AssstIndex>();
 
         var assetIndexFilePath = entity.IsInheritedFrom
-            ? entity.InheritsFrom.AssetsIndexJsonPath 
+            ? entity.InheritsFrom.AssetsIndexJsonPath
             : entity.AssetsIndexJsonPath;
 
-        if(assetIndexFilePath is null) {
+        if (assetIndexFilePath is null) {
             return default!;
         }
 

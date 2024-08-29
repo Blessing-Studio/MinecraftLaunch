@@ -5,11 +5,11 @@ namespace MinecraftLaunch.Classes.Models.Auth;
 public sealed record LauncherAccountEntry {
     [JsonPropertyName("mojangClientToken")]
     public string MojangClientToken { get; set; }
-    
+
     [JsonPropertyName("activeAccountLocalId")]
     public string ActiveAccountLocalId { get; set; }
-    
-    [JsonPropertyName("accounts")] 
+
+    [JsonPropertyName("accounts")]
     public Dictionary<string, AccountEntry> Accounts { get; set; }
 }
 
@@ -20,7 +20,7 @@ public sealed record AccountEntry {
     [JsonPropertyName("accessTokenExpiresAt")]
     public DateTime AccessTokenExpiresAt { get; set; }
 
-    [JsonPropertyName("avatar")] 
+    [JsonPropertyName("avatar")]
     public string AvatarUrl { get; set; }
 
     [JsonPropertyName("eligibleForMigration")]
@@ -29,28 +29,28 @@ public sealed record AccountEntry {
     [JsonPropertyName("hasMultipleProfiles")]
     public bool HasMultipleProfiles { get; set; }
 
-    [JsonPropertyName("legacy")] 
+    [JsonPropertyName("legacy")]
     public bool IsLegacy { get; set; }
 
-    [JsonPropertyName("localId")] 
+    [JsonPropertyName("localId")]
     public string LocalId { get; set; }
 
     [JsonPropertyName("minecraftProfile")]
     public AccountProfileEntry MinecraftProfile { get; set; }
 
-    [JsonPropertyName("persistent")] 
+    [JsonPropertyName("persistent")]
     public bool IsPersistent { get; set; }
 
-    [JsonPropertyName("remoteId")] 
+    [JsonPropertyName("remoteId")]
     public string RemoteId { get; set; }
 
-    [JsonPropertyName("type")] 
+    [JsonPropertyName("type")]
     public string Type { get; set; }
 
-    [JsonPropertyName("userProperites")] 
+    [JsonPropertyName("userProperites")]
     public AccountProfileEntry[] UserProperites { get; set; }
 
-    [JsonPropertyName("username")] 
+    [JsonPropertyName("username")]
     public string UserName { get; set; }
 
     [JsonPropertyName("__id")]
@@ -61,9 +61,9 @@ public sealed record AccountProfileEntry {
     [JsonPropertyName("id")]
     public string Uuid { get; set; }
 
-    [JsonPropertyName("name")] 
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 }
 
 [JsonSerializable(typeof(LauncherAccountEntry))]
-partial class LauncherAccountEntryContext : JsonSerializerContext;
+internal partial class LauncherAccountEntryContext : JsonSerializerContext;

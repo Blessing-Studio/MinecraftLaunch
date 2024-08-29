@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
-using MinecraftLaunch.Classes.Models.Event;
+﻿using MinecraftLaunch.Classes.Models.Event;
+
+using System.Diagnostics;
 
 namespace MinecraftLaunch.Classes.Interfaces;
 
 public interface IGameProcessWatcher {
+
     /// <summary>
     /// 游戏进程
     /// </summary>

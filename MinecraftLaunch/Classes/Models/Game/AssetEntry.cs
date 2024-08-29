@@ -12,11 +12,11 @@ public sealed class AssetEntry : IDownloadEntry {
 
     public string Checksum { get; set; }
 
-    public required string Url { get; set; }
+    public string Url { get; set; }
 
-    public required string Path { get; set; }
+    public string Path { get; set; }
 
-    public required string RelativePath { get; set; }
+    public string RelativePath { get; set; }
 
     public DownloadEntryType Type => DownloadEntryType.Asset;
 }

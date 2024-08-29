@@ -24,6 +24,6 @@ public sealed record OAuth2TokenResponse {
     [JsonPropertyName("foci")]
     public string Foci { get; set; }
 }
-    
+
 [JsonSerializable(typeof(OAuth2TokenResponse))]
-sealed partial class OAuth2TokenResponseContext : JsonSerializerContext;
+internal sealed partial class OAuth2TokenResponseContext : JsonSerializerContext;

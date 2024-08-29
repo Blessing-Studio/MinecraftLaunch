@@ -1,12 +1,12 @@
 ﻿using Flurl.Http;
-using System.Text.Json;
-using System.Diagnostics;
-using System.IO.Compression;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Extensions;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Installer;
 
@@ -21,25 +21,24 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
     public override async ValueTask<bool> InstallAsync() {
         List<HighVersionForgeProcessorEntry> highVersionForgeProcessors = default;
 
-
         /*
          * Download Forge installation package
          */
         var suffix = $"/net/minecraftforge/forge/{_installEntry.McVersion}-{_installEntry.ForgeVersion}/forge-{_installEntry
             .McVersion}-{_installEntry.ForgeVersion}-installer.jar";
 
-        var host = MirrorDownloadManager.IsUseMirrorDownloadSource 
+        var host = MirrorDownloadManager.IsUseMirrorDownloadSource
             ? _mirrorDownloadSource.Host
             : "https://files.minecraftforge.net/maven";
         var packageUrl = $"{host}{suffix}";
 
-        string packagePath = Path.Combine(Path.GetTempPath(), 
+        string packagePath = Path.Combine(Path.GetTempPath(),
             Path.GetFileName(packageUrl));
 
         var request = packageUrl.ToDownloadRequest(packagePath.ToFileInfo());
         await request.DownloadAsync(x => {
             ReportProgress(x.ToPercentage(0.0d, 0.15d),
-                "Downloading Forge installation package", 
+                "Downloading Forge installation package",
                 TaskStatus.Running);
         });
 
@@ -108,7 +107,6 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
                         .ToPath();
                 });
 
-
             highVersionForgeProcessors = installProfile["processors"]
                 .Deserialize<IEnumerable<HighVersionForgeProcessorEntry>>()
                 .Where(x => !(x.Sides.Count == 1 && x.Sides.Contains("server")))
@@ -155,7 +153,6 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
             packageArchive.GetEntry(fileName)
                 .ExtractTo(Path.Combine(forgeLibsFolder, fileName));
         }
-
 
         packageArchive.GetEntry($"maven/net/minecraftforge/forge/{forgeVersion}/forge-{forgeVersion}.jar")?
             .ExtractTo(Path.Combine(forgeLibsFolder, $"forge-{forgeVersion}.jar"));

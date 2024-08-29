@@ -6,6 +6,7 @@ namespace MinecraftLaunch.Extensions;
 /// Provides extension methods for ZipArchiveEntry.
 /// </summary>
 public static class ZipArchiveExtension {
+
     /// <summary>
     /// Reads the contents of the ZipArchiveEntry as a string.
     /// </summary>

@@ -1,6 +1,6 @@
 ﻿using MinecraftLaunch.Classes.Enums;
-using System.Text.RegularExpressions;
 using MinecraftLaunch.Classes.Models.Game;
+using System.Text.RegularExpressions;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -8,6 +8,7 @@ namespace MinecraftLaunch.Components.Resolver;
 /// 游戏日志解析器
 /// </summary>
 public sealed partial class GameLogResolver {
+
     [GeneratedRegex("(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d")]
     private partial Regex TimeRegex();
 

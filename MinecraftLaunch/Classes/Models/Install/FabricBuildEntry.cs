@@ -1,7 +1,7 @@
-﻿using System.Text.Json.Nodes;
-using MinecraftLaunch.Classes.Enums;
-using System.Text.Json.Serialization;
+﻿using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Models.Game;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Classes.Models.Install;
 
@@ -46,6 +46,6 @@ public sealed record FabricMavenItem {
     [JsonPropertyName("version")]
     public string Version { get; set; }
 }
-    
+
 [JsonSerializable(typeof(FabricBuildEntry))]
-sealed partial class FabricBuildEntryContext : JsonSerializerContext;
+internal sealed partial class FabricBuildEntryContext : JsonSerializerContext;

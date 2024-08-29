@@ -18,6 +18,6 @@ public sealed record ForgeInstallEntry {
     [JsonPropertyName("modified")]
     public DateTime ModifiedTime { get; set; }
 }
-    
+
 [JsonSerializable(typeof(ForgeInstallEntry))]
-sealed partial class ForgeInstallEntryContext : JsonSerializerContext;
+internal sealed partial class ForgeInstallEntryContext : JsonSerializerContext;

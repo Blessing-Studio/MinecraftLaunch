@@ -1,12 +1,13 @@
 ﻿namespace MinecraftLaunch.Classes.Enums;
 
 public enum CrashCauses {
+
     #region Memory
 
     NoEnoughMemory,
     NoEnoughMemory32,
 
-    #endregion
+    #endregion Memory
 
     #region Java
 
@@ -15,7 +16,7 @@ public enum CrashCauses {
     JavaVersionTooHigh,
     UnsupportedJavaVersion,
 
-    #endregion
+    #endregion Java
 
     #region GPU
 
@@ -24,7 +25,7 @@ public enum CrashCauses {
     UnableToSetPixelFormat,
     UnsupportedIntelDriver,
 
-    #endregion
+    #endregion GPU
 
     #region Mod
 
@@ -38,21 +39,21 @@ public enum CrashCauses {
     ModCausedGameCrash,
     MissingOrUnsupportedMandatoryMod,
 
-    #endregion
+    #endregion Mod
 
     #region OpenGL
 
     OpenGl1282Error,
     GpuDoesNotSupportOpenGl,
 
-    #endregion
+    #endregion OpenGL
 
     #region Shaders
 
     TextureTooLargeOrLowEndGpu,
-    FailedToLoadWorldBecauseOptiFine, 
+    FailedToLoadWorldBecauseOptiFine,
 
-    #endregion
+    #endregion Shaders
 
     #region AffiliatedComponent
 
@@ -63,7 +64,7 @@ public enum CrashCauses {
     IncompatibleForgeAndOptifine,
     LegacyForgeDoesNotSupportNewerJava,
 
-    #endregion
+    #endregion AffiliatedComponent
 
     LogFileNotFound,
     BlockCausedGameCrash,

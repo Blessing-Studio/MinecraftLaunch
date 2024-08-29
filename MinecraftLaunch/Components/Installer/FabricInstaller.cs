@@ -1,9 +1,9 @@
 ﻿using Flurl.Http;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Installer;
 

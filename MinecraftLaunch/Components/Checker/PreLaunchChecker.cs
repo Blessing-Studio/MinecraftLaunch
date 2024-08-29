@@ -15,7 +15,7 @@ public sealed class PreLaunchChecker(GameEntry entry) : IChecker {
 
     public ValueTask<bool> CheckAsync() {
         /*
-         * 
+         *
          */
         throw new NotImplementedException();
     }

@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
-using MinecraftLaunch.Utilities;
-using System.Runtime.Versioning;
-using MinecraftLaunch.Extensions;
-using System.Collections.Immutable;
-using System.Runtime.InteropServices;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
-using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace MinecraftLaunch.Components.Fetcher;
 
@@ -14,7 +13,9 @@ namespace MinecraftLaunch.Components.Fetcher;
 /// Fetches Java installations on the system.
 /// </summary>
 public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
+
     #region Fields
+
     [SupportedOSPlatform(nameof(OSPlatform.OSX))]
     private const string _macJavaHomePath = "/Library/Java/JavaVirtualMachines";
 
@@ -67,7 +68,7 @@ public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
         "android",
     ];
 
-    #endregion
+    #endregion Fields
 
     /// <summary>
     /// Fetches the Java installations synchronously.
@@ -203,8 +204,7 @@ public sealed class JavaFetcher : IFetcher<ImmutableArray<JavaEntry>> {
                     }
                 }
             }
-        }
-        catch (UnauthorizedAccessException) {
+        } catch (UnauthorizedAccessException) {
         }
     }
 }

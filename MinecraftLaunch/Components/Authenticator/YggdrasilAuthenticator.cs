@@ -1,7 +1,7 @@
 ﻿using Flurl.Http;
-using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Auth;
+using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Authenticator;
 

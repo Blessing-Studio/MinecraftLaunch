@@ -1,8 +1,7 @@
-﻿using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Enums;
+﻿using MinecraftLaunch.Classes.Enums;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Launch;
-
+using MinecraftLaunch.Extensions;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
@@ -21,6 +20,7 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
 
     private readonly GameEntry _gameEntry = gameEntry;
     private readonly bool _isIndependencyCore = isIndependencyCore;
+
     private readonly Dictionary<string, CrashCauses> _logCrashCauses = new() {
         { ".J9VMInternals.", CrashCauses.OpenJ9Use },
         { "OpenJ9 is incompatible", CrashCauses.OpenJ9Use },
@@ -157,7 +157,7 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
     [GeneratedRegex("(?<=Failed loading config file ).+(?= of type)")]
     private static partial Regex ConfigFileMatch2();
 
-    #endregion
+    #endregion Regex
 
     /// <summary>
     /// Analyzes logs.
@@ -178,7 +178,7 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
 
     private void GetAllLogs() {
         var gamePath = Path.Combine(_isIndependencyCore
-            ? _gameEntry.OfVersionDirectoryPath(_isIndependencyCore)
+            ? _gameEntry.ToVersionDirectoryPath(_isIndependencyCore)
             : _gameEntry.GameFolderPath);
 
         _gameLogs = ReadAllLine(Path.Combine(gamePath, "logs", "latest.log").ToFileInfo());
@@ -254,7 +254,6 @@ public sealed partial class GameCrashAnalyzer(GameEntry gameEntry, bool isIndepe
                         Original = log,
                         CrashCauses = CrashCauses.NoEnoughMemory32
                     };
-
                 } else {
                     yield return new CrashReport {
                         Original = log,

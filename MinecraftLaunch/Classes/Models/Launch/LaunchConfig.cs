@@ -18,7 +18,7 @@ public sealed record LaunchConfig() {
     public bool IsEnableIndependencyCore { get; set; } = true;
 
     public GameWindowConfig GameWindowConfig { get; set; } = new();
-        
+
     public LaunchConfig(Account account) : this() {
         Account = account;
     }
@@ -49,7 +49,6 @@ public sealed record JvmConfig(string file) {
 
     public bool UsedGC { get; set; } = true;
 
-
     public int MinMemory { get; set; } = 512;
 
     public IEnumerable<string> AdvancedArguments { get; set; }
@@ -70,9 +69,7 @@ public sealed record ServerConfig(int port, string ip) {
 public sealed record GameWindowConfig {
     public int Width { get; set; } = 854;
 
-
     public int Height { get; set; } = 480;
-
 
     public bool IsFullscreen { get; set; }
 

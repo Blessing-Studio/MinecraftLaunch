@@ -1,11 +1,10 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Game;
-using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -41,7 +40,7 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) {
     }
 
     public IEnumerable<IDownloadEntry> GetLibraries() {
-        var jsonPath = Path.Combine(GameEntry.OfVersionJsonPath());
+        var jsonPath = Path.Combine(GameEntry.ToVersionJsonPath());
         var libsNode = File.ReadAllText(jsonPath).AsNode()
             .GetEnumerable("libraries");
 
@@ -82,7 +81,7 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) {
 
     private JarEntry GetJarEntry() {
         var jsonClient = File.ReadAllText(GameEntry
-            .OfVersionJsonPath()).AsNode()?
+            .ToVersionJsonPath()).AsNode()?
             .Select("downloads")?
             .Select("client");
 
@@ -133,9 +132,11 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) {
                         case "windows":
                             windows = true;
                             break;
+
                         case "linux":
                             linux = true;
                             break;
+
                         case "osx":
                             osx = true;
                             break;
@@ -152,9 +153,11 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) {
                         case "windows":
                             windows = false;
                             break;
+
                         case "linux":
                             linux = false;
                             break;
+
                         case "osx":
                             osx = false;
                             break;

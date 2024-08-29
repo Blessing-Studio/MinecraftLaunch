@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
-using MinecraftLaunch.Utilities;
-using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Interfaces;
+using MinecraftLaunch.Classes.Models.Exceptions;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Launch;
-using MinecraftLaunch.Classes.Models.Exceptions;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
+using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Resolver;
 
@@ -17,7 +17,7 @@ public sealed class GameResolver() : IGameResolver {
     public GameResolver(string path) : this() {
         Root = new(path);
     }
-        
+
     /// <summary>
     /// 获取特定游戏实体信息
     /// </summary>
@@ -32,18 +32,19 @@ public sealed class GameResolver() : IGameResolver {
         var gameEntity = new GameEntry {
             Id = entity.Id,
             Type = entity.Type,
-            GameFolderPath = Root.FullName,
+            GameJsonEntry = entity,
             IsInheritedFrom = false,
             MainClass = entity.MainClass,
+            GameFolderPath = Root.FullName,
             MainLoaderType = entity.GetGameLoaderType(),
             JavaVersion = entity.JavaVersion?.GetInt32("majorVersion") ?? 8,
         };
 
         var assetsIndexFile = Path.Combine(Root.FullName, "assets", "indexes", $"{entity.AssetIndex?.Id}.json");
-        var jarFile = Path.Combine(gameEntity.OfVersionDirectoryPath(),
+        var jarFile = Path.Combine(gameEntity.ToVersionDirectoryPath(),
             $"{id}.jar");
 
-        gameEntity.JarPath = jarFile;
+        gameEntity.JarPath = jarFile.CheckAndSet();
         gameEntity.AssetsIndexJsonPath = assetsIndexFile;
         if (!string.IsNullOrEmpty(entity.InheritsFrom)) {
             var inheritsFrom = GetGameEntity(entity.InheritsFrom);
@@ -57,32 +58,32 @@ public sealed class GameResolver() : IGameResolver {
             gameEntity.AssetsIndexJsonPath = inheritsFrom.AssetsIndexJsonPath;
         }
 
-        if (entity.MinecraftArguments != null) {
-            gameEntity.BehindArguments = HandleMinecraftArguments(entity.MinecraftArguments);
-        }
+        //if (entity.MinecraftArguments != null) {
+        //    gameEntity.BehindArguments = HandleMinecraftArguments(entity.MinecraftArguments);
+        //}
 
-        if (entity.Arguments is { Game: not null }) {
-            IEnumerable<string> behindArguments;
-            if (gameEntity.BehindArguments != null) {
-                behindArguments = gameEntity.BehindArguments.Union(HandleGameArguments(entity.Arguments));
-            } else {
-                IEnumerable<string> enumerable = HandleGameArguments(entity.Arguments);
-                behindArguments = enumerable;
-            }
-            gameEntity.BehindArguments = behindArguments;
-        }
+        //if (entity.Arguments is { Game: not null }) {
+        //    IEnumerable<string> behindArguments;
+        //    if (gameEntity.BehindArguments != null) {
+        //        behindArguments = gameEntity.BehindArguments.Union(HandleGameArguments(entity.Arguments));
+        //    } else {
+        //        IEnumerable<string> enumerable = HandleGameArguments(entity.Arguments);
+        //        behindArguments = enumerable;
+        //    }
+        //    gameEntity.BehindArguments = behindArguments;
+        //}
 
-        if (entity.Arguments is { Jvm: not null }) {
-            gameEntity.FrontArguments = HandleJvmArguments(entity.Arguments);
-        } else {
-            gameEntity.FrontArguments = ["-Djava.library.path=${natives_directory}",
-                "-Dminecraft.launcher.brand=${launcher_name}",
-                "-Dminecraft.launcher.version=${launcher_version}",
-                "-cp ${classpath}"];
-        }
+        //if (entity.Arguments is { Jvm: not null }) {
+        //    gameEntity.FrontArguments = HandleJvmArguments(entity.Arguments);
+        //} else {
+        //    gameEntity.FrontArguments = ["-Djava.library.path=${natives_directory}",
+        //        "-Dminecraft.launcher.brand=${launcher_name}",
+        //        "-Dminecraft.launcher.version=${launcher_version}",
+        //        "-cp ${classpath}"];
+        //}
 
         TryGetIsVanillaAndVersion(ref gameEntity, entity, gameEntity
-            .OfVersionJsonPath());
+            .ToVersionJsonPath());
 
         return gameEntity;
     }
@@ -97,13 +98,12 @@ public sealed class GameResolver() : IGameResolver {
         if (!versionsPath.Exists) {
             versionsPath.Create();
         }
-        
+
         foreach (var item in versionsPath.EnumerateDirectories()) {
             try {
                 entry = GetGameEntity(item.Name);
-            }
-            catch (Exception) { }
-                
+            } catch (Exception) { }
+
             if (entry is null) {
                 continue;
             }
@@ -121,8 +121,7 @@ public sealed class GameResolver() : IGameResolver {
         try {
             var json = File.ReadAllText(path);
             return json.Deserialize(GameJsonEntryContext.Default.GameJsonEntry)!;
-        }
-        catch {
+        } catch {
             throw new GameResolveFailedException($"[{id}]解析失败");
         }
     }
@@ -177,7 +176,7 @@ public sealed class GameResolver() : IGameResolver {
 
             var hasTweakClassArgument = jsonEntity.Arguments?.Game
                 ?.Any(e => e.ValueKind.Equals(JsonValueKind.String)
-                           && e.GetString().Equals("--tweakClass")) ?? false;
+                        && e.GetString().Equals("--tweakClass")) ?? false;
 
             return string.IsNullOrEmpty(jsonEntity.InheritsFrom)
                    && isMainClassValid

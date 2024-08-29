@@ -1,11 +1,10 @@
 ﻿using Flurl.Http;
-using System.Net;
-using System.Buffers;
-using System.Net.Http.Headers;
-using System.Threading.Tasks.Dataflow;
 using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Download;
-
+using System.Buffers;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Threading.Tasks.Dataflow;
 using Timer = System.Timers.Timer;
 
 namespace MinecraftLaunch.Utilities;
@@ -14,6 +13,7 @@ namespace MinecraftLaunch.Utilities;
 /// 下载工具类
 /// </summary>
 public static class DownloadUitl {
+
     public static DownloadRequest DefaultDownloadRequest { get; set; } = new() {
         IsPartialContentSupported = true,
         FileSizeThreshold = 1024 * 1024 * 3,
@@ -31,7 +31,7 @@ public static class DownloadUitl {
         perSecondProgressChangedAction ??= x => { };
         var responseMessage = (await downloadRequest.Url.GetAsync(cancellationToken: tokenSource.Token))
             .ResponseMessage;
-        
+
         if (responseMessage.StatusCode.Equals(HttpStatusCode.Found)) {
             downloadRequest.Url = responseMessage.Headers.Location.AbsoluteUri;
             return await DownloadAsync(downloadRequest, tokenSource);
@@ -64,7 +64,6 @@ public static class DownloadUitl {
                         perSecondProgressChangedAction(responseMessage.Content.Headers.ContentLength != null ?
                             task.Result / (double)responseMessage.Content.Headers.ContentLength : 0);
                     } catch (Exception) {
-
                     }
 
                     timer.Stop();
@@ -80,7 +79,6 @@ public static class DownloadUitl {
         DownloadRequest downloadRequest = default,
         CancellationTokenSource tokenSource = default,
         Action<double> perSecondProgressChangedAction = default) {
-
         Timer timer = default;
         downloadRequest ??= DefaultDownloadRequest;
         tokenSource ??= new CancellationTokenSource();
@@ -120,7 +118,6 @@ public static class DownloadUitl {
                         perSecondProgressChangedAction(responseMessage.Content.Headers.ContentLength != null ?
                             task.Result / (double)responseMessage.Content.Headers.ContentLength : 0);
                     } catch (Exception) {
-
                     }
 
                     timer.Stop();
@@ -131,10 +128,10 @@ public static class DownloadUitl {
             });
     }
 
-    private async static ValueTask<long> WriteFileFromHttpResponseAsync(
-        string path, 
-        HttpResponseMessage responseMessage, 
-        CancellationTokenSource tokenSource, 
+    private static async ValueTask<long> WriteFileFromHttpResponseAsync(
+        string path,
+        HttpResponseMessage responseMessage,
+        CancellationTokenSource tokenSource,
         (Timer, Action<double> perSecondProgressChangedAction, long?)? perSecondProgressChange = default) {
         var parentFolder = Path.GetDirectoryName(path);
         Directory.CreateDirectory(parentFolder);
@@ -160,7 +157,6 @@ public static class DownloadUitl {
         return totalReadMemory;
     }
 
-
     private static async ValueTask<long> MultiPartDownloadAsync(
         HttpResponseMessage responseMessage,
         DownloadRequest downloadSetting,
@@ -169,7 +165,7 @@ public static class DownloadUitl {
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, responseMessage.RequestMessage.RequestUri.AbsoluteUri);
         requestMessage.Headers.Range = new RangeHeaderValue(0, 1);
 
-        var httpResponse = (await responseMessage.RequestMessage.RequestUri.GetAsync(cancellationToken:tokenSource.Token)).ResponseMessage;
+        var httpResponse = (await responseMessage.RequestMessage.RequestUri.GetAsync(cancellationToken: tokenSource.Token)).ResponseMessage;
 
         if (!httpResponse.IsSuccessStatusCode || httpResponse.Content.Headers.ContentLength.Value != 2)
             return await WriteFileFromHttpResponseAsync(absolutePath, responseMessage, tokenSource);
@@ -198,7 +194,7 @@ public static class DownloadUitl {
 
         var transformBlock = new TransformBlock<MultiPartRange, (HttpResponseMessage, MultiPartRange)>(async range => {
             var message = (await responseMessage.RequestMessage.RequestUri.WithHeader("Range", $"bytes={range.Start}-{range.End}")
-            .GetAsync(cancellationToken:tokenSource.Token)).ResponseMessage;
+            .GetAsync(cancellationToken: tokenSource.Token)).ResponseMessage;
             return (message, range);
         }, new ExecutionDataflowBlockOptions {
             BoundedCapacity = downloadSetting.MultiPartsCount,
