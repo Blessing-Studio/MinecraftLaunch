@@ -45,6 +45,14 @@ Path.Combine(entry.GameFolderPath, "libraries");
         Path.Combine(entry.GameFolderPath, "versions", entry.Id, $"{entry.Id}.json");
 
     /// <summary>
+    /// Gets the path of the version JRE file.
+    /// </summary>
+    /// <param name="entry">The game entry.</param>
+    /// <returns>The path of the version JSON file.</returns>
+    public static string ToVersionJarPath(this GameEntry entry) =>
+        Path.Combine(entry.GameFolderPath, "versions", entry.Id, $"{entry.Id}.jar");
+
+    /// <summary>
     /// Gets the path of the version directory.
     /// </summary>
     /// <param name="entry">The game entry.</param>

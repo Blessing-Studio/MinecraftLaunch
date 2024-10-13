@@ -86,9 +86,8 @@ internal sealed class LibrariesResolver(GameEntry gameEntry) {
             .Select("client");
 
         if (jsonClient != null) {
-            Debug.WriteLine(jsonClient.GetInt32("size"));
             return new JarEntry {
-                Path = GameEntry.JarPath,
+                Path = GameEntry.JarPath ?? GameEntry.ToVersionJarPath(),
                 McVersion = gameEntry.Version,
                 Url = jsonClient.GetString("url"),
                 Size = jsonClient.GetInt32("size"),
