@@ -12,7 +12,7 @@ internal sealed class JvmArgumentResolver {
     public static IEnumerable<string> Resolve(GameJsonEntry gameJsonEntry) {
         var jvm = new List<string>();
 
-        if (gameJsonEntry.Arguments.Jvm is null) {
+        if (gameJsonEntry?.Arguments?.Jvm is null) {
             yield return "-Djava.library.path=${natives_directory}";
             yield return "-Dminecraft.launcher.brand=${launcher_name}";
             yield return "-Dminecraft.launcher.version=${launcher_version}";

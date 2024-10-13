@@ -20,7 +20,7 @@ internal sealed class GameArgumentResolver {
             }
         }
 
-        if (gameJsonEntry.Arguments.Game is null) {
+        if (gameJsonEntry?.Arguments?.Game is null) {
             yield break;
         }
 
