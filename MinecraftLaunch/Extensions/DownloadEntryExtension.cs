@@ -12,6 +12,7 @@ public static class DownloadEntryExtension {
     public static DownloadRequest ToDownloadRequest(this IDownloadEntry entry) {
         return new DownloadRequest {
             Url = entry.Url,
+            Size = entry.Size,
             FileInfo = entry.Path.ToFileInfo()
         };
     }

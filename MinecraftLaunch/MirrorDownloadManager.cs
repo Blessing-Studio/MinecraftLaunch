@@ -36,4 +36,13 @@ public static class MirrorDownloadManager {
             { "https://maven.neoforged.net/releases/net/neoforged/forge", "https://bmclapi2.bangbang93.com/maven/net/neoforged/forge" }
         }
     };
+
+    public static string GetMirrorUrl(string sourceUrl, MirrorDownloadSource source) {
+        foreach (var (src, mirror) in source.AssetsUrls.Union(source.LibrariesUrls)) {
+            if (sourceUrl.StartsWith(src))
+                return sourceUrl.Replace(src, mirror);
+        }
+
+        return sourceUrl;
+    }
 }

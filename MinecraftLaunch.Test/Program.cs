@@ -18,7 +18,56 @@ using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Components.Checker;
 using System.Net;
 using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.DownloadProgressChangedEventArgs;
+using MinecraftLaunch.Components.Downloader;
 
+IDownloader downloader = new FileDownloader(1024 * 1024, 8, 256);
+
+GameResolver gameResolve = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
+ResourceChecker resourceChecker = new(gameResolve.GetGameEntity("1.21.1"));
+await resourceChecker.CheckAsync();
+
+int count = 0;
+double speed = 0;
+var req = new GroupDownloadRequest(resourceChecker.MissingResources.Select(x => x.ToDownloadRequest()));
+req.DownloadSpeedChanged += s => {
+    speed = s;
+};
+
+var str = string.Empty;
+
+req.SingleRequestCompleted += (a, arg) => {
+    count++;
+    str = $"{count}/{resourceChecker.MissingResources.Count} - {((double)count / (double)resourceChecker.MissingResources.Count) * 100:0.00}% - {GetSpeedText(speed)} - {a.FileInfo.Name} - {arg.Type}";
+};
+
+System.Timers.Timer timer = new(TimeSpan.FromSeconds(1));
+timer.Elapsed += (_, _) => {
+    Console.WriteLine(str);
+};
+
+timer.Start();
+var res = await downloader.DownloadFilesAsync(req);
+timer.Stop();
+
+Console.WriteLine(res.Type);
+
+string GetSpeedText(double speed) {
+    if (speed < 1024.0) {
+        return speed.ToString("0") + " B/s";
+    }
+
+    if (speed < 1024.0 * 1024.0) {
+        return (speed / 1024.0).ToString("0.0") + " KB/s";
+    }
+
+    if (speed < 1024.0 * 1024.0 * 1024.0) {
+        return (speed / (1024.0 * 1024.0)).ToString("0.00") + " MB/s";
+    }
+
+    return "0";
+}
+
+return;
 
 //RD rd = new();
 //rd.Completed += OnCompleted;
@@ -242,118 +291,3 @@ try {
 #endregion
 
 Console.ReadKey();
-
-static string GetSpeedText(double speed) {
-    if (speed < 1024.0) {
-        return speed.ToString("0") + " B/s";
-    }
-
-    if (speed < 1024.0 * 1024.0) {
-        return (speed / 1024.0).ToString("0.0") + " KB/s";
-    }
-
-    if (speed < 1024.0 * 1024.0 * 1024.0) {
-        return (speed / (1024.0 * 1024.0)).ToString("0.00") + " MB/s";
-    }
-
-    return "0";
-}
-
-class RD {
-    private const int BUFFER_SIZE = 4096;
-    private const double UPDATE_INTERVAL = 1.0;
-
-    private readonly MemoryPool<byte> _bufferPool = MemoryPool<byte>.Shared;
-    private readonly System.Timers.Timer _timer = new(TimeSpan.FromSeconds(UPDATE_INTERVAL));
-
-    private int _totalCount;
-    private int _failedCount;
-    private int _completedCount;
-
-    private int _totalBytes;
-    private int _downloadedBytes;
-    private int _previousDownloadedBytes;
-
-    public event EventHandler<EventArgs> Completed;
-    public event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
-
-    public async Task DownloadAsync(IEnumerable<IDownloadEntry> downloadEntries, CancellationTokenSource tokenSource = default) {
-        _totalCount = downloadEntries.Count();
-        _totalBytes = downloadEntries.Sum(item => item.Size);
-        _timer.Elapsed += (_, _) => UpdateDownloadProgress();
-        _timer.Start();
-
-        var actionBlock = new ActionBlock<IDownloadEntry>(async x => {
-            if (!await DownloadFileAsync(x)) {
-                Interlocked.Increment(ref _failedCount);
-            }
-
-        }, new ExecutionDataflowBlockOptions {
-            MaxDegreeOfParallelism = 256,
-            CancellationToken = tokenSource is null ? default : tokenSource.Token
-        });
-
-        foreach (var downloadEntry in downloadEntries) {
-            actionBlock.Post(downloadEntry);
-        }
-
-        actionBlock.Complete();
-        await actionBlock.Completion;
-
-        _timer.Stop();
-        UpdateDownloadProgress();
-        Completed?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void UpdateDownloadProgress() {
-        int diffBytes = _downloadedBytes - _previousDownloadedBytes;
-        _previousDownloadedBytes = _downloadedBytes;
-
-        var progress = new DownloadProgressChangedEventArgs {
-            TotalCount = _totalCount,
-            TotalBytes = _totalBytes,
-            FailedCount = _failedCount,
-            CompletedCount = _completedCount,
-            DownloadedBytes = _downloadedBytes,
-            Speed = diffBytes / UPDATE_INTERVAL
-        };
-
-        ProgressChanged?.Invoke(this, progress);
-    }
-
-    private async Task<bool> DownloadFileAsync(IDownloadEntry entry) {
-        int bytesRead;
-        var buffer = _bufferPool.Rent(BUFFER_SIZE);
-
-        try {
-            using var flurlResponse = await entry.Url.GetAsync();
-
-            if (flurlResponse.StatusCode is 302) {
-                entry.Url = flurlResponse.ResponseMessage.Headers.Location!.AbsoluteUri;
-                return await DownloadFileAsync(entry);
-            }
-
-            if (Path.IsPathRooted(entry.Path)) {
-                Directory.CreateDirectory(Path.GetDirectoryName(entry.Path));
-            }
-
-            using var responseStream = await flurlResponse.GetStreamAsync();
-            using var fileStream = new FileStream(entry.Path, FileMode.Create, FileAccess.Write, FileShare.None);
-
-            if (entry.Size is 0) {
-                entry.Size = Convert.ToInt32(flurlResponse.ResponseMessage.Content.Headers.ContentLength);
-                Interlocked.Add(ref _totalBytes, entry.Size);
-            }
-
-            while ((bytesRead = await responseStream.ReadAsync(buffer.Memory)) > 0) {
-                await fileStream.WriteAsync(buffer.Memory[..bytesRead]);
-                Interlocked.Add(ref _downloadedBytes, bytesRead);
-            }
-
-            Interlocked.Increment(ref _completedCount);
-            return true;
-        } catch (Exception) {
-            return false;
-        }
-    }
-}

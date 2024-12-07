@@ -70,7 +70,7 @@ public static class DownloadExtension {
         MirrorDownloadSource source = default!,
         Action<DownloadProgressChangedEventArgs> action = default!,
         DownloadRequest downloadRequest = default!) {
-        downloadRequest ??= DownloadUitl.DefaultDownloadRequest;
+        //downloadRequest ??= DownloadUitl.DefaultDownloadRequest;
 
         if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
             entries = entries.Select(x => {

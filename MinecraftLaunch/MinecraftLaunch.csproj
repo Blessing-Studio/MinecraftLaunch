@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.1.0-preview08</Version>
+		<Version>3.1.0-preview09</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -8,7 +8,7 @@
 		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
 		<Description>下一代全能高效化的 Minecraft 启动核心</Description>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<TargetFrameworks>net8.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PackageIcon>logo.png</PackageIcon>
 		<Authors>Blessing-Studio</Authors>

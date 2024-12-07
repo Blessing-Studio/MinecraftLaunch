@@ -26,7 +26,7 @@ public static class DownloadUitl {
         CancellationTokenSource tokenSource = default,
         Action<double> perSecondProgressChangedAction = default) {
         Timer timer = default;
-        downloadRequest ??= DefaultDownloadRequest;
+        //downloadRequest ??= DefaultDownloadRequest;
         tokenSource ??= new CancellationTokenSource();
         perSecondProgressChangedAction ??= x => { };
         var responseMessage = (await downloadRequest.Url.GetAsync(cancellationToken: tokenSource.Token))
@@ -80,7 +80,7 @@ public static class DownloadUitl {
         CancellationTokenSource tokenSource = default,
         Action<double> perSecondProgressChangedAction = default) {
         Timer timer = default;
-        downloadRequest ??= DefaultDownloadRequest;
+        //downloadRequest ??= DefaultDownloadRequest;
         tokenSource ??= new CancellationTokenSource();
         perSecondProgressChangedAction ??= x => { };
         var responseMessage = (await downloadEntry.Url.GetAsync(cancellationToken: tokenSource.Token))

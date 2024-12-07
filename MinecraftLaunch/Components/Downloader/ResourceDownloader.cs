@@ -12,7 +12,7 @@ public class ResourceDownloader(
     DownloadRequest request,
     IEnumerable<IDownloadEntry> downloadEntries,
     MirrorDownloadSource downloadSource = default,
-    CancellationTokenSource tokenSource = default) : IDownloader {
+    CancellationTokenSource tokenSource = default)  {
 
     public event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
 
