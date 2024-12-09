@@ -53,12 +53,26 @@ public sealed class FileDownloader : IDownloader {
     private readonly DownloaderConfig _config;
     private readonly SemaphoreSlim _globalDownloadTasksSemaphore;
 
-    public FileDownloader(long chunkSize = 1048576,
-        int workersPerDownloadTask = 16,
-        int concurrentDownloadTasks = 5,
-        MirrorDownloadSource? mirror = default) {
-        _config = new DownloaderConfig(chunkSize, workersPerDownloadTask, concurrentDownloadTasks, mirror);
-        _globalDownloadTasksSemaphore = new SemaphoreSlim(concurrentDownloadTasks, concurrentDownloadTasks);
+    public FileDownloader(
+        DownloaderConfiguration configuration) {
+        _config = new DownloaderConfig(1048576, 8, configuration.MaxThread, configuration.DownloadSource);
+        _globalDownloadTasksSemaphore = new SemaphoreSlim(8, configuration.MaxThread);
+    }
+
+    public static string GetSpeedText(double speed) {
+        if (speed < 1024.0) {
+            return speed.ToString("0") + " B/s";
+        }
+
+        if (speed < 1024.0 * 1024.0) {
+            return (speed / 1024.0).ToString("0.0") + " KB/s";
+        }
+
+        if (speed < 1024.0 * 1024.0 * 1024.0) {
+            return (speed / (1024.0 * 1024.0)).ToString("0.00") + " MB/s";
+        }
+
+        return "0";
     }
 
     public async Task<DownloadResult> DownloadFileAsync(DownloadRequest request, CancellationToken cancellationToken = default) {

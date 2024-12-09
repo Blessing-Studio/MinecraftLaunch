@@ -1,87 +1,77 @@
-﻿using MinecraftLaunch.Classes.Interfaces;
+﻿using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Classes.Interfaces;
 using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Event;
+using MinecraftLaunch.Components.Checker;
 using MinecraftLaunch.Extensions;
-using MinecraftLaunch.Utilities;
-using System.Diagnostics;
-using System.Threading.Tasks.Dataflow;
 
 namespace MinecraftLaunch.Components.Downloader;
 
-public class ResourceDownloader(
-    DownloadRequest request,
-    IEnumerable<IDownloadEntry> downloadEntries,
-    MirrorDownloadSource downloadSource = default,
-    CancellationTokenSource tokenSource = default)  {
+/// <summary>
+/// 游戏资源下载器
+/// </summary>
+public sealed class ResourceDownloader {
+    private readonly FileDownloader _downloader;
+    private readonly ResourceChecker _resourceChecker;
+    private readonly DownloaderConfiguration _downloaderConfiguration;
 
     public event EventHandler<DownloadProgressChangedEventArgs> ProgressChanged;
 
-    public async ValueTask<bool> DownloadAsync() {
-        int completedCount = 0;
+    public ResourceDownloader(DownloaderConfiguration configuration = default) {
+        _downloaderConfiguration = configuration ?? DownloaderConfiguration.Default;
+        _downloader = new(configuration);
+    }
+
+    public ResourceDownloader(ResourceChecker resourceChecker, DownloaderConfiguration configuration = default) {
+        _downloaderConfiguration = configuration ?? DownloaderConfiguration.Default;
+        _resourceChecker = resourceChecker ??
+            throw new NullReferenceException("The 'ResourceChecker' object refers to an instance that has not been set as an object");
+
+        _downloader = new(configuration);
+    }
+
+    public async Task<GroupDownloadResult> CheckAndDownloadAsync(CancellationToken cancellation = default) {
+        var result = await _resourceChecker.CheckAsync();
+        if (result) {
+            return new GroupDownloadResult {
+                Failed = default,
+                Type = DownloadResultType.Successful
+            };
+        }
+
+        return await DownloadAsync(_resourceChecker.MissingResources, cancellation);
+    }
+
+    public async Task<GroupDownloadResult> DownloadAsync(IEnumerable<IDownloadEntry> downloadEntries, CancellationToken cancellation = default) {
+        double speed = 0;
+        int currentCount = 0;
         int totalCount = downloadEntries.Count();
 
-        var transformBlock = new TransformBlock<IDownloadEntry, IDownloadEntry>(e => {
-            if (string.IsNullOrEmpty(e.Url)) {
-                return e;
+        var entries = downloadEntries.Select(x => {
+            if (string.IsNullOrEmpty(x.Url)) {
+                return x.ToDownloadRequest();
             }
 
             if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-                downloadEntries = downloadEntries.Select(x => x.OfMirrorSource(downloadSource));
+                return x.OfMirrorSource(_downloaderConfiguration.DownloadSource).ToDownloadRequest();
             }
 
-            return e;
-        }, new ExecutionDataflowBlockOptions {
-            BoundedCapacity = request.MultiThreadsCount,
-            MaxDegreeOfParallelism = request.MultiThreadsCount,
-            CancellationToken = tokenSource is null ? default : tokenSource.Token
+            return x.ToDownloadRequest();
         });
 
-        var actionBlock = new ActionBlock<IDownloadEntry>(async e => {
-            if (string.IsNullOrEmpty(e.Url)) {
-                return;
+        var req = new GroupDownloadRequest(entries) {
+            DownloadSpeedChanged = s => speed = s,
+
+            SingleRequestCompleted = (dreq, dres) => {
+                Interlocked.Increment(ref currentCount);
+                ProgressChanged?.Invoke(this, new() {
+                    Speed = speed,
+                    TotalCount = totalCount,
+                    CompletedCount = currentCount,
+                });
             }
-
-            await DownloadUitl.DownloadAsync(e, tokenSource: tokenSource).AsTask().ContinueWith(task => {
-                if (task.IsFaulted) {
-                    if (!e.Verify()) {
-                        Debug.WriteLine(task.Exception.Message);
-                        return;
-                    }
-
-                    return;
-                }
-
-                var downloadResult = task.Result;
-            });
-
-            Interlocked.Increment(ref completedCount);
-            ProgressChanged?.Invoke(this, new DownloadProgressChangedEventArgs {
-                TotalCount = totalCount,
-                CompletedCount = completedCount
-            });
-        },
-        new ExecutionDataflowBlockOptions {
-            BoundedCapacity = request.MultiThreadsCount,
-            MaxDegreeOfParallelism = request.MultiThreadsCount,
-            CancellationToken = tokenSource is null ? default : tokenSource.Token
-        });
-
-        var transformManyBlock = new TransformManyBlock<IEnumerable<IDownloadEntry>, IDownloadEntry>(chunk => chunk,
-            new ExecutionDataflowBlockOptions());
-
-        var linkOptions = new DataflowLinkOptions {
-            PropagateCompletion = true
         };
 
-        transformManyBlock.LinkTo(transformBlock, linkOptions);
-        transformBlock.LinkTo(actionBlock, linkOptions);
-
-        if (downloadEntries != null) {
-            transformManyBlock.Post(downloadEntries);
-        }
-
-        transformManyBlock.Complete();
-        await actionBlock.Completion.WaitAsync(tokenSource is null ? default : tokenSource.Token);
-        return true;
+        return await _downloader.DownloadFilesAsync(req, cancellation);
     }
 }

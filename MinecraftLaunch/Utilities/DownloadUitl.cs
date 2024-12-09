@@ -12,6 +12,7 @@ namespace MinecraftLaunch.Utilities;
 /// <summary>
 /// 下载工具类
 /// </summary>
+[Obsolete("由 FileDownloader 替代")]
 public static class DownloadUitl {
 
     public static DownloadRequest DefaultDownloadRequest { get; set; } = new() {
@@ -21,6 +22,7 @@ public static class DownloadUitl {
         MultiPartsCount = 8
     };
 
+    [Obsolete]
     public static async ValueTask<bool> DownloadAsync(
         DownloadRequest downloadRequest,
         CancellationTokenSource tokenSource = default,
@@ -74,6 +76,7 @@ public static class DownloadUitl {
             });
     }
 
+    [Obsolete]
     public static async ValueTask<bool> DownloadAsync(
         IDownloadEntry downloadEntry,
         DownloadRequest downloadRequest = default,
@@ -128,6 +131,7 @@ public static class DownloadUitl {
             });
     }
 
+    [Obsolete]
     private static async ValueTask<long> WriteFileFromHttpResponseAsync(
         string path,
         HttpResponseMessage responseMessage,
@@ -157,6 +161,7 @@ public static class DownloadUitl {
         return totalReadMemory;
     }
 
+    [Obsolete]
     private static async ValueTask<long> MultiPartDownloadAsync(
         HttpResponseMessage responseMessage,
         DownloadRequest downloadSetting,

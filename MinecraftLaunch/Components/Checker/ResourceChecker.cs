@@ -41,6 +41,6 @@ public sealed class ResourceChecker(GameEntry entry) : IChecker {
             .Where(entry => !entry.Verify())
             .ToImmutableArray();
 
-        return !MissingResources.Any();
+        return MissingResources.Count == 0;
     }
 }

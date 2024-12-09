@@ -20,7 +20,9 @@ using System.Net;
 using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.DownloadProgressChangedEventArgs;
 using MinecraftLaunch.Components.Downloader;
 
-IDownloader downloader = new FileDownloader(1024 * 1024, 8, 256);
+IDownloader downloader = new FileDownloader(new DownloaderConfiguration {
+    MaxThread = 256
+});
 
 GameResolver gameResolve = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
 ResourceChecker resourceChecker = new(gameResolve.GetGameEntity("1.21.1"));
@@ -37,7 +39,7 @@ var str = string.Empty;
 
 req.SingleRequestCompleted += (a, arg) => {
     count++;
-    str = $"{count}/{resourceChecker.MissingResources.Count} - {((double)count / (double)resourceChecker.MissingResources.Count) * 100:0.00}% - {GetSpeedText(speed)} - {a.FileInfo.Name} - {arg.Type}";
+    //str = $"{count}/{resourceChecker.MissingResources.Count} - {((double)count / (double)resourceChecker.MissingResources.Count) * 100:0.00}% - {GetSpeedText(speed)} - {a.FileInfo.Name} - {arg.Type}";
 };
 
 System.Timers.Timer timer = new(TimeSpan.FromSeconds(1));
@@ -51,21 +53,6 @@ timer.Stop();
 
 Console.WriteLine(res.Type);
 
-string GetSpeedText(double speed) {
-    if (speed < 1024.0) {
-        return speed.ToString("0") + " B/s";
-    }
-
-    if (speed < 1024.0 * 1024.0) {
-        return (speed / 1024.0).ToString("0.0") + " KB/s";
-    }
-
-    if (speed < 1024.0 * 1024.0 * 1024.0) {
-        return (speed / (1024.0 * 1024.0)).ToString("0.00") + " MB/s";
-    }
-
-    return "0";
-}
 
 return;
 
