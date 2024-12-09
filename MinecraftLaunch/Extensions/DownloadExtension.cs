@@ -4,11 +4,14 @@ using MinecraftLaunch.Classes.Models.Download;
 using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Components.Downloader;
-using MinecraftLaunch.Utilities;
 
 namespace MinecraftLaunch.Extensions;
 
 public static class DownloadExtension {
+    public readonly static FileDownloader Downloader = new(new() {
+        MaxThread = 256,
+        IsEnableFragmentedDownload = true,
+    });
 
     /// <summary>
     /// Applies the mirror source to the download entry if the use of mirror download source is enabled.
@@ -39,10 +42,11 @@ public static class DownloadExtension {
     /// <param name="request">The download request to be processed.</param>
     /// <param name="action">The action to be performed during the download operation.</param>
     /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
-    public static ValueTask<bool> DownloadAsync(
+    public static Task<DownloadResult> DownloadAsync(
         this DownloadRequest request,
-        Action<double> action = default!) {
-        return DownloadUitl.DownloadAsync(request, default, action);
+        Action<double> action = default,
+        CancellationToken cancellation = default) {
+        return Downloader.DownloadFileAsync(request, cancellation);
     }
 
     /// <summary>
@@ -51,10 +55,10 @@ public static class DownloadExtension {
     /// <param name="downloadEntry">The download entry to be downloaded.</param>
     /// <param name="source">The mirror download source to be used.</param>
     /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
-    public static ValueTask<bool> DownloadResourceEntryAsync(this
+    public static Task<DownloadResult> DownloadResourceEntryAsync(this
         IDownloadEntry downloadEntry,
-        MirrorDownloadSource source = default!) {
-        return DownloadUitl.DownloadAsync(downloadEntry, DownloadUitl.DefaultDownloadRequest, default, x => { });
+        CancellationToken cancellation = default) {
+        return Downloader.DownloadFileAsync(downloadEntry.ToDownloadRequest(), cancellation);
     }
 
     /// <summary>
@@ -65,31 +69,17 @@ public static class DownloadExtension {
     /// <param name="action">The action to be performed during the download operation.</param>
     /// <param name="downloadRequest">The download request to be processed.</param>
     /// <returns>A ValueTask that represents the asynchronous download operation. The task result contains a boolean value that indicates whether the download operation was successful.</returns>
-    public static ValueTask<bool> DownloadResourceEntrysAsync(this
+    public static Task<GroupDownloadResult> DownloadResourceEntrysAsync(this
         IEnumerable<IDownloadEntry> entries,
-        MirrorDownloadSource source = default!,
+        DownloaderConfiguration config = default,
         Action<DownloadProgressChangedEventArgs> action = default!,
-        DownloadRequest downloadRequest = default!) {
-        //downloadRequest ??= DownloadUitl.DefaultDownloadRequest;
-
-        if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
-            entries = entries.Select(x => {
-                if (x.Type is DownloadEntryType.Jar) {
-                    x.Url = $"{source.Host}/version/{(x as JarEntry).McVersion}/client";
-                } else {
-                    x.OfMirrorSource(source);
-                }
-
-                return x;
-            });
-        }
-
-        ResourceDownloader downloader = new(downloadRequest, entries, source);
+        CancellationToken cancellation = default) {
+        ResourceDownloader downloader = new();
         downloader.ProgressChanged += (sender, args) => {
             action(args);
         };
 
-        return downloader.DownloadAsync();
+        return downloader.DownloadAsync(entries, cancellation);
     }
 
     /// <summary>
