@@ -8,13 +8,14 @@ using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, MirrorDownloadSource source = default) : InstallerBase {
+public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly QuiltBuildEntry _quiltBuildEntry = entry;
+    private readonly DownloaderConfiguration _configuration = configuration;
 
     public override GameEntry InheritedFrom => inheritedFrom;
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
          * Parse build
          */
@@ -35,10 +36,10 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
             Debug.WriteLine(library.Url);
         }
 
-        await libraries.DownloadResourceEntrysAsync(source, x => {
+        await libraries.DownloadResourceEntrysAsync(_configuration, x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.75d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         /*
          * Write information to version json
@@ -61,9 +62,9 @@ public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entr
         return true;
     }
 
-    public static async ValueTask<IEnumerable<QuiltBuildEntry>> EnumerableFromVersionAsync(string mcVersion) {
+    public static async ValueTask<IEnumerable<QuiltBuildEntry>> EnumerableFromVersionAsync(string mcVersion, CancellationToken cancellation = default) {
         string url = $"https://meta.quiltmc.org/v3/versions/loader/{mcVersion}";
-        string json = await url.GetStringAsync();
+        string json = await url.GetStringAsync(cancellationToken: cancellation);
 
         var entries = json.AsJsonEntry<IEnumerable<QuiltBuildEntry>>();
         return entries;

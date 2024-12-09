@@ -20,42 +20,6 @@ using System.Net;
 using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.DownloadProgressChangedEventArgs;
 using MinecraftLaunch.Components.Downloader;
 
-IDownloader downloader = new FileDownloader(new DownloaderConfiguration {
-    MaxThread = 256
-});
-
-GameResolver gameResolve = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
-ResourceChecker resourceChecker = new(gameResolve.GetGameEntity("1.21.1"));
-await resourceChecker.CheckAsync();
-
-int count = 0;
-double speed = 0;
-var req = new GroupDownloadRequest(resourceChecker.MissingResources.Select(x => x.ToDownloadRequest()));
-req.DownloadSpeedChanged += s => {
-    speed = s;
-};
-
-var str = string.Empty;
-
-req.SingleRequestCompleted += (a, arg) => {
-    count++;
-    //str = $"{count}/{resourceChecker.MissingResources.Count} - {((double)count / (double)resourceChecker.MissingResources.Count) * 100:0.00}% - {GetSpeedText(speed)} - {a.FileInfo.Name} - {arg.Type}";
-};
-
-System.Timers.Timer timer = new(TimeSpan.FromSeconds(1));
-timer.Elapsed += (_, _) => {
-    Console.WriteLine(str);
-};
-
-timer.Start();
-var res = await downloader.DownloadFilesAsync(req);
-timer.Stop();
-
-Console.WriteLine(res.Type);
-
-
-return;
-
 //RD rd = new();
 //rd.Completed += OnCompleted;
 //rd.ProgressChanged += OnProgressChanged;
@@ -64,13 +28,13 @@ GameResolver gameResolver = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
 //ResourceChecker resourceChecker = new(gameResolver.GetGameEntity("1.12.2"));
 //await resourceChecker.CheckAsync();
 
-VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.12.2");
+VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.21.1");
 vanlliaInstaller.ProgressChanged += VanlliaInstaller_ProgressChanged;
 
 await vanlliaInstaller.InstallAsync();
 
 void VanlliaInstaller_ProgressChanged(object? sender, ProgressChangedEventArgs e) {
-    Console.WriteLine($"{e.Progress:P2} - {e.ProgressStatus}");
+    Console.WriteLine($"{e.Progress:P2} - {e.ProgressStatus} - {FileDownloader.GetSpeedText(e.Speed)}");
 }
 
 //await rd.DownloadAsync(resourceChecker.MissingResources);

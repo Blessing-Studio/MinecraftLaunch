@@ -13,13 +13,13 @@ public abstract class InstallerBase : IInstaller {
     public abstract GameEntry InheritedFrom { get; }
     public virtual Func<double, double> CalculateExpression { get; set; }
 
-    public abstract ValueTask<bool> InstallAsync();
+    public abstract Task<bool> InstallAsync(CancellationToken cancellation = default);
 
     public void ReportCompleted() {
         Completed?.Invoke(this, EventArgs.Empty);
     }
 
-    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status) {
-        ProgressChanged?.Invoke(this, new(status, CalculateExpression is null ? progress : CalculateExpression.Invoke(progress), progressStatus));
+    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status, double speed = 0d) {
+        ProgressChanged?.Invoke(this, new(status, CalculateExpression is null ? progress : CalculateExpression.Invoke(progress), progressStatus, speed));
     }
 }

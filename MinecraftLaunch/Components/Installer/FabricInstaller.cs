@@ -7,13 +7,14 @@ using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry entry, string customId = default, MirrorDownloadSource source = default) : InstallerBase {
+public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly FabricBuildEntry _fabricBuildEntry = entry;
+    private readonly DownloaderConfiguration _configuration = configuration;
 
     public override GameEntry InheritedFrom => inheritedFrom;
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
          * Parse build
          */
@@ -30,10 +31,10 @@ public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry en
          * Download dependent resources
          */
         ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
-        await libraries.DownloadResourceEntrysAsync(source, x => {
+        await libraries.DownloadResourceEntrysAsync(_configuration, x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.75d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         /*
          * Write information to version json

@@ -15,15 +15,15 @@ public sealed class OptifineInstaller(
     GameEntry inheritedFrom,
     OptiFineInstallEntity installEntry,
     string javaPath, string customId = default,
-    MirrorDownloadSource mirror = default) : InstallerBase {
+    DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly string _javaPath = javaPath;
     private readonly OptiFineInstallEntity _installEntry = installEntry;
-    private readonly MirrorDownloadSource _mirrorDownloadSource = mirror;
+    private readonly DownloaderConfiguration _configuration = configuration;
 
     public override GameEntry InheritedFrom => inheritedFrom;
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
          * Download Optifine installation package
          */
@@ -36,7 +36,7 @@ public sealed class OptifineInstaller(
             ReportProgress(x.ToPercentage(0.0d, 0.15d),
                 "Downloading Optifine installation package",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         /*
          * Parse package
@@ -126,13 +126,13 @@ public sealed class OptifineInstaller(
         return true;
     }
 
-    public static async ValueTask<IEnumerable<OptiFineInstallEntity>> EnumerableFromVersionAsync(string mcVersion) {
+    public static async ValueTask<IEnumerable<OptiFineInstallEntity>> EnumerableFromVersionAsync(string mcVersion, CancellationToken cancellation = default) {
         string url = $"https://bmclapi2.bangbang93.com/optifine/{mcVersion}";
-        using var responseMessage = await url.GetAsync();
+        using var responseMessage = await url.GetAsync(cancellationToken: cancellation);
         responseMessage.ResponseMessage.EnsureSuccessStatusCode();
 
         await using var responseStream = await responseMessage.GetStreamAsync();
-        var list = await JsonSerializer.DeserializeAsync<IEnumerable<OptiFineInstallEntity>>(responseStream);
+        var list = await JsonSerializer.DeserializeAsync<IEnumerable<OptiFineInstallEntity>>(responseStream, cancellationToken: cancellation);
 
         return list.OrderBy(x => x.Type)
             .ThenBy(x => x.Patch.StartsWith("pre"))

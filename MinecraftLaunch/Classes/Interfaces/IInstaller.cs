@@ -8,7 +8,7 @@ public interface IInstaller {
     /// 异步安装方法
     /// </summary>
     /// <returns></returns>
-    ValueTask<bool> InstallAsync();
+    Task<bool> InstallAsync(CancellationToken cancellation = default);
 
     /// <summary>
     /// 安装完成事件

@@ -19,7 +19,7 @@ public sealed class ResourceDownloader {
 
     public ResourceDownloader(DownloaderConfiguration configuration = default) {
         _downloaderConfiguration = configuration ?? DownloaderConfiguration.Default;
-        _downloader = new(configuration);
+        _downloader = new(_downloaderConfiguration);
     }
 
     public ResourceDownloader(ResourceChecker resourceChecker, DownloaderConfiguration configuration = default) {
@@ -27,7 +27,7 @@ public sealed class ResourceDownloader {
         _resourceChecker = resourceChecker ??
             throw new NullReferenceException("The 'ResourceChecker' object refers to an instance that has not been set as an object");
 
-        _downloader = new(configuration);
+        _downloader = new(_downloaderConfiguration);
     }
 
     public async Task<GroupDownloadResult> CheckAndDownloadAsync(CancellationToken cancellation = default) {

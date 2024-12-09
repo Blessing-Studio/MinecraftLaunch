@@ -12,19 +12,19 @@ namespace MinecraftLaunch.Components.Installer;
 /// <summary>
 /// 原版核心安装器
 /// </summary>
-public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, MirrorDownloadSource source = default) : InstallerBase {
+public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _gameId = gameId;
-    private readonly MirrorDownloadSource _source = source;
     private readonly IGameResolver _gameResolver = gameFoloder;
+    private readonly DownloaderConfiguration _configuration = configuration;
 
     public override GameEntry InheritedFrom => throw new NotSupportedException();
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
          * Check if the specified id exists
          */
         ReportProgress(0.0d, "Check if the specified id exists", TaskStatus.Created);
-        var cache = await EnumerableGameCoreAsync(_source);
+        var cache = await EnumerableGameCoreAsync(cancellation);
         if (cache is null || string.IsNullOrEmpty(_gameId)) {
             return false;
         }
@@ -46,7 +46,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
         }
 
         await File.WriteAllTextAsync(versionJsonFile.FullName,
-            await coreInfo.Url.GetStringAsync());
+            await coreInfo.Url.GetStringAsync(cancellationToken: cancellation));
 
         /*
          * Download dependent resources
@@ -55,11 +55,11 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
         ResourceChecker resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
         var hasMissResource = await resourceChecker.CheckAsync();
         if (!hasMissResource) {
-            await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_source, x => {
+            await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_configuration, x => {
                 ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
                     $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
                     TaskStatus.Running);
-            });
+            }, cancellation);
         }
 
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
@@ -67,15 +67,12 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, M
         return true;
     }
 
-    public static async ValueTask<IEnumerable<VersionManifestEntry>> EnumerableGameCoreAsync(MirrorDownloadSource source = default) {
-        string url;
-        if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
-            url = source.VersionManifestUrl;
-        } else {
-            url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-        }
+    public static async ValueTask<IEnumerable<VersionManifestEntry>> EnumerableGameCoreAsync(CancellationToken cancellation = default) {
+        string url = MirrorDownloadManager.IsUseMirrorDownloadSource
+            ? MirrorDownloadManager.Bmcl.VersionManifestUrl
+            : "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
-        var node = (await url.GetStringAsync())
+        var node = (await url.GetStringAsync(cancellationToken: cancellation))
             .AsNode();
 
         return node.GetEnumerable("versions").Deserialize<IEnumerable<VersionManifestEntry>>();

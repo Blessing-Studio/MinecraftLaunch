@@ -1,4 +1,5 @@
-﻿using MinecraftLaunch.Classes.Models.Event;
+﻿using MinecraftLaunch.Classes.Enums;
+using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Extensions;
@@ -32,7 +33,7 @@ public sealed class CompositionInstaller : InstallerBase {
         InheritedFrom = _installerBase.InheritedFrom;
     }
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         _installerBase.ProgressChanged += OnProgressChanged;
         await _installerBase.InstallAsync();
 
@@ -54,11 +55,11 @@ public sealed class CompositionInstaller : InstallerBase {
             ReportProgress(x,
                 "Downloading Optifine installation package",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         ReportCompleted();
 
-        if (result) {
+        if (result.Type is DownloadResultType.Successful) {
             ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
             return true;
         }

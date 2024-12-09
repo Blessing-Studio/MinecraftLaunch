@@ -10,15 +10,15 @@ using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, MirrorDownloadSource mirror = default) : InstallerBase {
+public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _customId = customId;
     private readonly string _javaPath = javaPath;
     private readonly ForgeInstallEntry _installEntry = installEntry;
-    private readonly MirrorDownloadSource _mirrorDownloadSource = mirror;
+    private readonly DownloaderConfiguration _configuration = default;
 
     public override GameEntry InheritedFrom => inheritedFrom;
 
-    public override async ValueTask<bool> InstallAsync() {
+    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         List<HighVersionForgeProcessorEntry> highVersionForgeProcessors = default;
 
         /*
@@ -28,7 +28,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
             .McVersion}-{_installEntry.ForgeVersion}-installer.jar";
 
         var host = MirrorDownloadManager.IsUseMirrorDownloadSource
-            ? _mirrorDownloadSource.Host
+            ? MirrorDownloadManager.Bmcl.Host
             : "https://files.minecraftforge.net/maven";
         var packageUrl = $"{host}{suffix}";
 
@@ -40,7 +40,7 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
             ReportProgress(x.ToPercentage(0.0d, 0.15d),
                 "Downloading Forge installation package",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         /*
          * Parse package
@@ -135,10 +135,10 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
          * Download dependent resources
          */
         ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
-        await libraries.DownloadResourceEntrysAsync(_mirrorDownloadSource, x => {
+        await libraries.DownloadResourceEntrysAsync(_configuration, x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.6d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
                 TaskStatus.Running);
-        });
+        }, cancellation);
 
         /*
          * Write information to version json
@@ -188,8 +188,8 @@ public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry in
          * Running install processor
          */
         int index = 0;
-        Dictionary<string, List<string>> _outputs = new();
-        Dictionary<string, List<string>> _errorOutputs = new();
+        Dictionary<string, List<string>> _outputs = [];
+        Dictionary<string, List<string>> _errorOutputs = [];
 
         foreach (var processor in highVersionForgeProcessors) {
             var fileName = Path.Combine(

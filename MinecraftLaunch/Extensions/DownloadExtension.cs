@@ -46,6 +46,10 @@ public static class DownloadExtension {
         this DownloadRequest request,
         Action<double> action = default,
         CancellationToken cancellation = default) {
+        request.BytesDownloaded = x => {
+            action(x / request.Size);
+        };
+
         return Downloader.DownloadFileAsync(request, cancellation);
     }
 
