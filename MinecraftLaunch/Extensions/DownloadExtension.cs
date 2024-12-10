@@ -19,9 +19,10 @@ public static class DownloadExtension {
     /// <param name="entry">The download entry to which the mirror source is to be applied.</param>
     /// <param name="source">The mirror download source to be applied.</param>
     /// <returns>The download entry with the applied mirror source.</returns>
-    public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry,
-        MirrorDownloadSource source) {
-        if (MirrorDownloadManager.IsUseMirrorDownloadSource && source is not null) {
+    public static IDownloadEntry OfMirrorSource(this IDownloadEntry entry) {
+        var source = MirrorDownloadManager.Bmcl;
+
+        if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
             if (entry.Type is DownloadEntryType.Jar) {
                 entry.Url = $"{source.Host}/version/{(entry as JarEntry).McVersion}/client";
             }

@@ -52,11 +52,7 @@ public sealed class ResourceDownloader {
                 return x.ToDownloadRequest();
             }
 
-            if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-                return x.OfMirrorSource(_downloaderConfiguration.DownloadSource).ToDownloadRequest();
-            }
-
-            return x.ToDownloadRequest();
+            return x.OfMirrorSource().ToDownloadRequest();
         });
 
         var req = new GroupDownloadRequest(entries) {

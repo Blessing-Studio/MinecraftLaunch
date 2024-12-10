@@ -12,8 +12,7 @@ public sealed class FileDownloader : IDownloader {
     private record class DownloaderConfig(
         long ChunkSize,
         int WorkersPerDownloadTask,
-        int ConcurrentDownloadTasks,
-        MirrorDownloadSource? DownloadSource);
+        int ConcurrentDownloadTasks);
 
     private class DownloadStates {
         public required string Url { get; init; }
@@ -46,7 +45,7 @@ public sealed class FileDownloader : IDownloader {
     public long ChunkSize => _config.ChunkSize;
     public int WorkersPerDownloadTask => _config.WorkersPerDownloadTask;
     public int ConcurrentDownloadTasks => _config.ConcurrentDownloadTasks;
-    public MirrorDownloadSource? DownloadSource => _config.DownloadSource;
+    public MirrorDownloadSource DownloadSource => MirrorDownloadManager.Bmcl;
 
     private const int DOWNLOAD_BUFFER_SIZE = 4096;
 
@@ -55,7 +54,7 @@ public sealed class FileDownloader : IDownloader {
 
     public FileDownloader(
         DownloaderConfiguration configuration) {
-        _config = new DownloaderConfig(1048576, 8, configuration.MaxThread, configuration.DownloadSource);
+        _config = new DownloaderConfig(1048576, 8, configuration.MaxThread);
         _globalDownloadTasksSemaphore = new SemaphoreSlim(8, configuration.MaxThread);
     }
 
@@ -122,8 +121,9 @@ public sealed class FileDownloader : IDownloader {
                 bytesReceived += b;
             };
 
-            if (_config.DownloadSource is not null)
-                url = MirrorDownloadManager.GetMirrorUrl(url, _config.DownloadSource);
+            if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
+                url = MirrorDownloadManager.GetMirrorUrl(url, DownloadSource);
+            }
 
             downloadTasks.Add(DownloadFileInGroupAsync(r, request, failed, cancellationToken));
         }
@@ -148,8 +148,8 @@ public sealed class FileDownloader : IDownloader {
         string url = request.Url;
         string localPath = request.FileInfo.FullName;
 
-        if (_config.DownloadSource is not null) {
-            url = MirrorDownloadManager.GetMirrorUrl(url, _config.DownloadSource);
+        if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
+            url = MirrorDownloadManager.GetMirrorUrl(url, DownloadSource);
         }
 
         (var flurlResponse, url) = await PrepareForDownloadAsync(url, cancellationToken);
@@ -175,7 +175,7 @@ public sealed class FileDownloader : IDownloader {
         // Status changed
         //request.FileSizeReceived?.Invoke(states.TotalBytes);
 
-        string? destinationDir = Path.GetDirectoryName(localPath);
+        string destinationDir = Path.GetDirectoryName(localPath);
         if (destinationDir is not null)
             Directory.CreateDirectory(destinationDir);
 

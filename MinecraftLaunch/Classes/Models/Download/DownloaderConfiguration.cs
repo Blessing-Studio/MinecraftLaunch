@@ -8,5 +8,4 @@ public sealed record DownloaderConfiguration {
 
     public int MaxThread { get; set; }
     public bool IsEnableFragmentedDownload { get; set; }
-    public MirrorDownloadSource DownloadSource { get; set; }
 }
