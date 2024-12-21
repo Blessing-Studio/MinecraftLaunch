@@ -58,7 +58,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, D
             await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_configuration, x => {
                 ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
                     $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
-                    TaskStatus.Running);
+                    TaskStatus.Running, x.Speed);
             }, cancellation);
         }
 

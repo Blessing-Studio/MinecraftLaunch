@@ -54,8 +54,8 @@ public sealed class FileDownloader : IDownloader {
 
     public FileDownloader(
         DownloaderConfiguration configuration) {
-        _config = new DownloaderConfig(1048576, 8, configuration.MaxThread);
-        _globalDownloadTasksSemaphore = new SemaphoreSlim(8, configuration.MaxThread);
+        _config = new DownloaderConfig(1024 * 1024, configuration.MaxThread, configuration.MaxThread);
+        _globalDownloadTasksSemaphore = new SemaphoreSlim(configuration.MaxThread, configuration.MaxThread);
     }
 
     public static string GetSpeedText(double speed) {
