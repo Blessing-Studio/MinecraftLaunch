@@ -7,5 +7,6 @@ public enum LoaderType {
     Fabric,
     Vanilla,
     OptiFine,
+    Neoforge,
     LiteLoader,
 }
