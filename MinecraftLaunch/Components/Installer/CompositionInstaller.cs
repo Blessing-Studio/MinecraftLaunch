@@ -3,6 +3,7 @@ using MinecraftLaunch.Classes.Models.Event;
 using MinecraftLaunch.Classes.Models.Game;
 using MinecraftLaunch.Classes.Models.Install;
 using MinecraftLaunch.Extensions;
+using System.Data;
 
 namespace MinecraftLaunch.Components.Installer;
 
@@ -11,13 +12,14 @@ namespace MinecraftLaunch.Components.Installer;
 /// </summary>
 public sealed class CompositionInstaller : InstallerBase {
     private readonly string _customId;
-    private readonly InstallerBase _installerBase;
+    private readonly InstallerBase _subInstaller;
+    private readonly InstallerBase _mainInstaller;
     private readonly OptiFineInstallEntity _entity;
 
     /// <summary>
     /// 自定义下载进度计算表达式
     /// </summary>
-    public override Func<double, double> CalculateExpression { get; set; } = x => x.ToPercentage(0.0d, 0.8d);
+    public override Func<double, double> CalculateExpression { get; set; } = x => x.ToPercentage(0.0d, 0.6d);
 
     public override GameEntry InheritedFrom { get; }
 
@@ -28,14 +30,39 @@ public sealed class CompositionInstaller : InstallerBase {
 
         _entity = entity;
         _customId = customId;
-        _installerBase = installerBase;
+        _mainInstaller = installerBase;
 
-        InheritedFrom = _installerBase.InheritedFrom;
+        InheritedFrom = _mainInstaller.InheritedFrom;
+    }
+
+    public CompositionInstaller(InstallerBase mainInstaller, InstallerBase subInstaller, string customId, OptiFineInstallEntity entity = default) {
+        if (mainInstaller is OptifineInstaller || subInstaller is OptifineInstaller) {
+            throw new ArgumentException("选择的安装器类型不支持复合安装");
+        }
+
+        _entity = entity;
+        _customId = customId;
+        _mainInstaller = mainInstaller;
     }
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
-        _installerBase.ProgressChanged += OnProgressChanged;
-        await _installerBase.InstallAsync();
+        _mainInstaller.ProgressChanged += OnProgressChanged;
+        await _mainInstaller.InstallAsync(cancellation);
+
+        if (_entity is null && _subInstaller is null) {
+            CalculateExpression = null;
+            ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
+            ReportCompleted();
+            return true;
+        }
+
+        ReportProgress(0.6d, "Start installing the sub loader", TaskStatus.WaitingToRun);
+        //sub1
+        if (_subInstaller is not null) {
+            CalculateExpression = x => x.ToPercentage(0.6d, 0.8d);
+            _mainInstaller.ProgressChanged += OnProgressChanged;
+            await _mainInstaller.InstallAsync(cancellation);
+        }
 
         if (_entity is null) {
             CalculateExpression = null;
@@ -44,8 +71,7 @@ public sealed class CompositionInstaller : InstallerBase {
             return true;
         }
 
-        ReportProgress(0.8d, "Start installing the sub loader", TaskStatus.WaitingToRun);
-
+        //sub2
         string downloadUrl = $"https://bmclapi2.bangbang93.com/optifine/{_entity.McVersion}/{_entity.Type}/{_entity.Patch}";
         string packagePath = Path.Combine(Path.Combine(InheritedFrom.GameFolderPath, "versions", _customId, "mods"), _entity.FileName);
         var request = downloadUrl.ToDownloadRequest(packagePath.ToFileInfo());
@@ -73,6 +99,6 @@ public sealed class CompositionInstaller : InstallerBase {
     }
 
     private void OnProgressChanged(object sender, ProgressChangedEventArgs e) {
-        ReportProgress(e.Progress, e.ProgressStatus, e.Status);
+        ReportProgress(e.Progress, e.ProgressStatus, e.Status, e.Speed);
     }
 }
