@@ -10,13 +10,28 @@ using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
-    private readonly string _customId = customId;
-    private readonly string _javaPath = javaPath;
-    private readonly ForgeInstallEntry _installEntry = installEntry;
+public sealed class ForgeInstaller : InstallerBase {
+    private readonly string _customId;
+    private readonly string _javaPath;
+    private readonly ForgeInstallEntry _installEntry;
     private readonly DownloaderConfiguration _configuration = default;
 
-    public override GameEntry InheritedFrom => inheritedFrom;
+    public ForgeInstaller(ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) {
+        _customId = customId;
+        _javaPath = javaPath;
+        _configuration = configuration;
+        _installEntry = installEntry;
+    }
+
+    public ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) {
+        _customId = customId;
+        _javaPath = javaPath;
+        _configuration = configuration;
+        _installEntry = installEntry;
+        InheritedFrom = inheritedFrom;
+    }
+
+    public override GameEntry InheritedFrom { get; set; }
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         List<HighVersionForgeProcessorEntry> highVersionForgeProcessors = default;

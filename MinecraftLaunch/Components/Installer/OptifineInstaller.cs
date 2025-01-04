@@ -21,7 +21,7 @@ public sealed class OptifineInstaller(
     private readonly OptiFineInstallEntity _installEntry = installEntry;
     private readonly DownloaderConfiguration _configuration = configuration;
 
-    public override GameEntry InheritedFrom => inheritedFrom;
+    public override GameEntry InheritedFrom { get; set; } = inheritedFrom;
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*

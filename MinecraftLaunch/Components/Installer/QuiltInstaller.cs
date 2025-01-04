@@ -8,12 +8,25 @@ using System.Diagnostics;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
-    private readonly string _customId = customId;
-    private readonly QuiltBuildEntry _quiltBuildEntry = entry;
-    private readonly DownloaderConfiguration _configuration = configuration;
+public sealed class QuiltInstaller : InstallerBase {
+    private readonly string _customId;
+    private readonly QuiltBuildEntry _quiltBuildEntry;
+    private readonly DownloaderConfiguration _configuration;
 
-    public override GameEntry InheritedFrom => inheritedFrom;
+    public override GameEntry InheritedFrom { get; set; }
+
+    public QuiltInstaller(QuiltBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) {
+        _configuration = configuration;
+        _quiltBuildEntry = entry;
+        _customId = customId;
+    }
+
+    public QuiltInstaller(GameEntry inheritedFrom, QuiltBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) {
+        _configuration = configuration;
+        _quiltBuildEntry = entry;
+        _customId = customId;
+        InheritedFrom = inheritedFrom;
+    }
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*

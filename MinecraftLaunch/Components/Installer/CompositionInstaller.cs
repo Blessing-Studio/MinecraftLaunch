@@ -19,9 +19,12 @@ public sealed class CompositionInstaller : InstallerBase {
     /// <summary>
     /// 自定义下载进度计算表达式
     /// </summary>
-    public override Func<double, double> CalculateExpression { get; set; } = x => x.ToPercentage(0.0d, 0.6d);
+    public override Func<double, double> CalculateExpression { get; set; }
+        = x => x.ToPercentage(0.0d, 0.6d);
 
-    public override GameEntry InheritedFrom { get; }
+    public event EventHandler SubInstallerCompleted;
+
+    public override GameEntry InheritedFrom { get; set; }
 
     public CompositionInstaller(InstallerBase installerBase, string customId, OptiFineInstallEntity entity = default) {
         if (installerBase is NeoForgeInstaller or QuiltInstaller) {
@@ -42,6 +45,7 @@ public sealed class CompositionInstaller : InstallerBase {
 
         _entity = entity;
         _customId = customId;
+        _subInstaller = subInstaller;
         _mainInstaller = mainInstaller;
     }
 
@@ -49,6 +53,7 @@ public sealed class CompositionInstaller : InstallerBase {
         _mainInstaller.ProgressChanged += OnProgressChanged;
         await _mainInstaller.InstallAsync(cancellation);
 
+        SubInstallerCompleted?.Invoke(this, default);
         if (_entity is null && _subInstaller is null) {
             CalculateExpression = null;
             ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
@@ -59,11 +64,17 @@ public sealed class CompositionInstaller : InstallerBase {
         ReportProgress(0.6d, "Start installing the sub loader", TaskStatus.WaitingToRun);
         //sub1
         if (_subInstaller is not null) {
+            //handle gameEntry
+            if (_mainInstaller is VanlliaInstaller) {
+                _subInstaller.InheritedFrom = _mainInstaller.InheritedFrom;
+            }
+
             CalculateExpression = x => x.ToPercentage(0.6d, 0.8d);
-            _mainInstaller.ProgressChanged += OnProgressChanged;
-            await _mainInstaller.InstallAsync(cancellation);
+            _subInstaller.ProgressChanged += OnProgressChanged;
+            await _subInstaller.InstallAsync(cancellation);
         }
 
+        //sub1 end
         if (_entity is null) {
             CalculateExpression = null;
             ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);

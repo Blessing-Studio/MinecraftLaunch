@@ -17,7 +17,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, D
     private readonly IGameResolver _gameResolver = gameFoloder;
     private readonly DownloaderConfiguration _configuration = configuration;
 
-    public override GameEntry InheritedFrom => throw new NotSupportedException();
+    public override GameEntry InheritedFrom { get; set; }
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
@@ -62,6 +62,7 @@ public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, D
             }, cancellation);
         }
 
+        InheritedFrom = _gameResolver.GetGameEntity(_gameId);
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         ReportCompleted();
         return true;

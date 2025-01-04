@@ -10,7 +10,7 @@ public abstract class InstallerBase : IInstaller {
 
     public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
 
-    public abstract GameEntry InheritedFrom { get; }
+    public abstract GameEntry InheritedFrom { get; set; }
     public virtual Func<double, double> CalculateExpression { get; set; }
 
     public abstract Task<bool> InstallAsync(CancellationToken cancellation = default);

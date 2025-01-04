@@ -7,12 +7,25 @@ using MinecraftLaunch.Extensions;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) : InstallerBase {
-    private readonly string _customId = customId;
-    private readonly FabricBuildEntry _fabricBuildEntry = entry;
-    private readonly DownloaderConfiguration _configuration = configuration;
+public sealed class FabricInstaller : InstallerBase {
+    private readonly string _customId;
+    private readonly FabricBuildEntry _fabricBuildEntry;
+    private readonly DownloaderConfiguration _configuration;
 
-    public override GameEntry InheritedFrom => inheritedFrom;
+    public override GameEntry InheritedFrom { get; set; }
+
+    public FabricInstaller(FabricBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) {
+        _customId = customId;
+        _fabricBuildEntry = entry;
+        _configuration = configuration;
+    }
+
+    public FabricInstaller(GameEntry inheritedFrom, FabricBuildEntry entry, string customId = default, DownloaderConfiguration configuration = default) {
+        _customId = customId;
+        _fabricBuildEntry = entry;
+        _configuration = configuration;
+        InheritedFrom = inheritedFrom;
+    }
 
     public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
         /*
