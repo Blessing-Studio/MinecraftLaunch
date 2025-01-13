@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch", "Minecraf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Simple", "MinecraftLaunch.Test\MinecraftLaunch.Simple.csproj", "{76E3BD50-5A2C-43D0-A5B5-CD139EB60C94}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Banchmark", "MinecraftLaunch.BanchTest\MinecraftLaunch.Banchmark.csproj", "{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLaunch.Benchmark", "MinecraftLaunch.BanchTest\MinecraftLaunch.Benchmark.csproj", "{95AA9E60-2FD0-41C1-ACC7-1C3021B30F73}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Natsurainko.FluentLauncher", "..\..\..\Code\Natsurainko.FluentLauncher\Natsurainko.FluentLauncher\Natsurainko.FluentLauncher.csproj", "{F4033B16-7B0A-480C-9AE0-2F24893225C1}"
 EndProject

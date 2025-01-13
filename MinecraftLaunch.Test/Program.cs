@@ -28,10 +28,10 @@ GameResolver gameResolver = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
 //ResourceChecker resourceChecker = new(gameResolver.GetGameEntity("1.12.2"));
 //await resourceChecker.CheckAsync();
 
-VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.21.1");
-vanlliaInstaller.ProgressChanged += VanlliaInstaller_ProgressChanged;
+VanillaInstaller vanillaInstaller = new(gameResolver, "1.21.1");
+vanillaInstaller.ProgressChanged += VanlliaInstaller_ProgressChanged;
 
-await vanlliaInstaller.InstallAsync();
+await vanillaInstaller.InstallAsync();
 
 void VanlliaInstaller_ProgressChanged(object? sender, ProgressChangedEventArgs e) {
     Console.WriteLine($"{e.Progress:P2} - {e.ProgressStatus} - {FileDownloader.GetSpeedText(e.Speed)}");
@@ -80,12 +80,12 @@ try {
 
     //GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
 
-    //VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.12.2");
-    //vanlliaInstaller.ProgressChanged += (_, args) => {
+    //VanillaInstaller vanillaInstaller = new(gameResolver, "1.12.2");
+    //vanillaInstaller.ProgressChanged += (_, args) => {
     //    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
     //};
 
-    //await vanlliaInstaller.InstallAsync();
+    //await vanillaInstaller.InstallAsync();
 
     //Console.WriteLine();
 
@@ -105,12 +105,12 @@ try {
     #region Fabric Install
 
     //GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
-    //VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.16.5");
-    //vanlliaInstaller.ProgressChanged += (_, args) => {
+    //VanillaInstaller vanillaInstaller = new(gameResolver, "1.16.5");
+    //vanillaInstaller.ProgressChanged += (_, args) => {
     //    Console.WriteLine($"{args.Progress * 100:0.00}% - {args.Status} - {args.ProgressStatus}");
     //};
 
-    //await vanlliaInstaller.InstallAsync();
+    //await vanillaInstaller.InstallAsync();
 
     //FabricInstaller fabricInstaller = new(gameResolver.GetGameEntity("1.16.5"), 
     //    (await FabricInstaller.EnumerableFromVersionAsync("1.16.5")).First(),
@@ -132,12 +132,12 @@ try {
 
     //GameResolver gameResolver = new("C:\\Users\\w\\Downloads\\.minecraft");
 
-    //VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.12.2", MirrorDownloadManager.Bmcl);
-    //vanlliaInstaller.ProgressChanged += (_, args) => {
+    //VanillaInstaller vanillaInstaller = new(gameResolver, "1.12.2", MirrorDownloadManager.Bmcl);
+    //vanillaInstaller.ProgressChanged += (_, args) => {
     //    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
     //};
 
-    //await vanlliaInstaller.InstallAsync();
+    //await vanillaInstaller.InstallAsync();
 
     //Console.WriteLine();
 
@@ -158,12 +158,12 @@ try {
 
     //GameResolver gameResolver = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
 
-    //VanlliaInstaller vanlliaInstaller = new(gameResolver, "1.18.2", MirrorDownloadManager.Bmcl);
-    //vanlliaInstaller.ProgressChanged += (_, args) => {
+    //VanillaInstaller vanillaInstaller = new(gameResolver, "1.18.2", MirrorDownloadManager.Bmcl);
+    //vanillaInstaller.ProgressChanged += (_, args) => {
     //    Console.WriteLine($"{args.Progress * 100:0.00} - {args.Status} - {args.ProgressStatus}");
     //};
 
-    //await vanlliaInstaller.InstallAsync();
+    //await vanillaInstaller.InstallAsync();
 
     //Console.WriteLine();
 
