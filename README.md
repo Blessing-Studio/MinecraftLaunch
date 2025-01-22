@@ -68,7 +68,7 @@ dotnet add package MinecraftLaunch --version 2.0.0
 
 不过，我们准备好了新文档！
 
-https://www.blessingta.link/
+https://wiki.blessing-studio.cn/
 
 ### Tips：MinecraftLaunch的新文档暂未开发完成，所以有一部分文档会显示404.
 

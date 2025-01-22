@@ -65,7 +65,7 @@ public sealed class CompositionInstaller : InstallerBase {
         //sub1
         if (_subInstaller is not null) {
             //handle gameEntry
-            if (_mainInstaller is VanlliaInstaller) {
+            if (_mainInstaller is VanillaInstaller) {
                 _subInstaller.InheritedFrom = _mainInstaller.InheritedFrom;
             }
 

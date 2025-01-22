@@ -12,7 +12,7 @@ namespace MinecraftLaunch.Components.Installer;
 /// <summary>
 /// 原版核心安装器
 /// </summary>
-public sealed class VanlliaInstaller(IGameResolver gameFoloder, string gameId, DownloaderConfiguration configuration = default) : InstallerBase {
+public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, DownloaderConfiguration configuration = default) : InstallerBase {
     private readonly string _gameId = gameId;
     private readonly IGameResolver _gameResolver = gameFoloder;
     private readonly DownloaderConfiguration _configuration = configuration;

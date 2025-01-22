@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TargetFramework>net8.0</TargetFramework>
 		<InvariantGlobalization>true</InvariantGlobalization>
+		<RootNamespace>MinecraftLaunch.Banchmark</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
