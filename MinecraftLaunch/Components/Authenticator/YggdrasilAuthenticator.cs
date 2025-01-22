@@ -39,7 +39,7 @@ public sealed class YggdrasilAuthenticator(YggdrasilAccount account) : IAuthenti
     /// Asynchronously authenticates the Yggdrasil account.
     /// </summary>
     /// <returns>A ValueTask that represents the asynchronous operation. The task result contains the authenticated Yggdrasil account.</returns>
-    public async ValueTask<IEnumerable<YggdrasilAccount>> AuthenticateAsync() {
+    public async ValueTask<IEnumerable<YggdrasilAccount>> AuthenticateAsync(CancellationToken token = default) {
         object payload = string.Empty;
         string url = _url;
 
@@ -64,7 +64,7 @@ public sealed class YggdrasilAuthenticator(YggdrasilAccount account) : IAuthenti
             };
         }
 
-        var json = await url.PostJsonAsync(payload)
+        var json = await url.PostJsonAsync(payload, cancellationToken: token)
             .ReceiveString();
 
         var entry = json.Deserialize(YggdrasilResponseContext.Default.YggdrasilResponse);

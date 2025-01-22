@@ -38,7 +38,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
     /// Asynchronously authenticates the Microsoft account.
     /// </summary>
     /// <returns>A ValueTask that represents the asynchronous operation. The task result contains the authenticated Microsoft account.</returns>
-    public async ValueTask<MicrosoftAccount> AuthenticateAsync() {
+    public async ValueTask<MicrosoftAccount> AuthenticateAsync(CancellationToken token = default) {
         /*
          * Refresh token
          */
@@ -51,7 +51,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
                 grant_type = "refresh_token",
             };
 
-            var result = await url.PostUrlEncodedAsync(content);
+            var result = await url.PostUrlEncodedAsync(content, cancellationToken: token);
             _oAuth2TokenResponse = await result.GetJsonAsync<OAuth2TokenResponse>();
         }
 
@@ -69,7 +69,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         };
 
         using var xblJsonReq = await $"https://user.auth.xboxlive.com/user/authenticate"
-            .PostJsonAsync(xblContent);
+            .PostJsonAsync(xblContent, cancellationToken: token);
 
         var xblTokenNode = (await xblJsonReq.GetStringAsync())
             .AsNode();
@@ -89,7 +89,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         };
 
         using var xstsJsonReq = await $"https://xsts.auth.xboxlive.com/xsts/authorize"
-            .PostJsonAsync(xstsContent);
+            .PostJsonAsync(xstsContent, cancellationToken: token);
 
         var xstsTokenNode = (await xstsJsonReq.GetStringAsync())
             .AsNode();
@@ -105,10 +105,10 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         };
 
         using var authenticateMinecraftPostRes = await $"https://api.minecraftservices.com/authentication/login_with_xbox"
-            .PostJsonAsync(authenticateMinecraftContent);
+            .PostJsonAsync(authenticateMinecraftContent, cancellationToken: token);
 
         string access_token = (await authenticateMinecraftPostRes
-                .GetStringAsync())
+            .GetStringAsync())
             .AsNode()
             .GetString("access_token");
 
@@ -118,10 +118,11 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
         if (IsCheckOwnership) {
             using var gameHasRes = await "https://api.minecraftservices.com/entitlements/mcstore"
                 .WithHeader("Authorization", $"Bearer {access_token}")
-                .GetAsync();
+                .GetAsync(cancellationToken: token);
 
             var ownNode = (await gameHasRes.GetStringAsync())
                 .AsNode();
+
             if (!ownNode["items"].AsArray().Any()) {
                 throw new OperationCanceledException("Game not purchased, login terminated");
             }
@@ -132,7 +133,7 @@ public sealed class MicrosoftAuthenticator(string clientId, bool isCheckOwnershi
          */
         using var profileRes = await "https://api.minecraftservices.com/minecraft/profile"
             .WithHeader("Authorization", $"Bearer {access_token}")
-            .GetAsync();
+            .GetAsync(cancellationToken: token);
 
         var profileNode = (await profileRes.GetStringAsync())
             .AsNode();

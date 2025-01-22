@@ -20,36 +20,6 @@ using System.Net;
 using DownloadProgressChangedEventArgs = MinecraftLaunch.Classes.Models.Event.DownloadProgressChangedEventArgs;
 using MinecraftLaunch.Components.Downloader;
 
-//RD rd = new();
-//rd.Completed += OnCompleted;
-//rd.ProgressChanged += OnProgressChanged;
-
-GameResolver gameResolver = new("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft");
-//ResourceChecker resourceChecker = new(gameResolver.GetGameEntity("1.12.2"));
-//await resourceChecker.CheckAsync();
-
-VanillaInstaller vanillaInstaller = new(gameResolver, "1.21.1");
-vanillaInstaller.ProgressChanged += VanlliaInstaller_ProgressChanged;
-
-await vanillaInstaller.InstallAsync();
-
-void VanlliaInstaller_ProgressChanged(object? sender, ProgressChangedEventArgs e) {
-    Console.WriteLine($"{e.Progress:P2} - {e.ProgressStatus} - {FileDownloader.GetSpeedText(e.Speed)}");
-}
-
-//await rd.DownloadAsync(resourceChecker.MissingResources);
-
-//void OnCompleted(object? sender, EventArgs e) {
-//    Console.WriteLine("Completed!");
-//}
-
-//void OnProgressChanged(object? sender, DownloadProgressChangedEventArgs e) {
-//    Console.WriteLine($"Progress:{(e.DownloadedBytes / e.TotalBytes) * 100:0.00}% - {e.CompletedCount}/{e.TotalCount} - Speed:{GetSpeedText(e.Speed)} - FailedCount:{e.FailedCount}");
-//}
-
-//Console.ReadKey();
-return;
-
 #region 
 
 MirrorDownloadManager.IsUseMirrorDownloadSource = false;
