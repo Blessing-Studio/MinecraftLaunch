@@ -32,6 +32,7 @@ public sealed class QuiltInstaller : InstallerBase {
         /*
          * Parse build
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.0d, "Start parse build", TaskStatus.Created);
         string url = $"https://meta.quiltmc.org/v3/versions/loader/{_quiltBuildEntry.McVersion}/{_quiltBuildEntry.BuildVersion}/profile/json";
         var versionInfoNode = (await url.GetStringAsync())
@@ -44,6 +45,7 @@ public sealed class QuiltInstaller : InstallerBase {
         /*
          * Download dependent resources
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
         foreach (var library in libraries) {
             Debug.WriteLine(library.Url);
@@ -57,6 +59,7 @@ public sealed class QuiltInstaller : InstallerBase {
         /*
          * Write information to version json
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
         if (!string.IsNullOrEmpty(_customId)) {
             versionInfoNode = versionInfoNode.SetString("id", _customId);
@@ -70,6 +73,7 @@ public sealed class QuiltInstaller : InstallerBase {
             jsonFile.Directory.Create();
         }
 
+        cancellation.ThrowIfCancellationRequested();
         File.WriteAllText(jsonFile.FullName, versionInfoNode.ToString());
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         return true;

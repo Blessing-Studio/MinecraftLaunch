@@ -23,6 +23,7 @@ public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, D
         /*
          * Check if the specified id exists
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.0d, "Check if the specified id exists", TaskStatus.Created);
         var cache = await EnumerableGameCoreAsync(cancellation);
         if (cache is null || string.IsNullOrEmpty(_gameId)) {
@@ -32,6 +33,7 @@ public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, D
         /*
          * Download game core json
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.15d, "Start downloading the game core json", TaskStatus.WaitingToRun);
         var coreInfo = cache.SingleOrDefault(x => x.Id == _gameId);
         if (coreInfo is null) {
@@ -51,6 +53,7 @@ public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, D
         /*
          * Download dependent resources
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.45d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
         ResourceChecker resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
         var hasMissResource = await resourceChecker.CheckAsync();
@@ -62,6 +65,7 @@ public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, D
             }, cancellation);
         }
 
+        cancellation.ThrowIfCancellationRequested();
         InheritedFrom = _gameResolver.GetGameEntity(_gameId);
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         ReportCompleted();

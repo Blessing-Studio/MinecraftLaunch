@@ -31,6 +31,7 @@ public sealed class FabricInstaller : InstallerBase {
         /*
          * Parse build
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.0d, "Start parse build", TaskStatus.Created);
         string url = $"https://meta.fabricmc.net/v2/versions/loader/{_fabricBuildEntry.McVersion}/{_fabricBuildEntry.BuildVersion}/profile/json";
         var versionInfoNode = (await url.GetStringAsync())
@@ -38,11 +39,12 @@ public sealed class FabricInstaller : InstallerBase {
 
         var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoNode
                 .GetEnumerable("libraries"),
-            InheritedFrom.GameFolderPath);
+                InheritedFrom.GameFolderPath);
 
         /*
          * Download dependent resources
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
         await libraries.DownloadResourceEntrysAsync(_configuration, x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.75d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
@@ -52,6 +54,7 @@ public sealed class FabricInstaller : InstallerBase {
         /*
          * Write information to version json
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
         if (!string.IsNullOrEmpty(_customId)) {
             versionInfoNode = versionInfoNode.SetString("id", _customId);
@@ -66,6 +69,8 @@ public sealed class FabricInstaller : InstallerBase {
         }
 
         File.WriteAllText(jsonFile.FullName, versionInfoNode.ToString());
+
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         return true;
     }

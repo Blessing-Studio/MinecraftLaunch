@@ -27,6 +27,7 @@ public sealed class OptifineInstaller(
         /*
          * Download Optifine installation package
          */
+        cancellation.ThrowIfCancellationRequested();
         string downloadUrl = $"https://bmclapi2.bangbang93.com/optifine/{_installEntry.McVersion}/{_installEntry.Type}/{_installEntry.Patch}";
         string packagePath = Path.Combine(Path.GetTempPath(),
             Path.GetFileName(downloadUrl));
@@ -41,6 +42,7 @@ public sealed class OptifineInstaller(
         /*
          * Parse package
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.15d, "Start parse package", TaskStatus.Created);
 
         var packageArchive = ZipFile.OpenRead(request.FileInfo.FullName);
@@ -55,10 +57,10 @@ public sealed class OptifineInstaller(
         /*
          * Write information to version json
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
 
         var time = DateTime.Now.ToString("s");
-
         var jsonEntity = new {
             id = _customId ?? $"{packageMcVersion}-OptiFine-{packagePatch}",
             inheritsFrom = packageMcVersion,
@@ -103,6 +105,8 @@ public sealed class OptifineInstaller(
         /*
          * Running install processor
          */
+
+        cancellation.ThrowIfCancellationRequested();
         using var process = Process.Start(new ProcessStartInfo(_javaPath) {
             UseShellExecute = false,
             WorkingDirectory = InheritedFrom.GameFolderPath,
@@ -122,6 +126,8 @@ public sealed class OptifineInstaller(
         process.BeginOutputReadLine();
 
         process.WaitForExit();
+
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         return true;
     }

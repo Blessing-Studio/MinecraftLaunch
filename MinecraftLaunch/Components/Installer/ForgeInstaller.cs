@@ -39,6 +39,7 @@ public sealed class ForgeInstaller : InstallerBase {
         /*
          * Download Forge installation package
          */
+        cancellation.ThrowIfCancellationRequested();
         var suffix = $"/net/minecraftforge/forge/{_installEntry.McVersion}-{_installEntry.ForgeVersion}/forge-{_installEntry
             .McVersion}-{_installEntry.ForgeVersion}-installer.jar";
 
@@ -60,11 +61,13 @@ public sealed class ForgeInstaller : InstallerBase {
         /*
          * Parse package
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.15d, "Start parse package", TaskStatus.Created);
         var packageArchive = ZipFile.OpenRead(request.FileInfo.FullName);
         var installProfile = packageArchive.GetEntry("install_profile.json")
             .ReadAsString()
             .AsNode();
+
         var isLegacyForgeVersion = installProfile.Select("install") != null;
         var forgeVersion = isLegacyForgeVersion
             ? installProfile.Select("install").GetString("version").Replace("forge ", string.Empty)
@@ -149,6 +152,7 @@ public sealed class ForgeInstaller : InstallerBase {
         /*
          * Download dependent resources
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
         await libraries.DownloadResourceEntrysAsync(_configuration, x => {
             ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.6d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
@@ -158,6 +162,7 @@ public sealed class ForgeInstaller : InstallerBase {
         /*
          * Write information to version json
          */
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
         string forgeLibsFolder = Path.Combine(InheritedFrom.GameFolderPath,
             "libraries\\net\\minecraftforge\\forge",
@@ -195,6 +200,7 @@ public sealed class ForgeInstaller : InstallerBase {
 
         //Legacy version installation completed
         if (isLegacyForgeVersion) {
+            cancellation.ThrowIfCancellationRequested();
             ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
             return true;
         }
@@ -202,6 +208,7 @@ public sealed class ForgeInstaller : InstallerBase {
         /*
          * Running install processor
          */
+        cancellation.ThrowIfCancellationRequested();
         int index = 0;
         Dictionary<string, List<string>> _outputs = [];
         Dictionary<string, List<string>> _errorOutputs = [];
@@ -271,6 +278,7 @@ public sealed class ForgeInstaller : InstallerBase {
                 TaskStatus.Running);
         }
 
+        cancellation.ThrowIfCancellationRequested();
         ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
         return true;
     }
