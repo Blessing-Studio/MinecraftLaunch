@@ -1,3 +1,10 @@
+> [!CAUTION]
+> # MinecraftLaunch正在进行破坏性重构！
+> 我们正在进行一次破坏性更新，在更新之后绝大部分代码都不会兼容MinecraftLaunch新版本。
+> 所以，我们不建议继续编写MinecraftLaunch相关的代码，而是先坐和放宽，先完成一些别的事情吧......？(。・∀・)ノ
+> 这将会使编写代码更“优雅”一些，不过别担心，我们会快速跟进文档的awa
+> 还有，这次更新将仅需要几天时间.（如果一切顺利）
+
 <div align="center">
 
 <img Height="100" Width="100" src="https://raw.githubusercontent.com/Blessing-Studio/MinecraftLaunch/master/MinecraftLaunch/.nuget/logo.png"/>
