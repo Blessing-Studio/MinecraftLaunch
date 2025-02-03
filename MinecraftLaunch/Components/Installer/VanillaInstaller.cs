@@ -1,85 +1,116 @@
 ﻿using Flurl.Http;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Download;
-using MinecraftLaunch.Classes.Models.Game;
-using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Components.Checker;
+using MinecraftLaunch.Base.EventArgs;
+using MinecraftLaunch.Base.Interfaces;
+using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Base.Models.Network;
+using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace MinecraftLaunch.Components.Installer;
 
-/// <summary>
-/// 原版核心安装器
-/// </summary>
-public sealed class VanillaInstaller(IGameResolver gameFoloder, string gameId, DownloaderConfiguration configuration = default) : InstallerBase {
-    private readonly string _gameId = gameId;
-    private readonly IGameResolver _gameResolver = gameFoloder;
-    private readonly DownloaderConfiguration _configuration = configuration;
+public sealed class VanillaInstaller : InstallerBase {
+    public VersionManifestEntry Entry { get; init; }
+    public override string MinecraftFolder { get; init; }
 
-    public override GameEntry InheritedFrom { get; set; }
+    public override async Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default) {
+        try {
+            var dir = await DownloadVersionJsonAsync(cancellationToken);
+            var minecraft = ParseMinecraft(dir.Directory, cancellationToken);
+            var assetIndex = await DownloadAssetIndexFileAsync(minecraft, cancellationToken);
 
-    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
-        /*
-         * Check if the specified id exists
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.0d, "Check if the specified id exists", TaskStatus.Created);
-        var cache = await EnumerableGameCoreAsync(cancellation);
-        if (cache is null || string.IsNullOrEmpty(_gameId)) {
-            return false;
+            await CompleteMinecraftDependenciesAsync(minecraft, cancellationToken);
+            ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
+            ReportCompleted();
+
+            return minecraft;
+        } catch (Exception) {
         }
 
-        /*
-         * Download game core json
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.15d, "Start downloading the game core json", TaskStatus.WaitingToRun);
-        var coreInfo = cache.SingleOrDefault(x => x.Id == _gameId);
-        if (coreInfo is null) {
-            return false;
-        }
-
-        var versionJsonFile = Path.Combine(_gameResolver.Root.FullName, "versions", _gameId,
-            $"{_gameId}.json").ToFileInfo();
-
-        if (versionJsonFile.Directory is { Exists: false }) {
-            versionJsonFile.Directory.Create();
-        }
-
-        await File.WriteAllTextAsync(versionJsonFile.FullName,
-            await coreInfo.Url.GetStringAsync(cancellationToken: cancellation));
-
-        /*
-         * Download dependent resources
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.45d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
-        ResourceChecker resourceChecker = new(_gameResolver.GetGameEntity(_gameId));
-        var hasMissResource = await resourceChecker.CheckAsync();
-        if (!hasMissResource) {
-            await resourceChecker.MissingResources.DownloadResourceEntrysAsync(_configuration, x => {
-                ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
-                    $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
-                    TaskStatus.Running, x.Speed);
-            }, cancellation);
-        }
-
-        cancellation.ThrowIfCancellationRequested();
-        InheritedFrom = _gameResolver.GetGameEntity(_gameId);
-        ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
-        ReportCompleted();
-        return true;
+        return null;
     }
 
-    public static async ValueTask<IEnumerable<VersionManifestEntry>> EnumerableGameCoreAsync(CancellationToken cancellation = default) {
-        string url = MirrorDownloadManager.IsUseMirrorDownloadSource
-            ? MirrorDownloadManager.Bmcl.VersionManifestUrl
-            : "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+    public static VanillaInstaller Create(string minecraftFolder, VersionManifestEntry entry) {
+        return new VanillaInstaller {
+            Entry = entry,
+            MinecraftFolder = minecraftFolder
+        };
+    }
 
-        var node = (await url.GetStringAsync(cancellationToken: cancellation))
+    public static async IAsyncEnumerable<VersionManifestEntry> EnumerableMinecraftAsync([EnumeratorCancellation] CancellationToken cancellationToken = default) {
+        var url = DownloadMirrorManager.BmclApi
+            .TryFindUrl("https://launchermeta.mojang.com/mc/game/version_manifest.json");
+
+        var node = (await url.GetStringAsync(HttpCompletionOption.ResponseContentRead, cancellationToken))
             .AsNode();
 
-        return node.GetEnumerable("versions").Deserialize<IEnumerable<VersionManifestEntry>>();
+        foreach (var entry in node.GetEnumerable("versions").Deserialize(VersionManifestEntryContext.Default.IEnumerableVersionManifestEntry)) {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return entry;
+        }
     }
+
+    #region Privates
+
+    private async Task<FileInfo> DownloadVersionJsonAsync(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ReportProgress(0.15d, "Start downloading the minecraft version json", TaskStatus.WaitingToRun);
+        string requestUrl = DownloadMirrorManager.BmclApi.TryFindUrl(Entry.Url);
+        var json = await requestUrl.GetStringAsync(HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+        var jsonPath = new FileInfo(Path.Combine(MinecraftFolder, "versions", Entry.Id, $"{Entry.Id}.json"));
+        if (!jsonPath.Directory.Exists) {
+            jsonPath.Directory.Create();
+        }
+
+        await File.WriteAllTextAsync(jsonPath.FullName, json, cancellationToken);
+        return jsonPath;
+    }
+
+    private async Task<FileInfo> DownloadAssetIndexFileAsync(MinecraftEntry entry, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var assetIndex = entry.GetAssetIndex();
+        var jsonFile = new FileInfo(entry.AssetIndexJsonPath);
+
+        string requestUrl = DownloadMirrorManager.BmclApi.TryFindUrl(assetIndex.Url);
+        var json = await requestUrl.GetStringAsync(HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+        if (!jsonFile.Directory.Exists) {
+            jsonFile.Directory.Create();
+        }
+
+        await File.WriteAllTextAsync(jsonFile.FullName, json, cancellationToken);
+        return jsonFile;
+    }
+
+    private async Task CompleteMinecraftDependenciesAsync(MinecraftEntry entry, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ReportProgress(0.45d, "Start verifying and downloading dependent resources", TaskStatus.WaitingToRun);
+        var resourceDownloader = new MinecraftResourceDownloader(entry, DownloadMirrorManager.MaxThread);
+
+        resourceDownloader.ProgressChanged += (_, x)
+            => ReportProgress(x.ToPercentage().ToPercentage(0.45d, 0.95d),
+                    $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
+                        TaskStatus.Running, x.Speed);
+
+        var groupDownloadResult = await resourceDownloader.VerifyAndDownloadDependenciesAsync(cancellationToken: cancellationToken);
+
+        if (groupDownloadResult.Failed.Count > 0)
+            throw new InvalidOperationException("Some dependent files encountered errors during download");
+    }
+
+    private MinecraftEntry ParseMinecraft(DirectoryInfo dir, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return MinecraftParser.Parse(dir, null, out var _)
+            ?? throw new InvalidOperationException("An incorrect vanilla entry was encountered");
+    }
+
+    #endregion
 }

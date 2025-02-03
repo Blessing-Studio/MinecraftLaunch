@@ -1,148 +1,197 @@
-using Flurl.Http;
-using MinecraftLaunch.Classes.Models.Download;
-using MinecraftLaunch.Classes.Models.Game;
-using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Components.Resolver;
+﻿using Flurl.Http;
+using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Base.Models.Network;
+using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Runtime.CompilerServices;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class OptifineInstaller(
-    GameEntry inheritedFrom,
-    OptiFineInstallEntity installEntry,
-    string javaPath, string customId = default,
-    DownloaderConfiguration configuration = default) : InstallerBase {
-    private readonly string _customId = customId;
-    private readonly string _javaPath = javaPath;
-    private readonly OptiFineInstallEntity _installEntry = installEntry;
-    private readonly DownloaderConfiguration _configuration = configuration;
+public sealed class OptifineInstaller : InstallerBase {
+    public string CustomId { get; init; }
+    public string JavaPath { get; init; }
+    public OptifineInstallEntry Entry { get; init; }
+    public override string MinecraftFolder { get; init; }
+    public MinecraftEntry InheritedMinecraft { get; init; }
 
-    public override GameEntry InheritedFrom { get; set; } = inheritedFrom;
+    public override async Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default) {
+        FileInfo optifinePackageFile = default;
+        ModifiedMinecraftEntry entry = default;
+        MinecraftEntry inheritedEntry = default;
 
-    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
-        /*
-         * Download Optifine installation package
-         */
-        cancellation.ThrowIfCancellationRequested();
-        string downloadUrl = $"https://bmclapi2.bangbang93.com/optifine/{_installEntry.McVersion}/{_installEntry.Type}/{_installEntry.Patch}";
-        string packagePath = Path.Combine(Path.GetTempPath(),
-            Path.GetFileName(downloadUrl));
+        try {
+            inheritedEntry = ParseMinecraft(cancellationToken);
+            optifinePackageFile = await DownloadOptifinePackageAsync(cancellationToken);
+            var (package, launchwrapperVersion, launchwrapperName) = ParseOptifinePackage(optifinePackageFile.FullName, cancellationToken);
 
-        var request = downloadUrl.ToDownloadRequest(packagePath.ToFileInfo());
-        await request.DownloadAsync(x => {
-            ReportProgress(x.ToPercentage(0.0d, 0.15d),
-                "Downloading Optifine installation package",
-                TaskStatus.Running);
-        }, cancellation);
-
-        /*
-         * Parse package
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.15d, "Start parse package", TaskStatus.Created);
-
-        var packageArchive = ZipFile.OpenRead(request.FileInfo.FullName);
-        var launchwrapper = packageArchive.GetEntry("launchwrapper-of.txt")?.ReadAsString() ?? "1.12";
-
-        var changelogLine = packageArchive.GetEntry("changelog.txt")?.ReadAsString().Split("\r\n")[0];
-        var rawPatch = changelogLine[9..].Split('_');
-
-        var packageMcVersion = rawPatch[0];
-        var packagePatch = changelogLine[9..][(packageMcVersion.Length + 1)..];
-
-        /*
-         * Write information to version json
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
-
-        var time = DateTime.Now.ToString("s");
-        var jsonEntity = new {
-            id = _customId ?? $"{packageMcVersion}-OptiFine-{packagePatch}",
-            inheritsFrom = packageMcVersion,
-            time,
-            releaseTime = time,
-            type = "release",
-            libraries = new LibraryJsonEntry[]
-            {
-                new () { Name = $"optifine:Optifine:{packageMcVersion}_{packagePatch}" },
-                new () { Name = launchwrapper.Equals("1.12") ? "net.minecraft:launchwrapper:1.12" : $"optifine:launchwrapper-of:{launchwrapper}" }
-            },
-            mainClass = "net.minecraft.launchwrapper.Launch",
-            minecraftArguments = "  --tweakClass optifine.OptiFineTweaker"
-        };
-
-        var jarFilePath = Path.Combine(InheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.jar");
-        var jsonFilePath = Path.Combine(InheritedFrom.GameFolderPath, "versions", jsonEntity.id, $"{jsonEntity.id}.json");
-        var launchwrapperFile = Path.Combine(
-                InheritedFrom.GameFolderPath,
-                "libraries",
-                LibrariesResolver.FormatLibraryNameToRelativePath(jsonEntity.libraries[1].Name));
-
-        var optifineLibraryPath = Path.Combine(
-                InheritedFrom.GameFolderPath,
-                "libraries",
-                LibrariesResolver.FormatLibraryNameToRelativePath(jsonEntity.libraries[0].Name));
-
-        foreach (var path in new string[] { jsonFilePath, launchwrapperFile, optifineLibraryPath }) {
-            var dir = Path.GetDirectoryName(path);
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            var optifineVersionJsonPath = await WriteVersionJsonAndSomeDependenciesAsync(inheritedEntry, launchwrapperVersion, launchwrapperName, package, cancellationToken);
+            entry = ParseModifiedMinecraft(optifineVersionJsonPath, cancellationToken);
+            await RunInstallProcessorAsync(optifinePackageFile.FullName, inheritedEntry, cancellationToken);
+        } catch (Exception) {
+        } finally {
+            //optifinePackageFile?.Delete();
         }
 
-        File.WriteAllText(Path.Combine(jsonFilePath),
-            JsonSerializer.Serialize(jsonEntity, new JsonSerializerOptions {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            }));
+        return entry ?? throw new ArgumentNullException(nameof(entry), "Unexpected null reference to variable");
+    }
 
-        packageArchive.GetEntry($"launchwrapper-of-{launchwrapper}.jar").ExtractToFile(launchwrapperFile, true);
-        File.Copy(InheritedFrom.JarPath, jarFilePath, true);
+    public static OptifineInstaller Create(string mcFolder, string javaPath, OptifineInstallEntry optifineInstallEntry, string customId = default) {
+        return new OptifineInstaller {
+            MinecraftFolder = mcFolder,
+            Entry = optifineInstallEntry,
+            CustomId = customId,
+            JavaPath = javaPath,
+        };
+    }
 
-        /*
-         * Running install processor
-         */
+    public static async IAsyncEnumerable<OptifineInstallEntry> EnumerableOptifineAsync(string mcVersion, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
+        string url = $"https://bmclapi2.bangbang93.com/optifine/{mcVersion}";
 
-        cancellation.ThrowIfCancellationRequested();
-        using var process = Process.Start(new ProcessStartInfo(_javaPath) {
-            UseShellExecute = false,
-            WorkingDirectory = InheritedFrom.GameFolderPath,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            Arguments = string.Join(" ", [
-                "-cp",
-                packagePath.ToPath(),
-                "optifine.Patcher",
-                InheritedFrom.JarPath.ToPath(),
-                packagePath.ToPath(),
-                optifineLibraryPath.ToPath()
-                ])
-        });
+        string json = await url.GetStringAsync(cancellationToken: cancellationToken);
+        var entries = json.Deserialize(OptifineInstallEntryContext.Default.IEnumerableOptifineInstallEntry)
+            .OrderByDescending(entry => entry.Patch);
+
+        foreach (var item in entries) {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return item;
+        }
+    }
+
+    #region Privates
+
+    private MinecraftEntry ParseMinecraft(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.15d, "Start parse minecraft", TaskStatus.Created);
+
+        if (InheritedMinecraft is not null) {
+            return InheritedMinecraft;
+        }
+
+        var inheritedMinecraft = new MinecraftParser(MinecraftFolder).GetMinecrafts()
+            .FirstOrDefault(x => x.Version.VersionId == Entry.McVersion);
+
+        return inheritedMinecraft ?? throw new InvalidOperationException("The corresponding version's parent was not found."); ;
+    }
+
+    private async Task<FileInfo> DownloadOptifinePackageAsync(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.30d, "Downloading Optifine package", TaskStatus.Running);
+
+        string packageUrl = $"https://bmclapi2.bangbang93.com/optifine/{Entry.McVersion}/{Entry.Type}/{Entry.Patch}";
+        var packageFile = new FileInfo(Path.Combine(MinecraftFolder, Entry.FileName));
+
+        var downloadRequest = new DownloadRequest(packageUrl,
+            packageFile.FullName);
+
+        await new FileDownloader(DownloadMirrorManager.MaxThread)
+            .DownloadFileAsync(downloadRequest, cancellationToken);
+
+        return packageFile;
+    }
+
+    private (ZipArchive package, string launchwrapperVersion, string launchwrapperName) ParseOptifinePackage(string packageFilePath, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.45d, "Parse optifine package", TaskStatus.Running);
+
+        var packageArchive = ZipFile.OpenRead(packageFilePath);
+        string launchwrapperVersion = packageArchive.GetEntry("launchwrapper-of.txt")?.ReadAsString() ?? "1.12";
+        string launchwrapperName = launchwrapperVersion.Equals("1.12")
+                ? "net.minecraft:launchwrapper:1.12"
+                : $"optifine:launchwrapper-of:{launchwrapperVersion}";
+
+        return (packageArchive, launchwrapperVersion, launchwrapperName);
+    }
+
+    private async Task<FileInfo> WriteVersionJsonAndSomeDependenciesAsync(
+        MinecraftEntry minecraft,
+        string launchwrapperVersion,
+        string launchwrapperName,
+        ZipArchive packageArchive,
+        CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.45d, "Write version JSON and some dependencies", TaskStatus.Running);
+
+        if (launchwrapperVersion is not "1.12") {
+            var launchwrapperJar = packageArchive.GetEntry($"launchwrapper-of-{launchwrapperVersion}.jar")
+                ?? throw new FileNotFoundException("Invalid OptiFine package");
+
+            launchwrapperJar.ExtractTo(Path.Combine(MinecraftFolder, "libraries", launchwrapperName.FormatLibraryNameToRelativePath()));
+        }
+
+        string entryId = CustomId ?? $"{Entry.McVersion}-Optifine_{Entry.Patch}";
+        var jsonFile = new FileInfo(Path.Combine(MinecraftFolder, "versions", entryId, $"{entryId}.json"));
+
+        if (!jsonFile.Directory!.Exists)
+            jsonFile.Directory.Create();
+
+        var time = DateTime.Now.ToString("s");
+        var jsonEntry = new OptifineMinecraftEntry {
+            Id = entryId,
+            InheritsFrom = minecraft.Id,
+            Time = time,
+            ReleaseTime = time,
+            Type = "release",
+            Libraries = [
+                new() { Name = $"optifine:Optifine:{Entry.McVersion}_{Entry.Type}_{Entry.Patch}" },
+                new() { Name = launchwrapperName }
+            ],
+            MainClass = "net.minecraft.launchwrapper.Launch",
+            MinecraftArguments = "--tweakClass optifine.OptiFineTweaker"
+        };
+
+        await File.WriteAllTextAsync(jsonFile.FullName,
+            jsonEntry.Serialize(MinecraftJsonEntryContext.Default.OptifineMinecraftEntry), cancellationToken);
+
+        if (minecraft.ClientJarPath is null || !File.Exists(minecraft.ClientJarPath))
+            throw new FileNotFoundException("Unable to find the original client client.jar file");
+
+        File.Copy(minecraft.ClientJarPath, jsonFile.FullName.Replace(".json", ".jar"), true);
+        return jsonFile;
+    }
+
+    private ModifiedMinecraftEntry ParseModifiedMinecraft(FileInfo file, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        var entry = MinecraftParser.Parse(file.Directory, null, out var _) as ModifiedMinecraftEntry;
+
+        return entry ?? throw new InvalidOperationException("An incorrect modified entry was encountered");
+    }
+
+    private async Task RunInstallProcessorAsync(string packageFilePath, MinecraftEntry entry, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string optifineLibName = $"optifine:Optifine:{Entry.McVersion}_{Entry.Type}_{Entry.Patch}";
+        var optifineLibraryFile = new FileInfo(Path.Combine(MinecraftFolder, "libraries",
+            optifineLibName.FormatLibraryNameToRelativePath()));
+
+        if (!optifineLibraryFile.Directory!.Exists)
+            optifineLibraryFile.Directory.Create();
+
+        using var process = Process.Start(
+            new ProcessStartInfo(JavaPath) {
+                UseShellExecute = false,
+                WorkingDirectory = MinecraftFolder,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                Arguments = string.Join(
+                    " ",
+                    [
+                        "-cp",
+                        packageFilePath.ToPath(),
+                        "optifine.Patcher",
+                        entry.ClientJarPath.ToPath(),
+                        packageFilePath.ToPath(),
+                        optifineLibraryFile.FullName.ToPath()
+                    ])
+            }) ?? throw new InvalidOperationException("Unable to run the compilation process");
 
         process.BeginErrorReadLine();
         process.BeginOutputReadLine();
 
-        process.WaitForExit();
-
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
-        return true;
+        await process.WaitForExitAsync(cancellationToken);
     }
 
-    public static async ValueTask<IEnumerable<OptiFineInstallEntity>> EnumerableFromVersionAsync(string mcVersion, CancellationToken cancellation = default) {
-        string url = $"https://bmclapi2.bangbang93.com/optifine/{mcVersion}";
-        using var responseMessage = await url.GetAsync(cancellationToken: cancellation);
-        responseMessage.ResponseMessage.EnsureSuccessStatusCode();
-
-        await using var responseStream = await responseMessage.GetStreamAsync();
-        var list = await JsonSerializer.DeserializeAsync<IEnumerable<OptiFineInstallEntity>>(responseStream, cancellationToken: cancellation);
-
-        return list.OrderBy(x => x.Type)
-            .ThenBy(x => x.Patch.StartsWith("pre"))
-            .ThenBy(x => x.Patch)
-            .Reverse();
-    }
+    #endregion
 }

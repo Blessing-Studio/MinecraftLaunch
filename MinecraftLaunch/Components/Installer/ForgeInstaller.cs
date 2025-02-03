@@ -1,236 +1,304 @@
 ﻿using Flurl.Http;
-using MinecraftLaunch.Classes.Models.Download;
-using MinecraftLaunch.Classes.Models.Game;
-using MinecraftLaunch.Classes.Models.Install;
-using MinecraftLaunch.Components.Resolver;
+using MinecraftLaunch.Base.Interfaces;
+using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Base.Models.Network;
+using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Components.Installer;
 
-public sealed class ForgeInstaller : InstallerBase {
-    private readonly string _customId;
-    private readonly string _javaPath;
-    private readonly ForgeInstallEntry _installEntry;
-    private readonly DownloaderConfiguration _configuration = default;
+/// <summary>
+/// Forge（Neo）通用安装器
+/// </summary>
+internal sealed class ForgeInstaller : InstallerBase {
+    public string CustomId { get; init; }
+    public string JavaPath { get; init; }
+    public ForgeInstallEntry Entry { get; init; }
+    public override string MinecraftFolder { get; init; }
+    public MinecraftEntry InheritedMinecraft { get; init; }
 
-    public ForgeInstaller(ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) {
-        _customId = customId;
-        _javaPath = javaPath;
-        _configuration = configuration;
-        _installEntry = installEntry;
+    public static ForgeInstaller Create(string folder, string javaPath, ForgeInstallEntry installEntry, string customId = default) {
+        return new ForgeInstaller {
+            CustomId = customId,
+            JavaPath = javaPath,
+            Entry = installEntry,
+            MinecraftFolder = folder
+        };
     }
 
-    public ForgeInstaller(GameEntry inheritedFrom, ForgeInstallEntry installEntry, string javaPath, string customId = default, DownloaderConfiguration configuration = default) {
-        _customId = customId;
-        _javaPath = javaPath;
-        _configuration = configuration;
-        _installEntry = installEntry;
-        InheritedFrom = inheritedFrom;
-    }
+    public override async Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default) {
+        FileInfo forgePackageFile = default;
+        MinecraftEntry inheritedEntry = default;
+        ModifiedMinecraftEntry entry = default;
 
-    public override GameEntry InheritedFrom { get; set; }
+        try {
+            inheritedEntry = ParseMinecraft(cancellationToken);
+            forgePackageFile = await DownloadForgePackageAsync(cancellationToken);
 
-    public override async Task<bool> InstallAsync(CancellationToken cancellation = default) {
-        List<HighVersionForgeProcessorEntry> highVersionForgeProcessors = default;
+            var (package, installProfile, isLegacy) = ParseForgePackage(forgePackageFile.FullName, cancellationToken);
+            var forgeClientFile = await WriteVersionJsonAndSomeDependenciesAsync(isLegacy, installProfile, package, cancellationToken);
 
-        /*
-         * Download Forge installation package
-         */
-        cancellation.ThrowIfCancellationRequested();
-        var suffix = $"/net/minecraftforge/forge/{_installEntry.McVersion}-{_installEntry.ForgeVersion}/forge-{_installEntry
-            .McVersion}-{_installEntry.ForgeVersion}-installer.jar";
+            entry = ParseModifiedMinecraft(forgeClientFile, cancellationToken);
+            await CompleteForgeDependenciesAsync(isLegacy, installProfile, entry, cancellationToken);
 
-        var host = MirrorDownloadManager.IsUseMirrorDownloadSource
-            ? MirrorDownloadManager.Bmcl.Host
-            : "https://files.minecraftforge.net/maven";
-        var packageUrl = $"{host}{suffix}";
-
-        string packagePath = Path.Combine(Path.GetTempPath(),
-            Path.GetFileName(packageUrl));
-
-        var request = packageUrl.ToDownloadRequest(packagePath.ToFileInfo());
-        await request.DownloadAsync(x => {
-            ReportProgress(x.ToPercentage(0.0d, 0.15d),
-                "Downloading Forge installation package",
-                TaskStatus.Running);
-        }, cancellation);
-
-        /*
-         * Parse package
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.15d, "Start parse package", TaskStatus.Created);
-        var packageArchive = ZipFile.OpenRead(request.FileInfo.FullName);
-        var installProfile = packageArchive.GetEntry("install_profile.json")
-            .ReadAsString()
-            .AsNode();
-
-        var isLegacyForgeVersion = installProfile.Select("install") != null;
-        var forgeVersion = isLegacyForgeVersion
-            ? installProfile.Select("install").GetString("version").Replace("forge ", string.Empty)
-            : installProfile.GetString("version").Replace("-forge-", "-");
-
-        var versionInfoJson = isLegacyForgeVersion
-            ? installProfile.Select("versionInfo")
-            : packageArchive.GetEntry("version.json").ReadAsString().AsNode();
-
-        var libraries = LibrariesResolver.GetLibrariesFromJsonArray(versionInfoJson
-                .GetEnumerable("libraries"),
-            InheritedFrom.GameFolderPath).ToList();
-
-        if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-            foreach (var lib in libraries) {
-                lib.Url = $"https://bmclapi2.bangbang93.com/maven/{lib.RelativePath.Replace("\\", "/")}";
+            if (!isLegacy) {
+                await RunInstallProcessorAsync(forgePackageFile.FullName, installProfile, entry, cancellationToken);
+            } else {
+                ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
+                ReportCompleted();
             }
+        } catch (Exception) {
+
+        } finally {
+            forgePackageFile?.Delete();
         }
+
+        return entry ?? throw new ArgumentNullException(nameof(entry), "Unexpected null reference to variable");
+    }
+
+    public static async IAsyncEnumerable<ForgeInstallEntry> EnumerableForgeAsync(string mcVersion, bool isNeoforge = false, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
+        var packagesUrl = isNeoforge
+            ? $"https://bmclapi2.bangbang93.com/neoforge/list/{mcVersion}"
+            : $"https://bmclapi2.bangbang93.com/forge/minecraft/{mcVersion}";
+
+        string json = await packagesUrl.GetStringAsync(cancellationToken: cancellationToken);
+        var entries = json.Deserialize(ForgeInstallEntryContext.Default.IEnumerableForgeInstallEntry)
+            .OrderByDescending(entry => entry.Build);
+
+        foreach (var package in entries) {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            package.IsNeoforge = isNeoforge;
+            yield return package;
+        }
+    }
+
+    #region Privates
+
+    private MinecraftEntry ParseMinecraft(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.15d, "Start parse minecraft", TaskStatus.Created);
+
+        if (InheritedMinecraft is not null) {
+            return InheritedMinecraft;
+        }
+
+        var inheritedMinecraft = new MinecraftParser(MinecraftFolder).GetMinecrafts()
+            .FirstOrDefault(x => x.Version.VersionId == Entry.McVersion);
+
+        return inheritedMinecraft ?? throw new InvalidOperationException("The corresponding version's parent was not found."); ;
+    }
+
+    private async Task<FileInfo> DownloadForgePackageAsync(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.30d, "Downloading forge package", TaskStatus.Running);
+
+        string baseUrl = Entry.IsNeoforge
+            ? $"https://bmclapi2.bangbang93.com/neoforge/version/{Entry.ForgeVersion}/download/installer.jar"
+            : $"https://bmclapi2.bangbang93.com/forge/download?mcversion={Entry.McVersion}&version={Entry.ForgeVersion}&category=installer&format=jar";
+
+        //    string baseUrl = Entry.IsNeoforge
+        //? $"https://maven.neoforged.net/releases/net/neoforged/forge/{Entry.McVersion}-{Entry.ForgeVersion}/forge-{Entry.McVersion}-{Entry.ForgeVersion}-installer.jar"
+        //: $"https://files.minecraftforge.net/maven/net/minecraftforge/forge/{Entry.McVersion}-{Entry.ForgeVersion}/forge-{Entry.McVersion}-{Entry.ForgeVersion}-installer.jar";
+
+        string branchParam = string.IsNullOrEmpty(Entry.Branch) ? string.Empty : $"&branch={Entry.Branch}";
+        string packageUrl = $"{baseUrl}{branchParam}";
+        string fileName = Entry.IsNeoforge
+            ? $"neoforge-{Entry.ForgeVersion}-installer.jar"
+            : $"forge-{Entry.McVersion}-{Entry.ForgeVersion}" +
+                $"{(string.IsNullOrEmpty(Entry.Branch) ? string.Empty : $"-{Entry.Branch}")}" +
+                $"-installer.jar";
+
+        var packageFile = new FileInfo(Path.Combine(MinecraftFolder, fileName));
+        var downloadRequest = new DownloadRequest(packageUrl,
+            packageFile.FullName);
+
+        downloadRequest.BytesDownloaded += Console.WriteLine;
+        await new FileDownloader(DownloadMirrorManager.MaxThread)
+            .DownloadFileAsync(downloadRequest, cancellationToken);
+
+        return packageFile;
+    }
+
+    private (ZipArchive package, JsonNode installProfile, bool isLegacy) ParseForgePackage(string packageFilePath, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(0.45d, "Parse forge package", TaskStatus.Running);
+
+        var packageArchive = ZipFile.OpenRead(packageFilePath);
+        var installProfileNode = packageArchive
+            .GetEntry("install_profile.json")
+            ?.ReadAsString()
+            .AsNode()
+            ?? throw new Exception("Failed to parse install_profile.json");
+
+        bool isLegacyForgeVersion = installProfileNode.Select("install") != null;
+        return (packageArchive, installProfileNode, isLegacyForgeVersion);
+    }
+
+    private async Task<FileInfo> WriteVersionJsonAndSomeDependenciesAsync(bool isLegacyForgeVersion, JsonNode installProfile, ZipArchive packageArchive, CancellationToken cancellationToken) {
+        string forgeVersion = $"{Entry.McVersion}-{Entry.ForgeVersion}";
+        string forgeLibsFolder = Path.Combine(MinecraftFolder, "libraries\\net\\minecraftforge\\forge", forgeVersion);
+
+        if (isLegacyForgeVersion) {
+            var universalFilePath = installProfile.Select("install").GetString("filePath")
+                ?? throw new InvalidDataException("Unable to resolve location of universal file in archive");
+
+            var universalFileEntry = packageArchive.GetEntry(universalFilePath)
+                ?? throw new FileNotFoundException("The universal file was not found in the archive");
+
+            universalFileEntry.ExtractTo(Path.Combine(forgeLibsFolder, universalFileEntry.Name.Replace("-universal", string.Empty)));
+        }
+
+        if (packageArchive.GetEntry($"maven/net/minecraftforge/forge/{forgeVersion}/") != null)
+            foreach (var entry in packageArchive.Entries.Where(x => !x.FullName.EndsWith('/') && x.FullName.StartsWith($"maven/net/minecraftforge/forge/{forgeVersion}")))
+                entry.ExtractTo(Path.Combine(forgeLibsFolder, entry.Name));
+
+        packageArchive.GetEntry("data/client.lzma")?.ExtractTo(Path.Combine(forgeLibsFolder, $"forge-{forgeVersion}-clientdata.lzma"));
+
+        string jsonContent = (isLegacyForgeVersion
+            ? installProfile.Select("versionInfo")!.ToString()
+            : packageArchive.GetEntry("version.json")?.ReadAsString())
+            ?? throw new Exception("Failed to read version.json");
+        var jsonNode = JsonNode.Parse(jsonContent);
+
+        string entryId = CustomId ?? $"{Entry.McVersion}-{(Entry.IsNeoforge ? "neoforge" : "forge")}-{Entry.ForgeVersion}";
+        var jsonFile = new FileInfo(Path.Combine(MinecraftFolder, "versions", entryId, $"{entryId}.json"));
+
+        if (!jsonFile.Directory!.Exists)
+            jsonFile.Directory.Create();
+
+        jsonNode!["id"] = entryId;
+        await File.WriteAllTextAsync(jsonFile.FullName, jsonNode.ToJsonString(), cancellationToken);
+
+        return jsonFile;
+    }
+
+    private ModifiedMinecraftEntry ParseModifiedMinecraft(FileInfo file, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        var entry = MinecraftParser.Parse(file.Directory, null, out var _) as ModifiedMinecraftEntry;
+
+        return entry ?? throw new InvalidOperationException("An incorrect modified entry was encountered");
+    }
+
+    private async Task CompleteForgeDependenciesAsync(bool isLegacyForgeVersion, JsonNode installProfile, MinecraftEntry minecraft, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string forgeVersion = $"{Entry.McVersion}-{Entry.ForgeVersion}";
+        var dependencies = new List<MinecraftLibrary>();
+
+        var libraries = minecraft.GetRequiredLibraries().Libraries.ToList();
+        foreach (var lib in libraries.Where(x => x.MavenName.Equals($"net.minecraftforge:forge:{forgeVersion}")
+            || x.MavenName.Equals($"net.minecraftforge:forge:{forgeVersion}:client") || x is not IDownloadDependency).ToArray())
+            libraries.Remove(lib);
+
+        dependencies.AddRange(libraries);
 
         if (!isLegacyForgeVersion) {
-            libraries.AddRange(LibrariesResolver.GetLibrariesFromJsonArray(installProfile
-                    .GetEnumerable("libraries"),
-                InheritedFrom.GameFolderPath));
+            var processorLibraries = installProfile.Select("libraries")
+                .Deserialize(LibraryEntryContext.Default.IEnumerableLibraryEntry)?
+                .Select(lib => MinecraftLibrary.ParseJsonNode(lib, MinecraftFolder))
+                ?? throw new InvalidDataException();
 
-            var highVersionForgeDataDictionary = installProfile
-                .Select("data")
-                .Deserialize<Dictionary<string, Dictionary<string, string>>>();
+            foreach (var item in processorLibraries)
+                if (!dependencies.Contains(item))
+                    dependencies.Add(item);
+        }
 
-            if (highVersionForgeDataDictionary.Any()) {
-                highVersionForgeDataDictionary["BINPATCH"]["client"] =
-                    $"[net.minecraftforge:forge:{forgeVersion}:clientdata@lzma]";
+        var groupDownloadRequest = new GroupDownloadRequest(dependencies.OfType<IDownloadDependency>()
+            .Select(x => new DownloadRequest(DownloadMirrorManager.BmclApi.TryFindUrl(x.Url), x.FullPath)));
 
-                highVersionForgeDataDictionary["BINPATCH"]["server"] =
-                    $"[net.minecraftforge:forge:{forgeVersion}:serverdata@lzma]";
-            }
+        int count = 0;
+        double speed = 0;
+        groupDownloadRequest.DownloadSpeedChanged += x => speed = x;
+        groupDownloadRequest.SingleRequestCompleted += (_, x)
+            => ReportProgress(((double)count * (double)dependencies.Count).ToPercentage(0.45d, 0.70d),
+                    $"Downloading dependent resources：{Interlocked.Increment(ref count)}/{dependencies.Count}",
+                        TaskStatus.Running, speed);
 
-            var replaceValues = new Dictionary<string, string> {
-                { "{SIDE}", "client" },
-                { "{MINECRAFT_JAR}", InheritedFrom.JarPath.ToPath() },
-                { "{MINECRAFT_VERSION}", installProfile.GetString("minecraft") },
-                { "{ROOT}", InheritedFrom.GameFolderPath.ToPath() },
-                { "{INSTALLER}", packagePath.ToPath() },
-                { "{LIBRARY_DIR}", Path.Combine(InheritedFrom.GameFolderPath, "libraries").ToPath() }
-            };
+        var groupDownloadResult = await new FileDownloader(DownloadMirrorManager.MaxThread)
+            .DownloadFilesAsync(groupDownloadRequest, cancellationToken);
 
-            var replaceProcessorArgs = highVersionForgeDataDictionary.ToDictionary(
-                kvp => $"{{{kvp.Key}}}", kvp => {
-                    var value = kvp.Value["client"];
-                    if (!value.StartsWith('[')) {
-                        return value;
-                    }
-                    return Path.Combine(InheritedFrom.GameFolderPath,
-                            "libraries",
-                            LibrariesResolver.FormatLibraryNameToRelativePath(value.TrimStart('[').TrimEnd(']')))
+        if (groupDownloadResult.Failed.Count > 0)
+            throw new InvalidOperationException("Some dependent files encountered errors during download");
+
+    }
+
+    private async Task RunInstallProcessorAsync(string packageFilePath, JsonNode installProfile, MinecraftEntry entry, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        Dictionary<string, Dictionary<string, string>> forgeDataDictionary = installProfile.Select("data")
+            .Deserialize(ForgeInstallerContext.Default.DictionaryStringDictionaryStringString)
+            ?? throw new Exception("Failed to parse install profile data");
+
+        string forgeVersion = $"{Entry.McVersion}-{Entry.ForgeVersion}";
+
+        if (forgeDataDictionary.TryGetValue("BINPATCH", out Dictionary<string, string> value)) {
+            value["client"] = $"[net.minecraftforge:forge:{forgeVersion}:clientdata@lzma]";
+            value["server"] = $"[net.minecraftforge:forge:{forgeVersion}:serverdata@lzma]";
+        }
+
+        var replaceValues = new Dictionary<string, string> {
+            { "{SIDE}", "client" },
+            { "{MINECRAFT_JAR}", entry.ClientJarPath },
+            { "{MINECRAFT_VERSION}", Entry.McVersion },
+            { "{ROOT}", MinecraftFolder.ToPath() },
+            { "{INSTALLER}", packageFilePath.ToPath() },
+            { "{LIBRARY_DIR}", Path.Combine(MinecraftFolder, "libraries").ToPath() }
+        };
+
+        var replaceProcessorArgs = forgeDataDictionary.ToDictionary(
+            kvp => $"{{{kvp.Key}}}", kvp => {
+                var value = kvp.Value["client"];
+                if (!value.StartsWith('[')) return value;
+
+                return Path.Combine(MinecraftFolder, "libraries", value.TrimStart('[').TrimEnd(']')
+                    .FormatLibraryNameToRelativePath())
+                    .ToPath();
+            });
+
+        var forgeProcessors = installProfile.Select("processors")?
+            .Deserialize(ForgeInstallerContext.Default.IEnumerableForgeProcessorData)?
+            .Where(x => !(x.Sides.Count == 1 && x.Sides.Contains("server")))
+            .ToArray()
+            ?? throw new InvalidDataException("Unable to parse Forge Processors");
+
+        int count = 0;
+        int totalCount = forgeProcessors.Length;
+        foreach (var processor in forgeProcessors) {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            processor.Args = processor.Args.Select(x => {
+                if (x.StartsWith("["))
+                    return Path.Combine(MinecraftFolder, "libraries", x.TrimStart('[').TrimEnd(']').FormatLibraryNameToRelativePath())
                         .ToPath();
-                });
 
-            highVersionForgeProcessors = installProfile["processors"]
-                .Deserialize<IEnumerable<HighVersionForgeProcessorEntry>>()
-                .Where(x => !(x.Sides.Count == 1 && x.Sides.Contains("server")))
-                .ToList();
+                return x.ReplaceFromDictionary(replaceProcessorArgs)
+                    .ReplaceFromDictionary(replaceValues);
+            });
 
-            foreach (var processor in highVersionForgeProcessors) {
-                processor.Args = processor.Args.Select(x => {
-                    if (x.StartsWith("["))
-                        return Path.Combine(
-                                InheritedFrom.GameFolderPath,
-                                "libraries",
-                                LibrariesResolver.FormatLibraryNameToRelativePath(x.TrimStart('[').TrimEnd(']')))
-                            .ToPath();
+            processor.Outputs = processor.Outputs.ToDictionary(
+                kvp => kvp.Key.ReplaceFromDictionary(replaceProcessorArgs),
+                kvp => kvp.Value.ReplaceFromDictionary(replaceProcessorArgs));
 
-                    return x.Replace(replaceProcessorArgs)
-                        .Replace(replaceValues);
-                });
-
-                processor.Outputs = processor.Outputs.ToDictionary(
-                    kvp => kvp.Key.Replace(replaceProcessorArgs),
-                    kvp => kvp.Value.Replace(replaceProcessorArgs));
-            }
-        }
-
-        /*
-         * Download dependent resources
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.25d, "Start downloading dependent resources", TaskStatus.WaitingToRun);
-        await libraries.DownloadResourceEntrysAsync(_configuration, x => {
-            ReportProgress(x.ToPercentage().ToPercentage(0.25d, 0.6d), $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
-                TaskStatus.Running);
-        }, cancellation);
-
-        /*
-         * Write information to version json
-         */
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(0.85d, "Write information to version json", TaskStatus.WaitingToRun);
-        string forgeLibsFolder = Path.Combine(InheritedFrom.GameFolderPath,
-            "libraries\\net\\minecraftforge\\forge",
-            forgeVersion);
-
-        if (isLegacyForgeVersion) {
-            var fileName = installProfile.Select("install").GetString("filePath");
-            packageArchive.GetEntry(fileName)
-                .ExtractTo(Path.Combine(forgeLibsFolder, fileName));
-        }
-
-        packageArchive.GetEntry($"maven/net/minecraftforge/forge/{forgeVersion}/forge-{forgeVersion}.jar")?
-            .ExtractTo(Path.Combine(forgeLibsFolder, $"forge-{forgeVersion}.jar"));
-        packageArchive.GetEntry($"maven/net/minecraftforge/forge/{forgeVersion}/forge-{forgeVersion}-universal.jar")?
-            .ExtractTo(Path.Combine(forgeLibsFolder, $"forge-{forgeVersion}-universal.jar"));
-        packageArchive.GetEntry("data/client.lzma")?
-            .ExtractTo(Path.Combine(forgeLibsFolder, $"forge-{forgeVersion}-clientdata.lzma"));
-
-        if (!string.IsNullOrEmpty(_customId)) {
-            versionInfoJson = versionInfoJson
-                .SetString("id", _customId);
-        }
-
-        var jsonFile = new FileInfo(Path.Combine(
-            InheritedFrom.GameFolderPath,
-            "versions",
-            versionInfoJson.GetString("id"),
-            $"{versionInfoJson.GetString("id")}.json"));
-
-        if (!jsonFile.Directory.Exists) {
-            jsonFile.Directory.Create();
-        }
-
-        File.WriteAllText(jsonFile.FullName, versionInfoJson.ToString());
-
-        //Legacy version installation completed
-        if (isLegacyForgeVersion) {
-            cancellation.ThrowIfCancellationRequested();
-            ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
-            return true;
-        }
-
-        /*
-         * Running install processor
-         */
-        cancellation.ThrowIfCancellationRequested();
-        int index = 0;
-        Dictionary<string, List<string>> _outputs = [];
-        Dictionary<string, List<string>> _errorOutputs = [];
-
-        foreach (var processor in highVersionForgeProcessors) {
-            var fileName = Path.Combine(
-                InheritedFrom.GameFolderPath,
-                "libraries",
-                LibrariesResolver.FormatLibraryNameToRelativePath(processor.Jar));
+            var fileName = Path.Combine(MinecraftFolder, "libraries", processor.Jar.FormatLibraryNameToRelativePath());
 
             using var fileArchive = ZipFile.OpenRead(fileName);
-            string mainClass = fileArchive.GetEntry("META-INF/MANIFEST.MF")
+            string mainClass = fileArchive.GetEntry("META-INF/MANIFEST.MF")?
                 .ReadAsString()
                 .Split("\r\n".ToCharArray())
-                .First(x => x.Contains("Main-Class: "))
-                .Replace("Main-Class: ", string.Empty);
+                .FirstOrDefault(x => x.Contains("Main-Class: "))
+                ?.Replace("Main-Class: ", string.Empty)
+                ?? throw new InvalidDataException("Unable to find MainClass for Processor");
 
             string classPath = string.Join(Path.PathSeparator.ToString(), new List<string>() { fileName }
-                .Concat(processor.Classpath.Select(x => Path.Combine(
-                    InheritedFrom.GameFolderPath,
-                    "libraries",
-                    LibrariesResolver.FormatLibraryNameToRelativePath(x)))));
+                .Concat(processor.Classpath.Select(x => Path.Combine(MinecraftFolder, "libraries", x.FormatLibraryNameToRelativePath()))));
 
             var args = new List<string> {
                 "-cp",
@@ -240,55 +308,43 @@ public sealed class ForgeInstaller : InstallerBase {
 
             args.AddRange(processor.Args);
 
-            using var process = Process.Start(new ProcessStartInfo(_javaPath) {
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
+            using var process = Process.Start(new ProcessStartInfo(JavaPath) {
                 Arguments = string.Join(" ", args),
-                WorkingDirectory = InheritedFrom.GameFolderPath
-            });
+                UseShellExecute = false,
+                WorkingDirectory = MinecraftFolder,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            }) ?? throw new Exception("Failed to start Java");
 
-            var outputs = new List<string>();
-            var errorOutputs = new List<string>();
+            List<string> _errorOutputs = [];
 
-            void AddOutput(string data, bool error = false) {
-                if (string.IsNullOrEmpty(data))
-                    return;
-
-                outputs.Add(data);
-                if (error) errorOutputs.Add(data);
-            }
-
-            process.OutputDataReceived += (_, args) => AddOutput(args.Data);
-            process.ErrorDataReceived += (_, args) => AddOutput(args.Data, true);
+            process.ErrorDataReceived += (_, args) => {
+                if (args.Data is string data && !string.IsNullOrEmpty(data))
+                    _errorOutputs.Add(args.Data);
+            };
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            process.WaitForExit();
+            await process.WaitForExitAsync(cancellationToken);
 
-            _outputs.Add($"{fileName}-{index}", outputs);
-
-            if (errorOutputs.Any()) _errorOutputs.Add($"{fileName}-{index}", errorOutputs);
-
-            index++;
-
-            ReportProgress((index / (double)highVersionForgeProcessors.Count).ToPercentage(0.75, 1.0d),
-                $"Running install processor:{index}/{highVersionForgeProcessors.Count}",
-                TaskStatus.Running);
+            ReportProgress(((double)count * (double)totalCount).ToPercentage(0.45d, 0.95d),
+                $"Running install processor:{Interlocked.Increment(ref count)}/{totalCount}",
+                    TaskStatus.Running);
         }
-
-        cancellation.ThrowIfCancellationRequested();
-        ReportProgress(1.0d, "Installation is complete", TaskStatus.Canceled);
-        return true;
     }
 
-    public static async ValueTask<IEnumerable<ForgeInstallEntry>> EnumerableFromVersionAsync(string mcVersion) {
-        var packagesUrl = $"https://bmclapi2.bangbang93.com/forge/minecraft/{mcVersion}";
-        string json = await packagesUrl.GetStringAsync();
-
-        var entries = json.AsJsonEntry<IEnumerable<ForgeInstallEntry>>();
-        entries = entries.OrderByDescending(entry => entry.Build).ToList();
-        return entries;
-    }
+    #endregion
 }
+
+public record ForgeProcessorData {
+    [JsonPropertyName("jar")] public string Jar { get; set; } = null!;
+    [JsonPropertyName("sides")] public List<string> Sides { get; set; } = [];
+    [JsonPropertyName("args")] public IEnumerable<string> Args { get; set; } = null!;
+    [JsonPropertyName("classpath")] public IEnumerable<string> Classpath { get; set; } = null!;
+    [JsonPropertyName("outputs")] public Dictionary<string, string> Outputs { get; set; } = [];
+}
+
+[JsonSerializable(typeof(IEnumerable<ForgeProcessorData>))]
+[JsonSerializable(typeof(Dictionary<string, Dictionary<string, string>>))]
+internal sealed partial class ForgeInstallerContext : JsonSerializerContext;

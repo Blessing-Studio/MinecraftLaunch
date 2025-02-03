@@ -1,25 +1,19 @@
 ﻿using Flurl.Http;
-using MinecraftLaunch.Classes.Enums;
-using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Download;
+using MinecraftLaunch.Base.Enums;
+using MinecraftLaunch.Base.Models.Network;
 using System.Buffers;
 using System.Collections.Frozen;
+using System.Net;
 using Timer = System.Timers.Timer;
 
 namespace MinecraftLaunch.Components.Downloader;
 
-public sealed class FileDownloader : IDownloader {
-    private record class DownloaderConfig(
-        long ChunkSize,
-        int WorkersPerDownloadTask,
-        int ConcurrentDownloadTasks);
-
+public sealed class FileDownloader {
     private class DownloadStates {
         public required string Url { get; init; }
         public required string LocalPath { get; init; }
         public long? TotalBytes { get; set; }
 
-        // Used by chunk organization in multipart download
         public required long ChunkSize { get; init; }
 
         public long _chunkScheduled = 0;
@@ -41,21 +35,23 @@ public sealed class FileDownloader : IDownloader {
         }
     }
 
+    private record class DownloaderConfig(
+        long ChunkSize,
+        int WorkersPerDownloadTask,
+        int ConcurrentDownloadTasks);
 
     public long ChunkSize => _config.ChunkSize;
     public int WorkersPerDownloadTask => _config.WorkersPerDownloadTask;
     public int ConcurrentDownloadTasks => _config.ConcurrentDownloadTasks;
-    public MirrorDownloadSource DownloadSource => MirrorDownloadManager.Bmcl;
 
     private const int DOWNLOAD_BUFFER_SIZE = 4096;
 
     private readonly DownloaderConfig _config;
     private readonly SemaphoreSlim _globalDownloadTasksSemaphore;
 
-    public FileDownloader(
-        DownloaderConfiguration configuration) {
-        _config = new DownloaderConfig(1024 * 1024, configuration.MaxThread, configuration.MaxThread);
-        _globalDownloadTasksSemaphore = new SemaphoreSlim(configuration.MaxThread, configuration.MaxThread);
+    public FileDownloader(int maxThread = 64) {
+        _config = new DownloaderConfig(1024 * 1024, maxThread, maxThread);
+        _globalDownloadTasksSemaphore = new SemaphoreSlim(maxThread, maxThread);
     }
 
     public static string GetSpeedText(double speed) {
@@ -121,10 +117,7 @@ public sealed class FileDownloader : IDownloader {
                 bytesReceived += b;
             };
 
-            if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-                url = MirrorDownloadManager.GetMirrorUrl(url, DownloadSource);
-            }
-
+            url = DownloadMirrorManager.BmclApi.TryFindUrl(url);
             downloadTasks.Add(DownloadFileInGroupAsync(r, request, failed, cancellationToken));
         }
 
@@ -144,13 +137,11 @@ public sealed class FileDownloader : IDownloader {
         };
     }
 
-    private async Task DownloadFileDriverAsync(DownloadRequest request, CancellationToken cancellationToken = default) {
-        string url = request.Url;
-        string localPath = request.FileInfo.FullName;
+    #region Privates
 
-        if (MirrorDownloadManager.IsUseMirrorDownloadSource) {
-            url = MirrorDownloadManager.GetMirrorUrl(url, DownloadSource);
-        }
+    private async Task DownloadFileDriverAsync(DownloadRequest request, CancellationToken cancellationToken = default) {
+        string url = DownloadMirrorManager.BmclApi.TryFindUrl(request.Url);
+        string localPath = request.FileInfo.FullName;
 
         (var flurlResponse, url) = await PrepareForDownloadAsync(url, cancellationToken);
         var httpResponse = flurlResponse.ResponseMessage;
@@ -163,7 +154,7 @@ public sealed class FileDownloader : IDownloader {
 
         bool useMultiPart = false;
         if (httpResponse.Content.Headers.ContentLength is long contentLength) {
-            //request.Size = contentLength;
+            request.Size = contentLength;
             states.TotalBytes = contentLength;
 
             var rangeResponse = await url.WithHeader("Range", "bytes=0-0")
@@ -187,13 +178,14 @@ public sealed class FileDownloader : IDownloader {
 
     }
 
+    
     private async Task<(IFlurlResponse Response, string RedirectedUrl)> PrepareForDownloadAsync(string url, CancellationToken cancellationToken = default) {
         // Get header
         var response = await url
             .SendAsync(HttpMethod.Head, completionOption: HttpCompletionOption.ResponseHeadersRead, cancellationToken: cancellationToken);
 
         if (response.StatusCode is 302) {
-            var redirectUrl = response.ResponseMessage.Headers.Location?.AbsoluteUri;
+            var redirectUrl = response.ResponseMessage?.Headers?.Location?.AbsoluteUri;
             if (redirectUrl is not null)
                 return await PrepareForDownloadAsync(redirectUrl, cancellationToken);
         }
@@ -212,7 +204,6 @@ public sealed class FileDownloader : IDownloader {
 
     private async Task DownloadSinglePartAsync(DownloadStates states, DownloadRequest request, CancellationToken cancellationToken = default) {
         using var response = await states.Url.GetAsync(cancellationToken: cancellationToken);
-        response.ResponseMessage.EnsureSuccessStatusCode();
 
         using var contentStream = await response.ResponseMessage.Content.ReadAsStreamAsync(cancellationToken);
         using var fileStream = new FileStream(states.LocalPath, FileMode.Create, FileAccess.Write);
@@ -273,4 +264,6 @@ public sealed class FileDownloader : IDownloader {
 
         groupRequest.SingleRequestCompleted?.Invoke(request, result);
     }
+
+    #endregion
 }

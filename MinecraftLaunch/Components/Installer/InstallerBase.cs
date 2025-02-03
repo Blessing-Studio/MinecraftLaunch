@@ -1,25 +1,27 @@
-﻿using MinecraftLaunch.Classes.Interfaces;
-using MinecraftLaunch.Classes.Models.Event;
-using MinecraftLaunch.Classes.Models.Game;
+﻿using MinecraftLaunch.Base.EventArgs;
+using MinecraftLaunch.Base.Interfaces;
+using MinecraftLaunch.Base.Models.Game;
 
 namespace MinecraftLaunch.Components.Installer;
 
 public abstract class InstallerBase : IInstaller {
+    public abstract string MinecraftFolder { get; init; }
 
     public event EventHandler<EventArgs> Completed;
+    public event EventHandler<InstallProgressChangedEventArgs> ProgressChanged;
 
-    public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
-
-    public abstract GameEntry InheritedFrom { get; set; }
-    public virtual Func<double, double> CalculateExpression { get; set; }
-
-    public abstract Task<bool> InstallAsync(CancellationToken cancellation = default);
+    public abstract Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default);
 
     public void ReportCompleted() {
         Completed?.Invoke(this, EventArgs.Empty);
     }
 
-    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status, double speed = 0d) {
-        ProgressChanged?.Invoke(this, new(status, CalculateExpression is null ? progress : CalculateExpression.Invoke(progress), progressStatus, speed));
+    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status, double speed = -1d) {
+        ProgressChanged?.Invoke(this, new InstallProgressChangedEventArgs {
+            Speed = speed,
+            Status = status,
+            Progress = progress,
+            ProgressStatus = progressStatus
+        });
     }
 }

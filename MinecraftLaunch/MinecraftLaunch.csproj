@@ -1,32 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>3.1.0</Version>
+		<Version>4.0.0-preview01</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<PackageProjectUrl>https://github.com/Blessing-Studio/MinecraftLaunch</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>下一代全能高效化的 Minecraft 启动核心</Description>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<PackageIcon>logo.png</PackageIcon>
 		<Authors>Blessing-Studio</Authors>
 		<LangVersion>latest</LangVersion>
 		<Title>MinecraftLaunch</Title>
 		<Nullable>disable</Nullable>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<PackageIcon>logo.png</PackageIcon>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<None Include="..\MinecraftLaunch\.nuget\logo.png">
-			<Pack>True</Pack>
-			<Link>logo.png</Link>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+	  <IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Flurl.Http" Version="4.0.2" />
-	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+	  <IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MinecraftLaunch.Base\MinecraftLaunch.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Logging\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".nuget\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.0.2" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
 </Project>
