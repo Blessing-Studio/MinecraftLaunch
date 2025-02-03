@@ -28,6 +28,12 @@
 	  <IsAotCompatible>True</IsAotCompatible>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove=".nuget\**" />
+	  <EmbeddedResource Remove=".nuget\**" />
+	  <None Remove=".nuget\**" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\MinecraftLaunch.Base\MinecraftLaunch.Base.csproj" />
   </ItemGroup>

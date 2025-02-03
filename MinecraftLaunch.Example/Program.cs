@@ -1,10 +1,7 @@
 ﻿using MinecraftLaunch;
-using MinecraftLaunch.Base.Models.Game;
-using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Downloader;
 using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Parser;
-using MinecraftLaunch.Launch;
 using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
@@ -19,7 +16,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //var installer = VanillaInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", entry);
 //installer.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.Progress * 100:0.00}% - {FileDownloader.GetSpeedText(arg.Speed)} - {arg.ProgressStatus}");
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
 //var minecraft = await installer.InstallAsync();
 //Console.WriteLine(minecraft.Id);
@@ -33,7 +30,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //var installer1 = ForgeInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", "C:\\Program Files\\Java\\latest\\jre-1.8\\bin\\java.exe", entry1);
 //installer1.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.Progress * 100:0.00}% - {FileDownloader.GetSpeedText(arg.Speed)} - {arg.ProgressStatus}");
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
 //var minecraft1 = await installer1.InstallAsync();
 //Console.WriteLine(minecraft1.Id);
@@ -47,7 +44,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //var installer2 = OptifineInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", "C:\\Program Files\\Java\\latest\\jre-1.8\\bin\\java.exe", entry2);
 //installer2.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.Progress * 100:0.00}% - {FileDownloader.GetSpeedText(arg.Speed)} - {arg.ProgressStatus}");
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
 //var minecraft2 = await installer2.InstallAsync();
 //Console.WriteLine(minecraft2.Id);
@@ -61,7 +58,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //var installer3 = FabricInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", entry3);
 //installer3.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.Progress * 100:0.00}% - {FileDownloader.GetSpeedText(arg.Speed)} - {arg.ProgressStatus}");
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
 //var minecraft3 = await installer3.InstallAsync();
 //Console.WriteLine(minecraft3.Id);
@@ -75,7 +72,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //var installer4 = QuiltInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", entry4);
 //installer4.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.Progress * 100:0.00}% - {FileDownloader.GetSpeedText(arg.Speed)} - {arg.ProgressStatus}");
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
 //var minecraft4 = await installer4.InstallAsync();
 //Console.WriteLine(minecraft4.Id);
@@ -154,4 +151,4 @@ MinecraftParser minecraftParser = "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft";
 
 #endregion
 
-Console.ReadKey(); 
+Console.ReadKey();

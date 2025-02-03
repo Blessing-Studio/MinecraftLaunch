@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using MinecraftLaunch.Base.Enums;
 using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Base.Models.Network;
 using MinecraftLaunch.Components.Downloader;
@@ -40,6 +41,8 @@ public sealed class QuiltInstaller : InstallerBase {
         ModifiedMinecraftEntry entry = default;
         MinecraftEntry inheritedEntry = default;
 
+        ReportProgress(InstallStep.Started, 0.0d, TaskStatus.WaitingToRun, 1, 1);
+
         try {
             inheritedEntry = ParseMinecraft(cancellationToken);
 
@@ -47,9 +50,12 @@ public sealed class QuiltInstaller : InstallerBase {
             entry = ParseModifiedMinecraft(jsonFile, cancellationToken);
             await CompleteQuiltLibrariesAsync(entry, cancellationToken);
         } catch (Exception) {
-            throw;
+            ReportProgress(InstallStep.Interrupted, 1.0d, TaskStatus.Canceled, 1, 1);
+            ReportCompleted();
         }
 
+        ReportProgress(InstallStep.RanToCompletion, 1.0d, TaskStatus.RanToCompletion, 1, 1);
+        ReportCompleted();
         return entry ?? throw new ArgumentNullException(nameof(entry), "Unexpected null reference to variable");
     }
 
@@ -57,7 +63,7 @@ public sealed class QuiltInstaller : InstallerBase {
 
     private MinecraftEntry ParseMinecraft(CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
-        ReportProgress(0.15d, "Start parse minecraft", TaskStatus.Created);
+        ReportProgress(InstallStep.ParseMinecraft, 0.10d, TaskStatus.Running, 1, 0);
 
         if (InheritedMinecraft is not null) {
             return InheritedMinecraft;
@@ -66,11 +72,13 @@ public sealed class QuiltInstaller : InstallerBase {
         var inheritedMinecraft = new MinecraftParser(MinecraftFolder).GetMinecrafts()
             .FirstOrDefault(x => x.Version.VersionId == Entry.McVersion);
 
+        ReportProgress(InstallStep.ParseMinecraft, 0.15d, TaskStatus.Running, 1, 1);
         return inheritedMinecraft ?? throw new InvalidOperationException("The corresponding version's parent was not found."); ;
     }
 
     private async Task<FileInfo> DownloadVersionJsonAsync(MinecraftEntry entry, CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(InstallStep.DownloadVersionJson, 0.20d, TaskStatus.Running, 1, 0);
 
         string requestUrl = $"https://meta.quiltmc.org/v3/versions/loader/{Entry.McVersion}/{Entry.BuildVersion}/profile/json";
         requestUrl = DownloadMirrorManager.BmclApi.TryFindUrl(requestUrl);
@@ -92,6 +100,7 @@ public sealed class QuiltInstaller : InstallerBase {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             }), cancellationToken);
 
+        ReportProgress(InstallStep.DownloadVersionJson, 0.45d, TaskStatus.Running, 1, 1);
         return jsonFile;
     }
 
@@ -104,14 +113,15 @@ public sealed class QuiltInstaller : InstallerBase {
 
     private async Task CompleteQuiltLibrariesAsync(MinecraftEntry minecraft, CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
+        ReportProgress(InstallStep.DownloadLibraries, 0.5d, TaskStatus.Running, 0, 0);
 
-        ReportProgress(0.45d, "Start verifying and downloading dependent resources", TaskStatus.WaitingToRun);
         var resourceDownloader = new MinecraftResourceDownloader(minecraft, DownloadMirrorManager.MaxThread);
 
+        int count = 0;
         resourceDownloader.ProgressChanged += (_, x)
-            => ReportProgress(x.ToPercentage().ToPercentage(0.45d, 1.0d),
-                    $"Downloading dependent resources：{x.CompletedCount}/{x.TotalCount}",
-                        TaskStatus.Running, x.Speed);
+            => ReportProgress(InstallStep.DownloadLibraries, x.ToPercentage().ToPercentage(0.5d, 0.95d),
+                TaskStatus.Running, resourceDownloader.TotalCount,
+                    Interlocked.Increment(ref count), x.Speed, true);
 
         var groupDownloadResult = await resourceDownloader.VerifyAndDownloadDependenciesAsync(cancellationToken: cancellationToken);
 

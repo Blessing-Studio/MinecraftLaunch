@@ -1,4 +1,5 @@
-﻿using MinecraftLaunch.Base.EventArgs;
+﻿using MinecraftLaunch.Base.Enums;
+using MinecraftLaunch.Base.EventArgs;
 using MinecraftLaunch.Base.Interfaces;
 using MinecraftLaunch.Base.Models.Game;
 
@@ -12,16 +13,19 @@ public abstract class InstallerBase : IInstaller {
 
     public abstract Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default);
 
-    public void ReportCompleted() {
+    internal void ReportCompleted() {
         Completed?.Invoke(this, EventArgs.Empty);
     }
 
-    internal virtual void ReportProgress(double progress, string progressStatus, TaskStatus status, double speed = -1d) {
+    internal virtual void ReportProgress(InstallStep step, double progress, TaskStatus status, int totalCount, int finshedCount, double speed = -1d, bool isSupportStep = false) {
         ProgressChanged?.Invoke(this, new InstallProgressChangedEventArgs {
             Speed = speed,
             Status = status,
+            StepName = step,
             Progress = progress,
-            ProgressStatus = progressStatus
+            TotalStepTaskCount = totalCount,
+            IsStepSupportSpeed = isSupportStep,
+            FinishedStepTaskCount = finshedCount
         });
     }
 }

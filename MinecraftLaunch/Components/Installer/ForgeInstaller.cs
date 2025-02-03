@@ -51,7 +51,7 @@ internal sealed class ForgeInstaller : InstallerBase {
             if (!isLegacy) {
                 await RunInstallProcessorAsync(forgePackageFile.FullName, installProfile, entry, cancellationToken);
             } else {
-                ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
+                //ReportProgress(1.0d, "Installation is complete", TaskStatus.RanToCompletion);
                 ReportCompleted();
             }
         } catch (Exception) {
@@ -84,7 +84,7 @@ internal sealed class ForgeInstaller : InstallerBase {
 
     private MinecraftEntry ParseMinecraft(CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
-        ReportProgress(0.15d, "Start parse minecraft", TaskStatus.Created);
+        //ReportProgress(0.15d, "Start parse minecraft", TaskStatus.Created);
 
         if (InheritedMinecraft is not null) {
             return InheritedMinecraft;
@@ -98,7 +98,7 @@ internal sealed class ForgeInstaller : InstallerBase {
 
     private async Task<FileInfo> DownloadForgePackageAsync(CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
-        ReportProgress(0.30d, "Downloading forge package", TaskStatus.Running);
+        //ReportProgress(0.30d, "Downloading forge package", TaskStatus.Running);
 
         string baseUrl = Entry.IsNeoforge
             ? $"https://bmclapi2.bangbang93.com/neoforge/version/{Entry.ForgeVersion}/download/installer.jar"
@@ -129,7 +129,7 @@ internal sealed class ForgeInstaller : InstallerBase {
 
     private (ZipArchive package, JsonNode installProfile, bool isLegacy) ParseForgePackage(string packageFilePath, CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
-        ReportProgress(0.45d, "Parse forge package", TaskStatus.Running);
+        //ReportProgress(0.45d, "Parse forge package", TaskStatus.Running);
 
         var packageArchive = ZipFile.OpenRead(packageFilePath);
         var installProfileNode = packageArchive
@@ -217,10 +217,10 @@ internal sealed class ForgeInstaller : InstallerBase {
         int count = 0;
         double speed = 0;
         groupDownloadRequest.DownloadSpeedChanged += x => speed = x;
-        groupDownloadRequest.SingleRequestCompleted += (_, x)
-            => ReportProgress(((double)count * (double)dependencies.Count).ToPercentage(0.45d, 0.70d),
-                    $"Downloading dependent resources：{Interlocked.Increment(ref count)}/{dependencies.Count}",
-                        TaskStatus.Running, speed);
+        //groupDownloadRequest.SingleRequestCompleted += (_, x)
+        //    => ReportProgress(((double)count * (double)dependencies.Count).ToPercentage(0.45d, 0.70d),
+        //            $"Downloading dependent resources：{Interlocked.Increment(ref count)}/{dependencies.Count}",
+        //                TaskStatus.Running, speed);
 
         var groupDownloadResult = await new FileDownloader(DownloadMirrorManager.MaxThread)
             .DownloadFilesAsync(groupDownloadRequest, cancellationToken);
@@ -328,9 +328,9 @@ internal sealed class ForgeInstaller : InstallerBase {
 
             await process.WaitForExitAsync(cancellationToken);
 
-            ReportProgress(((double)count * (double)totalCount).ToPercentage(0.45d, 0.95d),
-                $"Running install processor:{Interlocked.Increment(ref count)}/{totalCount}",
-                    TaskStatus.Running);
+            //ReportProgress(((double)count * (double)totalCount).ToPercentage(0.45d, 0.95d),
+            //    $"Running install processor:{Interlocked.Increment(ref count)}/{totalCount}",
+            //        TaskStatus.Running);
         }
     }
 

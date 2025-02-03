@@ -60,4 +60,4 @@ public sealed class MinecraftProcess : IDisposable {
     }
 }
 
-public sealed record LogReceivedEventArgs(string Data);
+public record LogReceivedEventArgs(string Data);

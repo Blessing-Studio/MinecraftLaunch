@@ -108,6 +108,7 @@ public sealed class FileDownloader {
             request.DownloadSpeedChanged?.Invoke(speed);
         };
 
+        timer.Start();
         foreach (var req in request.Files) {
             var r = req;
             string url = req.Url;
@@ -121,7 +122,6 @@ public sealed class FileDownloader {
             downloadTasks.Add(DownloadFileInGroupAsync(r, request, failed, cancellationToken));
         }
 
-        timer.Start();
         await Task.WhenAll(downloadTasks);
         timer.Stop();
 

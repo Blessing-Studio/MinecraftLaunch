@@ -16,6 +16,7 @@ public sealed class MinecraftResourceDownloader {
 
     public event EventHandler<ResourceDownloadProgressChangedEventArgs> ProgressChanged;
 
+    internal int TotalCount { get; set; }
     public bool AllowVerifyAssets { get; init; } = true;
     public bool AllowInheritedDependencies { get; init; } = true;
 
@@ -60,7 +61,7 @@ public sealed class MinecraftResourceDownloader {
         if (AllowVerifyAssets) {
             var assetIndex = _entry.GetAssetIndex();
 
-            if (!await VerifyDependencyAsync(assetIndex, cancellationToken)) {
+            if (!VerifyDependency(assetIndex, cancellationToken)) {
                 var result = await _downloader
                     .DownloadFileAsync(new(assetIndex.Url, assetIndex.FullPath), cancellationToken);
 
@@ -78,23 +79,33 @@ public sealed class MinecraftResourceDownloader {
         SemaphoreSlim semaphore = new(fileVerificationParallelism, fileVerificationParallelism);
         ConcurrentBag<MinecraftDependency> invalidDeps = [];
 
-        var tasks = _dependencies.Select(async dep => {
-            await semaphore.WaitAsync(cancellationToken);
-            try {
-                if (!await VerifyDependencyAsync(dep, cancellationToken)) {
-                    lock (invalidDeps) {
-                        invalidDeps.Add(dep);
-                    }
+        _dependencies.AsParallel()
+            .Where(x => {
+                if (!VerifyDependency(x, cancellationToken)) {
+                    return true;
                 }
-            } finally {
-                semaphore.Release();
-            }
-        }).ToList();
 
-        await Task.WhenAll(tasks);
-        //InvalidDependenciesDetermined?.Invoke(this, invalidDeps);
-        
+                return false;
+            })
+            .ForAll(invalidDeps.Add);
+
+        //var tasks = _dependencies.Select(async dep => {
+        //    await semaphore.WaitAsync(cancellationToken);
+        //    try {
+        //        if (!await VerifyDependencyAsync(dep, cancellationToken)) {
+        //            lock (invalidDeps) {
+        //                invalidDeps.Add(dep);
+        //            }
+        //        }
+        //    } finally {
+        //        semaphore.Release();
+        //    }
+        //}).ToList();
+
+        //await Task.WhenAll(tasks);
+
         // 3. Download invalid dependencies
+        TotalCount = invalidDeps.Count;
         var downloadItems = invalidDeps.Where(dep => dep is IDownloadDependency)
             .OfType<IDownloadDependency>()
             .Select(dep => new DownloadRequest(dep.Url, dep.FullPath));
@@ -119,30 +130,32 @@ public sealed class MinecraftResourceDownloader {
 
     #region Privates
 
-    private static async Task<bool> VerifyDependencyAsync(MinecraftDependency dep, CancellationToken cancellationToken = default) {
+    private static bool VerifyDependency(MinecraftDependency dep, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!File.Exists(dep.FullPath))
             return false;
 
         if (dep is not IVerifiableDependency verifiableDependency)
             return true;
 
-        async Task<bool> VerifySha1Async(CancellationToken cancellationToken) {
+        bool VerifySha1() {
             using var fileStream = File.OpenRead(dep.FullPath);
-            byte[] sha1Bytes = await SHA1.HashDataAsync(fileStream, cancellationToken);
+            byte[] sha1Bytes = SHA1.HashData(fileStream);
             string sha1Str = BitConverter.ToString(sha1Bytes).Replace("-", string.Empty).ToLower();
 
             return sha1Str == verifiableDependency.Sha1;
         }
 
-        async Task<bool> VerifySizeAsync(CancellationToken _) {
+        bool VerifySize() {
             var file = new FileInfo(dep.FullPath);
-            return await Task.FromResult(verifiableDependency.Size == file.Length);
+            return verifiableDependency.Size == file.Length;
         }
 
         if (verifiableDependency.Sha1 != null)
-            return await VerifySha1Async(cancellationToken);
+            return VerifySha1();
         else if (verifiableDependency.Size != null)
-            return await VerifySizeAsync(cancellationToken);
+            return VerifySize();
 
         return true;
     }
