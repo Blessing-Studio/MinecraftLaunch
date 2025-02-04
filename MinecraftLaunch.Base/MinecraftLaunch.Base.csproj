@@ -1,9 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+	<PropertyGroup>
+		<PackageProjectUrl>https://github.com/Blessing-Studio/MinecraftLaunch</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Blessing-Studio/MinecraftLaunch</RepositoryUrl>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Description>MinecraftLaunch 的基础库</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Authors>Blessing-Studio</Authors>
+		<LangVersion>latest</LangVersion>
+		<Title>MinecraftLaunch.Base</Title>
+		<Nullable>disable</Nullable>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
 	<ItemGroup>

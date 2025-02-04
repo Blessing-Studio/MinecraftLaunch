@@ -34,10 +34,17 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - name: Build
+    - name: Build MinecraftLaunch
       run: dotnet build MinecraftLaunch/MinecraftLaunch.csproj ${{ env.compile-flags }}
-    - name: Publish
+    - name: Publish MinecraftLaunch
       uses: brandedoutcast/publish-nuget@v2.5.2
       with: 
         PROJECT_FILE_PATH: MinecraftLaunch/MinecraftLaunch.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Build MinecraftLaunch.Base
+      run: dotnet build MinecraftLaunch.Base/MinecraftLaunch.Base.csproj ${{ env.compile-flags }}
+    - name: Publish MinecraftLaunch.Base
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with: 
+        PROJECT_FILE_PATH: MinecraftLaunch.Base/MinecraftLaunch.Base.csproj
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
