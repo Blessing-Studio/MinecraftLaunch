@@ -28,6 +28,14 @@
 	  <IsAotCompatible>True</IsAotCompatible>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
+	  <IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
+	  <IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <Compile Remove=".nuget\**" />
 	  <EmbeddedResource Remove=".nuget\**" />

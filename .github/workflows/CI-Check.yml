@@ -22,4 +22,4 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
     - name: Test
-      run: dotnet test MinecraftLaunch/MinecraftLaunch.csproj
+      run: dotnet test
