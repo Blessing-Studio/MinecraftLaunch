@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>4.0.0-preview01</Version>
+		<Version>4.0.0-preview02</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -10,7 +10,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>下一代全能高效化的 Minecraft 启动核心</Description>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<TargetFrameworks>net8.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Authors>Blessing-Studio</Authors>
 		<LangVersion>latest</LangVersion>
