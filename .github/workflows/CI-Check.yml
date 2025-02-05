@@ -7,7 +7,7 @@ on:
     types:
       - opened
 jobs:
-  build_and_test:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,7 +21,5 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-    - name: Build
-      run: dotnet build MinecraftLaunch/MinecraftLaunch.csproj
     - name: Test
       run: dotnet test MinecraftLaunch/MinecraftLaunch.csproj
