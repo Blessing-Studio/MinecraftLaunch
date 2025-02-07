@@ -15,6 +15,12 @@ public enum InstallStep {
     WriteVersionJsonAndSomeDependencies,
     RunInstallProcessor,
 
+    //Modpack
+    ParseDownloadUrls,
+    DownloadMods,
+    ExtractModpack,
+    RedirectInvalidMod,
+
     //Error handle
     Interrupted = -1
 }

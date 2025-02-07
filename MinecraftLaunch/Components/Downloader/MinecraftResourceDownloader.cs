@@ -92,7 +92,7 @@ public sealed class MinecraftResourceDownloader {
         //var tasks = _dependencies.Select(async dep => {
         //    await semaphore.WaitAsync(cancellationToken);
         //    try {
-        //        if (!await VerifyDependencyAsync(dep, cancellationToken)) {
+        //        if (!await VerifyDependency(dep, cancellationToken)) {
         //            lock (invalidDeps) {
         //                invalidDeps.Add(dep);
         //            }

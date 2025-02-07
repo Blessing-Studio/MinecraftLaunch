@@ -1,24 +1,19 @@
 ﻿using MinecraftLaunch.Base.Enums;
+using MinecraftLaunch.Base.Interfaces;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Base.Models.Network;
 
-public record FabricInstallEntry {
+public record FabricInstallEntry : IInstallEntry {
     [JsonPropertyName("loader")] public FabricMavenItem Loader { get; set; }
     [JsonPropertyName("intermediary")] public FabricMavenItem Intermediary { get; set; }
-    //[JsonPropertyName("launcherMeta")] public FabricLauncherMeta LauncherMeta { get; set; }
 
     [JsonIgnore] public string BuildVersion => Loader.Version;
     [JsonIgnore] public string McVersion => Intermediary.Version;
     [JsonIgnore] public ModLoaderType ModLoaderType => ModLoaderType.Fabric;
     [JsonIgnore] public string DisplayVersion => $"{McVersion}-{Loader.Version}";
 }
-
-//public sealed record FabricLauncherMeta {
-//    [JsonPropertyName("mainClass")] public JsonNode MainClass { get; set; }
-//    [JsonPropertyName("libraries")] public Dictionary<string, List<LibraryJsonEntry>> Libraries { get; set; }
-//}
 
 public record FabricMavenItem {
     [JsonPropertyName("maven")] public string Maven { get; set; }

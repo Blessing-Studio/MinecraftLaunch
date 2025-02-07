@@ -137,13 +137,10 @@ public class VanillaMinecraftEntry : MinecraftEntry;
 public class ModifiedMinecraftEntry : MinecraftEntry {
     public required IEnumerable<ModLoaderInfo> ModLoaders { get; init; }
 
+    public VanillaMinecraftEntry InheritedMinecraftEntry { get; init; }
+
     [MemberNotNullWhen(true, nameof(InheritedMinecraftEntry))]
     public bool HasInheritance { get => InheritedMinecraftEntry is not null; }
-
-    /// <summary>
-    /// The entry from which this entry inherits
-    /// </summary>
-    public VanillaMinecraftEntry InheritedMinecraftEntry { get; init; }
 }
 
 public abstract class MinecraftDependency {

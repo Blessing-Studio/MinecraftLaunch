@@ -14,11 +14,11 @@ public record LauncherProfileEntry {
 
 public record GameProfileEntry {
     [JsonPropertyName("name")] public string Name { get; set; }
-    [JsonPropertyName("created")] public DateTime Created { get; set; }
     [JsonPropertyName("gameDir")] public string GameFolder { get; set; }
-    [JsonPropertyName("lastUsed")] public DateTime LastUsed { get; set; }
     [JsonPropertyName("lastVersionId")] public string LastVersionId { get; set; }
     [JsonPropertyName("type")] public string Type { get; set; } = "custom";
+    [JsonPropertyName("created")] public DateTime Created { get; set; } = DateTime.Now;
+    [JsonPropertyName("lastUsed")] public DateTime LastUsed { get; set; } = DateTime.Now;
 
     [JsonPropertyName("icon")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

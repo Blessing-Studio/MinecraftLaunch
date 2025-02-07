@@ -27,7 +27,26 @@ public sealed class LauncherProfileParser {
         _clientToken = clientToken;
         _minecraftPath = minecraftPath;
 
-        Parse();
+        try {
+            Parse();
+        } catch (JsonException) {
+            var launcherProfile = new LauncherProfileEntry {
+                Profiles = [],
+                ClientToken = _clientToken.ToString("D"),
+                LauncherVersion = new LauncherVersionEntry {
+                    Format = 114514,
+                    Name = "MinecraftLaunch"
+                },
+            };
+
+            _launcherProfile = launcherProfile;
+            string profileJson = _launcherProfile.Serialize(new LauncherProfileEntryContext(Get()).LauncherProfileEntry);
+
+            if (!Directory.Exists(_minecraftPath))
+                Directory.CreateDirectory(_minecraftPath);
+
+            File.WriteAllText(Path.Combine(_minecraftPath, "launcher_profiles.json"), profileJson);
+        }
     }
 
     public void Add(GameProfileEntry entry) {

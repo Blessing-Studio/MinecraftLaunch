@@ -1,11 +1,17 @@
 ﻿using MinecraftLaunch;
+using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Downloader;
 using MinecraftLaunch.Components.Installer;
+using MinecraftLaunch.Components.Installer.Modpack;
 using MinecraftLaunch.Components.Parser;
+using MinecraftLaunch.Components.Provider;
+using MinecraftLaunch.Utilities;
+using System.Diagnostics;
 using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
 DownloadMirrorManager.IsEnableMirror = false;
+CurseforgeProvider.CurseforgeApiKey = "Your CF aoi key";
 ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #region 原版安装器
@@ -39,7 +45,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #region Optifine 安装器
 
-//var entry2 = await OptifineInstaller.EnumerableOptifineAsync("1.12.2")
+//var entry2 = await OptifineInstaller.EnumerableOptifineAsync("1.20.1")
 //    .LastOrDefaultAsync();
 
 //var installer2 = OptifineInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", "C:\\Program Files\\Java\\latest\\jre-1.8\\bin\\java.exe", entry2);
@@ -79,6 +85,20 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #endregion
 
+#region Curseforge 整合包安装器
+
+//var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
+////var installEntrys = CurseforgeModpackInstaller.ParseModLoaderDataByManifestAsync(modpackEntry);
+
+//var cfModpackInstaller = CurseforgeModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip", modpackEntry, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+//cfModpackInstaller.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+
+//await cfModpackInstaller.InstallAsync();
+//Console.WriteLine("厚礼蟹");
+
+#endregion
+
 #region 微软验证
 
 //MicrosoftAuthenticator authenticator = new("Your client ID");
@@ -110,7 +130,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #region 本地游戏读取
 
-MinecraftParser minecraftParser = "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft";
+//MinecraftParser minecraftParser = "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft";
 
 //minecraftParser.GetMinecrafts().ForEach(x => {
 //    Console.WriteLine(x.Id);
@@ -122,6 +142,14 @@ MinecraftParser minecraftParser = "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft";
 
 //    Console.WriteLine();
 //});
+
+#endregion
+
+#region 本地 Java 读取
+
+//var asyncJavas = JavaUtil.EnumerableJavaAsync();
+//await foreach (var java in asyncJavas)
+//    Console.WriteLine($"是否是64位：{java.Is64bit} - Java 版本：{java.JavaVersion} - Java 类型：{java.JavaType} - Java 路径：{java.JavaPath}");
 
 #endregion
 

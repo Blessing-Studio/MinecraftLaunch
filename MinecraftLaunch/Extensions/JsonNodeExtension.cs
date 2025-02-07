@@ -31,6 +31,14 @@ public static class JsonNodeExtension {
         return node.Select(name).GetValue<int>();
     }
 
+    public static long GetInt64(this JsonNode node) {
+        return node.GetValue<long>();
+    }
+
+    public static long GetInt64(this JsonNode node, string name) {
+        return node.Select(name).GetValue<long>();
+    }
+
     public static bool GetBool(this JsonNode node) {
         return node.GetValue<bool>();
     }
