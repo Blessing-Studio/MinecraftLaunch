@@ -90,8 +90,7 @@ public static partial class JavaUtil {
 
     private static IEnumerable<string> GetJavasForWindows() {
         //Use by:https://github.com/Xcube-Studio/Natsurainko.FluentCore/blob/main/Natsurainko.FluentCore/Environment/JavaUtils.cs
-
-        var result = new List<string>();
+        List<string> result = [];
 
         #region Cmd: Find Java by running "where javaw" command in cmd.exe
 
@@ -132,7 +131,7 @@ public static partial class JavaUtil {
         var javaHomePaths = new List<string>();
 
         // Local function: recursively search for the keyName in the registry
-        List<string> ForRegistryKey(RegistryKey registryKey, string keyName) {
+        static List<string> ForRegistryKey(RegistryKey registryKey, string keyName) {
             var result = new List<string>();
 
             foreach (string valueName in registryKey.GetValueNames()) {
@@ -174,20 +173,20 @@ public static partial class JavaUtil {
 
         #region Special Folders
 
-        var folders = new List<string>();
+        List<string> folders = [];
 
         // %APPDATA%\.minecraft\cache\java
-        string appDataPath = System.Environment.GetEnvironmentVariable("APPDATA");
+        string appDataPath = Environment.GetEnvironmentVariable("APPDATA");
+        Console.WriteLine(appDataPath);
         if (!string.IsNullOrEmpty(appDataPath))
             folders.Add(Path.Combine(appDataPath, ".minecraft\\cache\\java"));
 
         // %APPDATA%\.minecraft\runtime\
         if (!string.IsNullOrEmpty(appDataPath))
-            result.AddRange(new DirectoryInfo(Path.Combine(appDataPath, ".minecraft\\runtime\\"))
-                .FindAll("javaw.exe").Select(x => x.FullName));
+            folders.Add(Path.Combine(appDataPath, ".minecraft\\runtime\\"));
 
         // %JAVA_HOME%
-        string javaHomePath = System.Environment.GetEnvironmentVariable("JAVA_HOME");
+        string javaHomePath = Environment.GetEnvironmentVariable("JAVA_HOME");
         if (javaHomePath is not null)
             folders.Add(javaHomePath);
 
