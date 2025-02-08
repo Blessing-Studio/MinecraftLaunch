@@ -13,8 +13,8 @@ using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
 DownloadMirrorManager.IsEnableMirror = false;
-CurseforgeProvider.CurseforgeApiKey = "$2a$10$Awb53b9gSOIJJkdV3Zrgp.CyFP.dI13QKbWn/4UZI4G4ff18WneB6";
-ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+CurseforgeProvider.CurseforgeApiKey = "Your Api Key";
+
 HttpUtil.Initialize();
 
 #region 原版安装器
@@ -90,15 +90,15 @@ HttpUtil.Initialize();
 
 #region Curseforge 整合包安装器
 
-var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
-//var installEntrys = CurseforgeModpackInstaller.ParseModLoaderEntryByManifestAsync(modpackEntry);
+//var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
+////var installEntrys = CurseforgeModpackInstaller.ParseModLoaderEntryByManifestAsync(modpackEntry);
 
-var cfModpackInstaller = CurseforgeModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip", modpackEntry, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
-cfModpackInstaller.ProgressChanged += (_, arg) =>
-    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+//var cfModpackInstaller = CurseforgeModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip", modpackEntry, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+//cfModpackInstaller.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
-var minecraft5 = await cfModpackInstaller.InstallAsync();
-Console.WriteLine(minecraft5.Id);
+//var minecraft5 = await cfModpackInstaller.InstallAsync();
+//Console.WriteLine(minecraft5.Id);
 
 #endregion
 
@@ -171,16 +171,17 @@ Console.WriteLine(minecraft5.Id);
 
 //MinecraftRunner runner = new(new LaunchConfig {
 //    Account = new OfflineAuthenticator().Authenticate("Yang114"),
-//    JavaPath = minecraftParser.GetMinecraft("1.12.2-Forge-14.23.5.2860-OptiFine-HD_U_G6_pre1").GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
+//    JavaPath = minecraftParser.GetMinecraft("Fabulously Optimized").GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
 //    MaxMemorySize = 1024,
 //    MinMemorySize = 512,
 //}, minecraftParser);
 
-//var process = await runner.RunAsync(minecraftParser.GetMinecraft("1.12.2-Forge-14.23.5.2860-OptiFine-HD_U_G6_pre1"));
+//var process = await runner.RunAsync(minecraftParser.GetMinecraft("Fabulously Optimized"));
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
-//process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
+//process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data.Log);
 //process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));
 
 #endregion
 
+Console.WriteLine("Done!");
 Console.ReadKey();

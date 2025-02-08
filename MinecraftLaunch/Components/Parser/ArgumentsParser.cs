@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace MinecraftLaunch.Launch;
+namespace MinecraftLaunch.Components.Parser;
 
 public sealed class ArgumentsParser {
     private IReadOnlyList<MinecraftLibrary> _natives;
@@ -152,7 +152,7 @@ public sealed class ArgumentsParser {
                 { "${version_type}" , versionType },
                 { "${game_assets}" , Path.Combine(MinecraftEntry.MinecraftFolderPath, "assets").ToPath() },
                 { "${assets_root}" , Path.Combine(MinecraftEntry.MinecraftFolderPath, "assets").ToPath() },
-                { "${game_directory}" , MinecraftEntry.ToWorkingPath(LaunchConfig.IsEnableIndependencyCore).ToPath() },
+                { "${game_directory}" , MinecraftEntry.ToWorkingPath(LaunchConfig.IsEnableIndependency).ToPath() },
                 { "${assets_index_name}" , assetIndexFilename },
         };
 
@@ -251,7 +251,7 @@ internal sealed class JvmArgumentParser {
         switch (EnvironmentUtil.GetPlatformName()) {
             case "windows":
                 yield return "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-                if (System.Environment.OSVersion.Version.Major == 10) {
+                if (Environment.OSVersion.Version.Major == 10) {
                     yield return "-Dos.name=\"Windows 10\"";
                     yield return "-Dos.version=10.0";
                 }

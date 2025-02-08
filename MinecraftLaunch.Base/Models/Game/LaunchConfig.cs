@@ -6,7 +6,7 @@ public record LaunchConfig {
     public Account Account { get; set; }
 
     public bool IsFullscreen { get; set; }
-    public bool IsEnableIndependencyCore { get; set; } = true;
+    public bool IsEnableIndependency { get; set; } = true;
 
     public int MinMemorySize { get; set; }
     public int MaxMemorySize { get; set; } = 1024;
