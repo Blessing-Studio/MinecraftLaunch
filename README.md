@@ -1,6 +1,6 @@
 <div align="center">
 
-<img Height="100" Width="100" src="https://raw.githubusercontent.com/Blessing-Studio/MinecraftLaunch/master/MinecraftLaunch/.nuget/logo.png"/>
+<img Height="100" Width="100" src="https://blessing-studio.cn/wp-content/uploads/2025/01/IMG_2186.png"/>
 
 # MinecraftLaunch
 

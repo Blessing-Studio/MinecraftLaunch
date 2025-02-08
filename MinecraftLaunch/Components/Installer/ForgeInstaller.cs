@@ -17,7 +17,7 @@ namespace MinecraftLaunch.Components.Installer;
 /// <summary>
 /// Forge（Neo）通用安装器
 /// </summary>
-internal sealed class ForgeInstaller : InstallerBase {
+public sealed class ForgeInstaller : InstallerBase {
     public string CustomId { get; init; }
     public string JavaPath { get; init; }
     public ForgeInstallEntry Entry { get; init; }
