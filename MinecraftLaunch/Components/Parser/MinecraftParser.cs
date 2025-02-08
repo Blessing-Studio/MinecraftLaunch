@@ -62,7 +62,7 @@ public sealed class MinecraftParser {
 
                 list.Add(entry);
                 if (entry is ModifiedMinecraftEntry m && m.HasInheritance && !inheritedInstanceAlreadyFound)
-                    list.Add(m.InheritedMinecraftEntry);
+                    list.Add(m.InheritedMinecraft);
 
                 //Handle profiles
                 if (LauncherProfileParser.Profiles.TryGetValue(entry.Id, out var profile)) {
@@ -273,7 +273,7 @@ public sealed class MinecraftParser {
             MinecraftFolderPath = partialData.MinecraftFolderPath,
             ClientJsonPath = partialData.ClientJsonPath,
             ClientJarPath = clientJarPath,
-            InheritedMinecraftEntry = inheritedEntry,
+            InheritedMinecraft = inheritedEntry,
             ModLoaders = modLoaders
         };
     }

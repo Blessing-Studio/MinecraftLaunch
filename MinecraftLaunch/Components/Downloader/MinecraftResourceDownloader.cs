@@ -40,7 +40,7 @@ public sealed class MinecraftResourceDownloader {
         if (AllowInheritedDependencies
             && _entry is ModifiedMinecraftEntry modInstance
             && modInstance.HasInheritance) {
-            (libs, nativeLibs) = modInstance.InheritedMinecraftEntry.GetRequiredLibraries();
+            (libs, nativeLibs) = modInstance.InheritedMinecraft.GetRequiredLibraries();
             _dependencies.AddRange(libs);
             _dependencies.AddRange(nativeLibs);
         }

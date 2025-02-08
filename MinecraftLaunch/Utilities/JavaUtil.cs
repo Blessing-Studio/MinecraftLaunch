@@ -28,14 +28,16 @@ public static partial class JavaUtil {
 
         bool is64bit = text.Contains("64-bit");
         string javaType = text.Contains("openjdk") ? "OpenJDK" : "Java";
-        string javaVersion = JavaVersionRegex().Match(text).Groups[1].Value;
+        string javaVersion = JavaVersionRegex()
+            .Match(text).Groups[1].Value
+            .Split('_')?.FirstOrDefault();
 
         await process.WaitForExitAsync(cancellationToken);
         return new JavaEntry {
             Is64bit = is64bit,
             JavaPath = javaPath,
             JavaType = javaType,
-            JavaVersion = javaVersion,
+            JavaVersion = new(javaVersion),
         };
     }
 

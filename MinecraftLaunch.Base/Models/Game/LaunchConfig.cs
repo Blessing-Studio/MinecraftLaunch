@@ -11,7 +11,9 @@ public record LaunchConfig {
     public int MinMemorySize { get; set; }
     public int MaxMemorySize { get; set; } = 1024;
 
-    public string JavaPath { get; set; }
+    public JavaEntry JavaPath { get; set; }
     public string LauncherName { get; set; }
     public string NativesFolder { get; set; }
+
+    public IEnumerable<string> JvmArguments { get; set; }
 }

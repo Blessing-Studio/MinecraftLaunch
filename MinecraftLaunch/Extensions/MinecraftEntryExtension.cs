@@ -1,16 +1,53 @@
-﻿using MinecraftLaunch.Base.Models.Game;
+﻿using MinecraftLaunch.Base.Enums;
+using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Base.Utilities;
 using System.IO.Compression;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Extensions;
 
 public static class MinecraftEntryExtension {
+    public static JavaEntry GetAppropriateJava(this MinecraftEntry minecraft, IEnumerable<JavaEntry> javas) {
+        var targetJavaVersion = minecraft.GetAppropriateJavaVersion();
+
+        bool isForgeOrNeoForge = false;
+        List<JavaEntry> possiblyAvailableJavas = [];
+
+        if (minecraft is ModifiedMinecraftEntry modifiedMinecraft) {
+            var loaders = modifiedMinecraft.ModLoaders.Select(x => x.Type);
+            isForgeOrNeoForge = loaders.Contains(ModLoaderType.Forge) || loaders.Contains(ModLoaderType.NeoForge);
+        }
+
+        possiblyAvailableJavas = targetJavaVersion is 0 or -1
+            ? javas.ToList()
+            : isForgeOrNeoForge
+                ? javas.Where(x => x.MajorVersion.Equals(targetJavaVersion)).ToList()
+                : javas.Where(x => x.MajorVersion >= targetJavaVersion).ToList();
+
+        if (possiblyAvailableJavas.Count == 0)
+            throw new FileNotFoundException($"No suitable version of Java found to start this game, version {targetJavaVersion} is required");
+
+        possiblyAvailableJavas.Reverse();
+        return possiblyAvailableJavas.First();
+    }
+
+    public static int GetAppropriateJavaVersion(this MinecraftEntry minecraft) {
+        if (minecraft is ModifiedMinecraftEntry { HasInheritance: true } mc)
+            return mc.InheritedMinecraft.GetAppropriateJavaVersion();
+
+        var majorJavaVersionNode = File.ReadAllText(minecraft.ClientJsonPath).AsNode()
+            .Select("javaVersion")?
+            .Select("majorVersion");
+
+        return majorJavaVersionNode is null
+            ? 8
+            : majorJavaVersionNode.GetInt32();
+    }
+
     public static MinecraftClient GetJarElement(this MinecraftEntry entry) {
         string clientJsonPath = entry.ClientJsonPath;
         if (entry is ModifiedMinecraftEntry { HasInheritance: true } inst)
-            clientJsonPath = inst.InheritedMinecraftEntry.ClientJsonPath;
+            clientJsonPath = inst.InheritedMinecraft.ClientJsonPath;
 
         JsonNode clientArtifactNode = File.ReadAllText(clientJsonPath).AsNode().Select("downloads")?.Select("client");
 
@@ -43,7 +80,7 @@ public static class MinecraftEntryExtension {
     public static AssstIndex GetAssetIndex(this MinecraftEntry minecraftEntry) {
         // Identify file paths
         string clientJsonPath = minecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } entry
-            ? entry.InheritedMinecraftEntry.ClientJsonPath
+            ? entry.InheritedMinecraft.ClientJsonPath
             : minecraftEntry.ClientJsonPath;
 
         // Parse client.json

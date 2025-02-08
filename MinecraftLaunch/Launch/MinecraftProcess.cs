@@ -17,9 +17,11 @@ public sealed class MinecraftProcess : IDisposable {
 
     public MinecraftProcess(LaunchConfig launchConfig, MinecraftEntry minecraft, IEnumerable<string> launchArgs) {
         ArgumentList = launchArgs;
+        if (!ArgumentList.Any())
+            return;
 
         Process = new Process {
-            StartInfo = new ProcessStartInfo(launchConfig.JavaPath) {
+            StartInfo = new ProcessStartInfo(launchConfig.JavaPath.JavaPath) {
                 WorkingDirectory = minecraft.ToWorkingPath(launchConfig.IsEnableIndependencyCore),
                 Arguments = string.Join(' ', launchArgs),
                 UseShellExecute = false,

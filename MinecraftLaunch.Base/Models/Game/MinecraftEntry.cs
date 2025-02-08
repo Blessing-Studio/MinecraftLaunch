@@ -75,7 +75,7 @@ public abstract class MinecraftEntry {
         // Identify file paths
         string assetIndexJsonPath = AssetIndexJsonPath;
         if (this is ModifiedMinecraftEntry { HasInheritance: true } instance)
-            assetIndexJsonPath = instance.InheritedMinecraftEntry.AssetIndexJsonPath;
+            assetIndexJsonPath = instance.InheritedMinecraft.AssetIndexJsonPath;
 
         // Parse asset index json
         JsonNode jsonNode = JsonNode.Parse(File.ReadAllText(assetIndexJsonPath));
@@ -137,10 +137,10 @@ public class VanillaMinecraftEntry : MinecraftEntry;
 public class ModifiedMinecraftEntry : MinecraftEntry {
     public required IEnumerable<ModLoaderInfo> ModLoaders { get; init; }
 
-    public VanillaMinecraftEntry InheritedMinecraftEntry { get; init; }
+    public VanillaMinecraftEntry InheritedMinecraft { get; init; }
 
-    [MemberNotNullWhen(true, nameof(InheritedMinecraftEntry))]
-    public bool HasInheritance { get => InheritedMinecraftEntry is not null; }
+    [MemberNotNullWhen(true, nameof(InheritedMinecraft))]
+    public bool HasInheritance { get => InheritedMinecraft is not null; }
 }
 
 public abstract class MinecraftDependency {

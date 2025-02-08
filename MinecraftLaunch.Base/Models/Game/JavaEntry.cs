@@ -4,8 +4,8 @@ public record JavaEntry {
     public bool Is64bit { get; init; }
     public string JavaPath { get; init; }
     public string JavaType { get; init; }
-    public string JavaVersion { get; init; }
+    public Version JavaVersion { get; init; }
 
     public string JavaFolder => Path.GetDirectoryName(JavaPath);
-    public int MajorVersion => Convert.ToInt32(JavaVersion.Split('.').FirstOrDefault());
+    public int MajorVersion => JavaVersion.Major is 1 ? JavaVersion.Minor : JavaVersion.Major;
 }

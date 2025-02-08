@@ -26,7 +26,7 @@ public sealed class ArgumentsParser {
 
     [MemberNotNullWhen(true, nameof(LaunchConfig), nameof(LaunchConfig.Account), nameof(LaunchConfig.JavaPath), nameof(LaunchConfig.MaxMemorySize), nameof(LaunchConfig.MinMemorySize))]
     private bool CanParse() =>
-        LaunchConfig != null && LaunchConfig.Account != null && !string.IsNullOrEmpty(LaunchConfig.JavaPath) && LaunchConfig.MaxMemorySize > 0 && LaunchConfig.MinMemorySize > 0;
+        LaunchConfig != null && LaunchConfig.Account != null && LaunchConfig.JavaPath != null && LaunchConfig.MaxMemorySize > 0 && LaunchConfig.MinMemorySize > 0;
 
     internal IReadOnlyList<MinecraftLibrary> GetNatives() => _natives;
 
@@ -35,7 +35,7 @@ public sealed class ArgumentsParser {
         var libraries = new List<MinecraftLibrary>();
 
         if (MinecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } modifiedMinecraftInstance) {
-            (var inheritedLibs, var inheritedNatives) = modifiedMinecraftInstance.InheritedMinecraftEntry.GetRequiredLibraries();
+            (var inheritedLibs, var inheritedNatives) = modifiedMinecraftInstance.InheritedMinecraft.GetRequiredLibraries();
 
             libraries.AddRange(inheritedLibs);
             natives.AddRange(inheritedNatives);
@@ -90,7 +90,7 @@ public sealed class ArgumentsParser {
         var gameParameters = GameArgumentParser.Parse(entity);
 
         if (MinecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } inst) {
-            var inheritedVersionEntry = JsonNode.Parse(File.ReadAllText(inst.InheritedMinecraftEntry.ClientJsonPath))
+            var inheritedVersionEntry = JsonNode.Parse(File.ReadAllText(inst.InheritedMinecraft.ClientJsonPath))
                 .Deserialize(MinecraftJsonEntryContext.Default.MinecraftJsonEntry)
                 ?? throw new JsonException("Failed to parse version.json");
 
@@ -116,7 +116,7 @@ public sealed class ArgumentsParser {
                 { "${classpath}", classPath.ToPath() },
                 {
                     "${version_name}", MinecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } instance
-                        ? instance.InheritedMinecraftEntry.Id
+                        ? instance.InheritedMinecraft.Id
                         : MinecraftEntry.Id
                 },
                 {
@@ -127,7 +127,7 @@ public sealed class ArgumentsParser {
             };
 
         string assetIndexPath = MinecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } instance2 ?
-            instance2.InheritedMinecraftEntry.AssetIndexJsonPath :
+            instance2.InheritedMinecraft.AssetIndexJsonPath :
             MinecraftEntry.AssetIndexJsonPath;
 
         string assetIndexFilename = Path.GetFileNameWithoutExtension(assetIndexPath)
@@ -166,7 +166,7 @@ public sealed class ArgumentsParser {
 
         foreach (var arg in JvmArgumentParser.GetEnvironmentJvmArguments()) yield return arg;
         foreach (var arg in vmParameters) yield return arg.ReplaceFromDictionary(vmParametersReplace);
-        //foreach (var arg in _extraVmArguments) yield return arg;
+        foreach (var arg in LaunchConfig.JvmArguments) yield return arg;
 
         yield return entity.MainClass!;
 
