@@ -3,10 +3,13 @@
 namespace MinecraftLaunch.Utilities;
 
 public static class HttpUtil {
-    public static FlurlClient FlurlClient { get; private set; }
+    public static IFlurlClient FlurlClient { get; private set; }
 
-    public static void Initialize() {
-        FlurlClient = new FlurlClient {
+    public static IFlurlClient Initialize(IFlurlClient client = default) {
+        if (client is not null)
+            return FlurlClient = client;
+
+        return FlurlClient = new FlurlClient {
             Settings = {
                 Timeout = TimeSpan.FromSeconds(100),
             }

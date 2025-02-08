@@ -1,4 +1,5 @@
 ﻿using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
 using System.Diagnostics;
 
@@ -12,7 +13,6 @@ public sealed class MinecraftProcess : IDisposable {
 
     public event EventHandler Started;
     public event EventHandler<EventArgs> Exited;
-
     public event EventHandler<LogReceivedEventArgs> OutputLogReceived;
 
     public MinecraftProcess(LaunchConfig launchConfig, MinecraftEntry minecraft, IEnumerable<string> launchArgs) {
@@ -22,7 +22,7 @@ public sealed class MinecraftProcess : IDisposable {
 
         Process = new Process {
             StartInfo = new ProcessStartInfo(launchConfig.JavaPath.JavaPath) {
-                WorkingDirectory = minecraft.ToWorkingPath(launchConfig.IsEnableIndependencyCore),
+                WorkingDirectory = minecraft.ToWorkingPath(launchConfig.IsEnableIndependency),
                 Arguments = string.Join(' ', launchArgs),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -45,7 +45,7 @@ public sealed class MinecraftProcess : IDisposable {
         Started?.Invoke(this, EventArgs.Empty);
     }
 
-    public void Kill() {
+    public void Close() {
         Process.Kill();
     }
 
@@ -57,9 +57,9 @@ public sealed class MinecraftProcess : IDisposable {
 
     private void OnOutputDataReceived(object sender, DataReceivedEventArgs e) {
         if (!string.IsNullOrEmpty(e.Data)) {
-            OutputLogReceived?.Invoke(this, new LogReceivedEventArgs(e.Data));
+            OutputLogReceived?.Invoke(this, new LogReceivedEventArgs(MinecraftLoggingParser.Parse(e.Data)));
         }
     }
 }
 
-public record LogReceivedEventArgs(string Data);
+public record LogReceivedEventArgs(MinecraftLogEntry Data);
