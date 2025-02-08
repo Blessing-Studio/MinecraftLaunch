@@ -116,13 +116,13 @@ public sealed class ArgumentsParser {
                 { "${classpath}", classPath.ToPath() },
                 {
                     "${version_name}", MinecraftEntry is ModifiedMinecraftEntry { HasInheritance: true } instance
-                        ? instance.InheritedMinecraft.Id
-                        : MinecraftEntry.Id
+                        ? instance.InheritedMinecraft.Id.ToPath()
+                        : MinecraftEntry.Id.ToPath()
                 },
                 {
                     "${natives_directory}", string.IsNullOrEmpty(LaunchConfig.NativesFolder)
-                    ? MinecraftEntry.ToNativesPath()
-                    : LaunchConfig.NativesFolder
+                    ? MinecraftEntry.ToNativesPath().ToPath()
+                    : LaunchConfig.NativesFolder.ToPath()
                 },
             };
 
@@ -152,7 +152,7 @@ public sealed class ArgumentsParser {
                 { "${version_type}" , versionType },
                 { "${game_assets}" , Path.Combine(MinecraftEntry.MinecraftFolderPath, "assets").ToPath() },
                 { "${assets_root}" , Path.Combine(MinecraftEntry.MinecraftFolderPath, "assets").ToPath() },
-                { "${game_directory}" , MinecraftEntry.ToWorkingPath(LaunchConfig.IsEnableIndependencyCore) },
+                { "${game_directory}" , MinecraftEntry.ToWorkingPath(LaunchConfig.IsEnableIndependencyCore).ToPath() },
                 { "${assets_index_name}" , assetIndexFilename },
         };
 
