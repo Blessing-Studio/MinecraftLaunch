@@ -32,7 +32,8 @@
 | 微软账户验证器                                                    | 🟩                 |
 | 原版核心安装器                                                    | 🟩                 |
 | Java 安装器                                                       | 🟥                |
-| Curseforge 格式整合包安装器                                       | 🟧                 |
+| Curseforge 格式整合包安装器                                        | 🟩                 |
+| Modrinth 格式整合包安装器                                          | 🟧                 |
 | Forge（Neo） 安装器                                               | 🟩                 |
 | Optifine 安装器                                                   | 🟩                 |
 | Fabric 安装器                                                     | 🟩                 |
@@ -90,4 +91,4 @@ dotnet add package MinecraftLaunch --version 3.0.0
 
 ## 开源协议
 
-这个项目在MIT许可下分发，具体详情可见 [LICENSE](还没创建) .
+这个项目在 MIT 许可下分发，具体详情可见 [LICENSE](还没创建) .
