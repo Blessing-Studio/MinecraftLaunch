@@ -27,10 +27,15 @@ public static partial class JavaUtil {
             throw new ArgumentNullException();
 
         bool is64bit = text.Contains("64-bit");
-        string javaType = text.Contains("openjdk") ? "OpenJDK" : "Java";
         string javaVersion = JavaVersionRegex()
             .Match(text).Groups[1].Value
             .Split('_')?.FirstOrDefault();
+
+        string javaType = text.Contains("java(tm)") 
+            ? "Java"
+            : text.Contains("zulu")
+                ? "ZuluJDK"
+                : "OpenJDK";
 
         await process.WaitForExitAsync(cancellationToken);
         return new JavaEntry {
@@ -179,7 +184,7 @@ public static partial class JavaUtil {
 
         // %APPDATA%\.minecraft\cache\java
         string appDataPath = Environment.GetEnvironmentVariable("APPDATA");
-        Console.WriteLine(appDataPath);
+
         if (!string.IsNullOrEmpty(appDataPath))
             folders.Add(Path.Combine(appDataPath, ".minecraft\\cache\\java"));
 
@@ -192,8 +197,13 @@ public static partial class JavaUtil {
         if (javaHomePath is not null)
             folders.Add(javaHomePath);
 
-        // C:\Program Files\Java
-        folders.Add("C:\\Program Files\\Java");
+        // Program Files\Java
+        folders.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Java"));
+        folders.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Java"));
+
+        // Program Files\Zulu
+        folders.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Zulu"));
+        folders.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Zulu"));
 
         // Check Java for each folder
         foreach (var folder in folders)

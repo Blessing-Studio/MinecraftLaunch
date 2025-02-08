@@ -7,8 +7,6 @@ using MinecraftLaunch.Components.Provider;
 using MinecraftLaunch.Extensions;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 
 namespace MinecraftLaunch.Components.Installer.Modpack;
 
@@ -78,8 +76,16 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         ReportProgress(InstallStep.Started, 0.0d, TaskStatus.WaitingToRun, 1, 1);
 
         try {
-            var downloadUrls = await ParseModFilesAsync(cancellationToken)
+            var modInfoGroup = await ParseModFilesAsync(cancellationToken)
+                .ToLookupAsync(x => string.IsNullOrEmpty(x.url), cancellationToken);
+
+            var downloadUrls = modInfoGroup[false].Select(x => x.url).ToList();
+            var invalidMods = modInfoGroup[true].Select(x => x.invalidMod).ToList();
+
+            var redirectownloadUrls = await RedirectInvalidModsAsync(invalidMods, cancellationToken)
                 .ToListAsync(cancellationToken);
+
+            downloadUrls.AddRange(redirectownloadUrls);
 
             await DownloadModsAsync(downloadUrls, cancellationToken);
             await ExtractModpackAsync(cancellationToken);
@@ -88,11 +94,13 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
 
         ReportProgress(InstallStep.RanToCompletion, 1.0d, TaskStatus.RanToCompletion, 1, 1);
         ReportCompleted();
+
         return Minecraft;
     }
 
     #region Privates
 
+    [Obsolete]
     private void ParseMinecraft(CancellationToken cancellationToken) {
         cancellationToken.ThrowIfCancellationRequested();
         ReportProgress(InstallStep.ParseMinecraft, 0.05d, TaskStatus.Running, 1, 0);
@@ -105,11 +113,11 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         throw new NotSupportedException("Your entry is incorrect or does not exist");
     }
 
-    private async IAsyncEnumerable<string> ParseModFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken) {
+    private async IAsyncEnumerable<(string url, ModpackFileEntry invalidMod)> ParseModFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken) {
         int count = 0;
         int totalCount = Entry.ModFiles.Count();
         List<Task> requestTasks = [];
-        List<string> downloadUrls = [];
+        List<(string, ModpackFileEntry)> downloadInfoGroup = [];
         SemaphoreSlim semaphoreSlim = new(256, 256);
 
         ReportProgress(InstallStep.ParseDownloadUrls, 0.1d, TaskStatus.Running, totalCount, count);
@@ -119,23 +127,16 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
 
             requestTasks.Add(Task.Run(async () => {
                 await semaphoreSlim.WaitAsync(cancellationToken);
-                if (modpackFile.IsRequired) {
-                    try {
-                        downloadUrl = await CurseforgeProvider.GetModDownloadUrlAsync(modpackFile.ProjectId, modpackFile.FileId, cancellationToken);
-                        downloadUrl = downloadUrl.Replace("https://edge.forgecdn.net", "https://mediafiles.forgecdn.net");
-                    } catch (InvalidModpackFileException) {
-                        var entry = await CurseforgeProvider.GetModFileEntryAsync(modpackFile.ProjectId, modpackFile.FileId, cancellationToken);
-                        downloadUrl = await CurseforgeProvider.TestDownloadUrlAsync(modpackFile.FileId, entry.GetString("fileName"));
-                    }
-
-                } else return;
+                if (modpackFile.IsRequired)
+                    downloadUrl = await CurseforgeProvider.GetModDownloadUrlAsync(modpackFile.ProjectId, modpackFile.FileId, cancellationToken);
+                else return;
 
                 lock (requestTasks) {
                     var progress = (double)Interlocked.Increment(ref count) / (double)totalCount;
                     ReportProgress(InstallStep.ParseDownloadUrls, progress.ToPercentage(0.1d, 0.5d),
                         TaskStatus.Running, totalCount, count);
 
-                    downloadUrls.Add(downloadUrl);
+                    downloadInfoGroup.Add(new(downloadUrl, modpackFile));
                 }
 
                 semaphoreSlim.Release();
@@ -143,14 +144,31 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         }
 
         await Task.WhenAll(requestTasks);
-        foreach (var downloadUrl in downloadUrls) {
+        foreach (var downloadUrl in downloadInfoGroup) {
             yield return downloadUrl;
         }
     }
 
-    //private async IAsyncEnumerable<string> RedirectInvalidModsAsync([EnumeratorCancellation] CancellationToken cancellationToken) {
-    //    throw null;
-    //}
+    private async IAsyncEnumerable<string> RedirectInvalidModsAsync(IEnumerable<ModpackFileEntry> modpacks, [EnumeratorCancellation] CancellationToken cancellationToken) {
+        ReportProgress(InstallStep.RedirectInvalidMod, 0.5d, TaskStatus.Running, modpacks.Count(), 0);
+
+        int count = 0;
+        int totalCount = modpacks.Count();
+        foreach (var modpackFile in modpacks.AsParallel()) {
+            var modFileName = (await CurseforgeProvider
+                .GetModFileEntryAsync(modpackFile.ProjectId, modpackFile.FileId, cancellationToken))
+                .GetString("fileName");
+
+            lock (modpacks) {
+                var progress = (double)count / (double)totalCount;
+
+                ReportProgress(InstallStep.RedirectInvalidMod, progress.ToPercentage(0.5d, 0.6d), TaskStatus.Running, totalCount,
+                    Interlocked.Increment(ref count));
+            }
+
+            yield return await CurseforgeProvider.TestDownloadUrlAsync(modpackFile.FileId, modFileName, cancellationToken);
+        }
+    }
 
     private async Task DownloadModsAsync(IEnumerable<string> asyncUrls, CancellationToken cancellationToken) {
         double speed = 0;
@@ -169,12 +187,12 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         groupRequest.DownloadSpeedChanged += arg => speed = arg;
         groupRequest.SingleRequestCompleted += (request, result) => {
             var progress = (double)Interlocked.Increment(ref currentCount) / urls.Count;
-            ReportProgress(InstallStep.DownloadMods, progress.ToPercentage(0.5d, 0.85d),
+            ReportProgress(InstallStep.DownloadMods, progress.ToPercentage(0.6d, 0.85d),
                 TaskStatus.Running, urls.Count, currentCount, speed, true);
         };
 
-        ReportProgress(InstallStep.DownloadMods, 0.5d, TaskStatus.Running,
-            urls.Count, 0, 0, true);
+        ReportProgress(InstallStep.DownloadMods, 0.6d, TaskStatus.Running,
+            urls.Count, 0, 0, false);
 
         await new FileDownloader().DownloadFilesAsync(groupRequest, cancellationToken);
     }

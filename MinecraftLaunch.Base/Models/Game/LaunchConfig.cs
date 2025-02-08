@@ -15,5 +15,5 @@ public record LaunchConfig {
     public string LauncherName { get; set; }
     public string NativesFolder { get; set; }
 
-    public IEnumerable<string> JvmArguments { get; set; }
+    public IEnumerable<string> JvmArguments { get; set; } = [];
 }

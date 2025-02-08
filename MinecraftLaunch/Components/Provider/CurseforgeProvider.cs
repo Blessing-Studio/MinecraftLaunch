@@ -1,6 +1,7 @@
 ﻿using Flurl;
 using Flurl.Http;
 using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
 using System.Text.Json.Nodes;
 
 namespace MinecraftLaunch.Components.Provider;
@@ -14,7 +15,7 @@ public sealed class CurseforgeProvider {
         string json = string.Empty;
 
         try {
-            using var responseMessage = await requestUrl
+            using var responseMessage = await HttpUtil.FlurlClient.Request(requestUrl)
                 .WithHeader("x-api-key", CurseforgeApiKey)
                 .GetAsync(cancellationToken: cancellationToken);
 
@@ -29,14 +30,14 @@ public sealed class CurseforgeProvider {
         string json = string.Empty;
 
         try {
-            using var responseMessage = await requestUrl
+            using var responseMessage = await HttpUtil.FlurlClient.Request(requestUrl)
                 .WithHeader("x-api-key", CurseforgeApiKey)
                 .GetAsync(cancellationToken: cancellationToken);
 
             json = await responseMessage.GetStringAsync();
         } catch (FlurlHttpException ex) {
             if (ex.StatusCode is 403)
-                throw new InvalidModpackFileException(ex.Message, ex);
+                return string.Empty;
         }
 
         return json?.AsNode()?.GetString("data")
@@ -52,16 +53,13 @@ public sealed class CurseforgeProvider {
 
         try {
             foreach (var url in urls) {
-                var response = await url.WithSettings(x => {
-                    x.Redirects.Enabled = false;
-                }).HeadAsync(cancellationToken: cancellationToken);
+                var response = await HttpUtil.FlurlClient.Request(url)
+                    .HeadAsync(cancellationToken: cancellationToken);
 
                 if (!response.ResponseMessage.IsSuccessStatusCode)
                     continue;
 
-                var downloadUrl = response.ResponseMessage?.Headers?.Location?.AbsoluteUri;
-                var r = downloadUrl ?? url;
-                return r;
+                return url;
             }
         } catch (Exception) {}
 

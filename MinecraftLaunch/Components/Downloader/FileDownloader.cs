@@ -1,9 +1,10 @@
-﻿using Flurl.Http;
+﻿using Flurl;
+using Flurl.Http;
 using MinecraftLaunch.Base.Enums;
 using MinecraftLaunch.Base.Models.Network;
+using MinecraftLaunch.Utilities;
 using System.Buffers;
 using System.Collections.Frozen;
-using System.Net;
 using Timer = System.Timers.Timer;
 
 namespace MinecraftLaunch.Components.Downloader;
@@ -44,6 +45,8 @@ public sealed class FileDownloader {
     public int WorkersPerDownloadTask => _config.WorkersPerDownloadTask;
     public int ConcurrentDownloadTasks => _config.ConcurrentDownloadTasks;
 
+    internal IFlurlClient FlurlClient => HttpUtil.FlurlClient;
+
     private const int DOWNLOAD_BUFFER_SIZE = 4096;
 
     private readonly DownloaderConfig _config;
@@ -55,19 +58,17 @@ public sealed class FileDownloader {
     }
 
     public static string GetSpeedText(double speed) {
-        if (speed < 1024.0) {
-            return speed.ToString("0") + " B/s";
-        }
+        const double kilobyte = 1024.0;
+        const double megabyte = kilobyte * 1024.0;
+        const double gigabyte = megabyte * 1024.0;
 
-        if (speed < 1024.0 * 1024.0) {
-            return (speed / 1024.0).ToString("0.0") + " KB/s";
-        }
-
-        if (speed < 1024.0 * 1024.0 * 1024.0) {
-            return (speed / (1024.0 * 1024.0)).ToString("0.00") + " MB/s";
-        }
-
-        return "0";
+        if (speed < kilobyte) {
+            return speed.ToString("0") + " B/s"; // 字节
+        } else if (speed < megabyte) {
+            return (speed / kilobyte).ToString("0.0") + " KB/s"; // 千字节
+        } else if (speed < gigabyte) {
+            return (speed / megabyte).ToString("0.00") + " MB/s"; // 兆字节
+        } else return "0";
     }
 
     public async Task<DownloadResult> DownloadFileAsync(DownloadRequest request, CancellationToken cancellationToken = default) {
@@ -157,8 +158,8 @@ public sealed class FileDownloader {
             request.Size = contentLength;
             states.TotalBytes = contentLength;
 
-            var rangeResponse = await url.WithHeader("Range", "bytes=0-0")
-                .GetAsync(cancellationToken: cancellationToken);
+            var rangeResponse = await FlurlClient.Request(url)
+                .GetAsync(cancellationToken:cancellationToken);
 
             useMultiPart = rangeResponse.StatusCode is 206;
         }
@@ -178,11 +179,10 @@ public sealed class FileDownloader {
 
     }
 
-    
     private async Task<(IFlurlResponse Response, string RedirectedUrl)> PrepareForDownloadAsync(string url, CancellationToken cancellationToken = default) {
         // Get header
-        var response = await url
-            .SendAsync(HttpMethod.Head, completionOption: HttpCompletionOption.ResponseHeadersRead, cancellationToken: cancellationToken);
+        var response = await FlurlClient.Request(url)
+            .HeadAsync(cancellationToken: cancellationToken);
 
         if (response.StatusCode is 302) {
             var redirectUrl = response.ResponseMessage?.Headers?.Location?.AbsoluteUri;
@@ -203,7 +203,8 @@ public sealed class FileDownloader {
     }
 
     private async Task DownloadSinglePartAsync(DownloadStates states, DownloadRequest request, CancellationToken cancellationToken = default) {
-        using var response = await states.Url.GetAsync(cancellationToken: cancellationToken);
+        using var response = await FlurlClient.Request(states.Url)
+            .GetAsync(cancellationToken: cancellationToken);
 
         using var contentStream = await response.ResponseMessage.Content.ReadAsStreamAsync(cancellationToken);
         using var fileStream = new FileStream(states.LocalPath, FileMode.Create, FileAccess.Write);
@@ -246,7 +247,10 @@ public sealed class FileDownloader {
         while (states.NextChunk() is (long start, long end)) {
             fileStream.Seek(start, SeekOrigin.Begin);
 
-            var response = await states.Url.WithHeader("Range", $"bytes={start}-{end}").GetAsync(cancellationToken: cancellationToken);
+            var response = await FlurlClient.Request(states.Url)
+                .WithHeader("Range", $"bytes={start}-{end}")
+                .GetAsync(cancellationToken: cancellationToken);
+
             response.ResponseMessage.EnsureSuccessStatusCode();
 
             using var contentStream = await response.GetStreamAsync();

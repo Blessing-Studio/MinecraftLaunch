@@ -1,18 +1,21 @@
-﻿using MinecraftLaunch;
+﻿using Flurl.Http;
+using MinecraftLaunch;
 using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Downloader;
-using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Installer.Modpack;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Components.Provider;
+using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Launch;
 using MinecraftLaunch.Utilities;
-using System.Diagnostics;
 using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
 DownloadMirrorManager.IsEnableMirror = false;
-CurseforgeProvider.CurseforgeApiKey = "Your CF aoi key";
+CurseforgeProvider.CurseforgeApiKey = "$2a$10$Awb53b9gSOIJJkdV3Zrgp.CyFP.dI13QKbWn/4UZI4G4ff18WneB6";
 ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+HttpUtil.Initialize();
 
 #region 原版安装器
 
@@ -87,15 +90,15 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #region Curseforge 整合包安装器
 
-//var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
-////var installEntrys = CurseforgeModpackInstaller.ParseModLoaderDataByManifestAsync(modpackEntry);
+var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
+//var installEntrys = CurseforgeModpackInstaller.ParseModLoaderEntryByManifestAsync(modpackEntry);
 
-//var cfModpackInstaller = CurseforgeModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip", modpackEntry, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
-//cfModpackInstaller.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+var cfModpackInstaller = CurseforgeModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip", modpackEntry, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+cfModpackInstaller.ProgressChanged += (_, arg) =>
+    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
-//await cfModpackInstaller.InstallAsync();
-//Console.WriteLine("厚礼蟹");
+var minecraft5 = await cfModpackInstaller.InstallAsync();
+Console.WriteLine(minecraft5.Id);
 
 #endregion
 
@@ -130,7 +133,7 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 #region 本地游戏读取
 
-//MinecraftParser minecraftParser = "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft";
+//MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
 
 //minecraftParser.GetMinecrafts().ForEach(x => {
 //    Console.WriteLine(x.Id);
@@ -168,14 +171,15 @@ ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
 //MinecraftRunner runner = new(new LaunchConfig {
 //    Account = new OfflineAuthenticator().Authenticate("Yang114"),
-//    JavaPath = "C:\\Users\\wxysd\\AppData\\Roaming\\.minecraft\\runtime\\java-runtime-delta\\bin\\javaw.exe",
+//    JavaPath = minecraftParser.GetMinecraft("1.12.2-Forge-14.23.5.2860-OptiFine-HD_U_G6_pre1").GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
 //    MaxMemorySize = 1024,
 //    MinMemorySize = 512,
 //}, minecraftParser);
 
-//var process = await runner.RunAsync(minecraft4.Id);
+//var process = await runner.RunAsync(minecraftParser.GetMinecraft("1.12.2-Forge-14.23.5.2860-OptiFine-HD_U_G6_pre1"));
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
 //process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
+//process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));
 
 #endregion
 
