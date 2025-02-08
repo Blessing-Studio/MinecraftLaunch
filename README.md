@@ -79,6 +79,15 @@ dotnet add package MinecraftLaunch --version 3.0.0
 - QQ群：682528253
 - QQ频道：https://pd.qq.com/s/5eqzllk3y
 
+## 鸣谢
+
+此项目部分代码参考了 [Fluent Core](https://github.com/Xcube-Studio/Natsurainko.FluentCore) 的代码
+
+整合包安装器代码参考了 [ProjBobcat](https://github.com/Corona-Studio/ProjBobcat) 的代码
+
+在此由衷感谢以上核心的作者
+
+
 ## 开源协议
 
 这个项目在MIT许可下分发，具体详情可见 [LICENSE](还没创建) .
