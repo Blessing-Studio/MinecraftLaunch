@@ -14,28 +14,28 @@ using MinecraftLaunch.Utilities;
 using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
-DownloadMirrorManager.IsEnableMirror = false;
+DownloadMirrorManager.IsEnableMirror = true;
 CurseforgeProvider.CurseforgeApiKey = "Your Api Key";
 
 HttpUtil.Initialize();
 
 #region 原版安装器
 
-var entry = await VanillaInstaller.EnumerableMinecraftAsync()
-    .FirstAsync(x => x.Id == "1.20.1");
+//var entry = await VanillaInstaller.EnumerableMinecraftAsync()
+//    .FirstAsync(x => x.Id == "1.20.1");
 
-var installer = VanillaInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\DaiYu\\.minecraft", entry);
-installer.ProgressChanged += (_, arg) =>
-    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+//var installer = VanillaInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\DaiYu\\.minecraft", entry);
+//installer.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
-var minecraft = await installer.InstallAsync();
-Console.WriteLine(minecraft.Id);
+//var minecraft = await installer.InstallAsync();
+//Console.WriteLine(minecraft.Id);
 
 #endregion
 
 #region Forge 安装器
 
-//var entry1 = await ForgeInstaller.EnumerableForgeAsync("1.20.1", false)
+//var entry1 = await ForgeInstaller.EnumerableForgeAsync("1.20.1", true)
 //    .FirstOrDefaultAsync();
 
 //var installer1 = ForgeInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", "C:\\Program Files\\Java\\latest\\jre-1.8\\bin\\java.exe", entry1);
@@ -89,6 +89,10 @@ Console.WriteLine(minecraft.Id);
 
 #endregion
 
+#region 复合安装器
+
+#endregion
+
 #region Curseforge 整合包安装器
 
 //var modpackEntry = CurseforgeModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-5.4.1.zip");
@@ -105,10 +109,10 @@ Console.WriteLine(minecraft.Id);
 
 #region Modrinth 整合包安装器
 
-//var modpackEntry1 = ModrinthModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack");
+//var modpackEntry1 = ModrinthModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Zombie Invade 100 Days 2.1.mrpack");
 ////var installerEntry1 = await ModrinthModpackInstaller.ParseModLoaderEntryAsync(modpackEntry1);
 
-//var mdModpackInstaller = ModrinthModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack", modpackEntry1, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+//var mdModpackInstaller = ModrinthModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Zombie Invade 100 Days 2.1.mrpack", modpackEntry1, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Zombie Invade 100 Days"));
 //mdModpackInstaller.ProgressChanged += (_, arg) =>
 //    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
@@ -186,13 +190,13 @@ MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
 
 //MinecraftRunner runner = new(new LaunchConfig {
 //    Account = new OfflineAuthenticator().Authenticate("Yang114"),
-//    JavaPath = minecraft.GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
-//    MaxMemorySize = 1024,
+//    JavaPath = minecraft1.GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
+//    MaxMemorySize = 2048,
 //    MinMemorySize = 512,
 //    LauncherName = "MinecraftLaunch"
 //}, minecraftParser);
 
-//var process = await runner.RunAsync(minecraft);
+//var process = await runner.RunAsync(minecraft1);
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
 //process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
 //process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));
