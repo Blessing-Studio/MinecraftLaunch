@@ -38,6 +38,8 @@
 | Optifine 安装器                                                   | 🟩                 |
 | Fabric 安装器                                                     | 🟩                 |
 | Quilt 安装器                                                      | 🟩                 | 
+| 游戏日志分析                                                       | 🟩                 |
+| 游戏崩溃分析                                                       | 🟧                 |
 | 查找 .minecraft 中的游戏核心                                       | 🟩                 |
 | 创建、启动、管理 Minecraft 进程                                    | 🟩                 |
 | 管理 launchprofile.json 的数据                                     | 🟩                |

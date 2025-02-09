@@ -1,8 +1,10 @@
 ﻿using Flurl.Http;
+using Flurl.Http.Configuration;
 using MinecraftLaunch;
 using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Downloader;
+using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Installer.Modpack;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Components.Provider;
@@ -19,7 +21,6 @@ HttpUtil.Initialize();
 
 #region 原版安装器
 
-//var stopwatch = Stopwatch.StartNew();
 //var entry = await VanillaInstaller.EnumerableMinecraftAsync()
 //    .FirstAsync(x => x.Id == "1.20.1");
 
@@ -102,6 +103,19 @@ HttpUtil.Initialize();
 
 #endregion
 
+#region Modrinth 整合包安装器
+
+var modpackEntry1 = ModrinthModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack");
+//var installerEntry1 = await ModrinthModpackInstaller.ParseModLoaderEntryAsync(modpackEntry1);
+
+var mdModpackInstaller = ModrinthModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack", modpackEntry1, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+mdModpackInstaller.ProgressChanged += (_, arg) =>
+    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+
+var minecraft6 = await mdModpackInstaller.InstallAsync();
+Console.WriteLine(minecraft6.Id);
+
+#endregion
 #region 微软验证
 
 //MicrosoftAuthenticator authenticator = new("Your client ID");
@@ -133,7 +147,7 @@ HttpUtil.Initialize();
 
 #region 本地游戏读取
 
-//MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
+MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
 
 //minecraftParser.GetMinecrafts().ForEach(x => {
 //    Console.WriteLine(x.Id);
@@ -171,14 +185,15 @@ HttpUtil.Initialize();
 
 //MinecraftRunner runner = new(new LaunchConfig {
 //    Account = new OfflineAuthenticator().Authenticate("Yang114"),
-//    JavaPath = minecraftParser.GetMinecraft("Fabulously Optimized").GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
+//    JavaPath = minecraft.GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
 //    MaxMemorySize = 1024,
 //    MinMemorySize = 512,
+//    LauncherName = "MinecraftLaunch"
 //}, minecraftParser);
 
-//var process = await runner.RunAsync(minecraftParser.GetMinecraft("Fabulously Optimized"));
+//var process = await runner.RunAsync(minecraft);
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
-//process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data.Log);
+//process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
 //process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));
 
 #endregion

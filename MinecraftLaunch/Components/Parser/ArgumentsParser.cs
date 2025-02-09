@@ -133,13 +133,15 @@ public sealed class ArgumentsParser {
         string assetIndexFilename = Path.GetFileNameWithoutExtension(assetIndexPath)
             ?? throw new InvalidOperationException("Invalid asset index path");
 
-        string versionType = MinecraftEntry.Version.Type switch {
-            MinecraftVersionType.Release => "release",
-            MinecraftVersionType.Snapshot => "snapshot",
-            MinecraftVersionType.OldBeta => "old_beta",
-            MinecraftVersionType.OldAlpha => "old_alpha",
-            _ => ""
-        };
+        string versionType = string.IsNullOrEmpty(LaunchConfig.LauncherName)
+            ? MinecraftEntry.Version.Type switch {
+                MinecraftVersionType.Release => "release",
+                MinecraftVersionType.Snapshot => "snapshot",
+                MinecraftVersionType.OldBeta => "old_beta",
+                MinecraftVersionType.OldAlpha => "old_alpha",
+                _ => ""
+            }
+            : LaunchConfig.LauncherName;
 
         var gameParametersReplace = new Dictionary<string, string>() {
                 { "${auth_player_name}" , LaunchConfig.Account.Name },

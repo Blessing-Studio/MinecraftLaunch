@@ -12,7 +12,10 @@ public static class HttpUtil {
         return FlurlClient = new FlurlClient {
             Settings = {
                 Timeout = TimeSpan.FromSeconds(100),
+            },
+            Headers = {
+                { "User-Agent", "MinecraftLaunch/1.0" },
             }
-        }.WithHeader("User-Agent", "MinecraftLaunch/1.0");
+        };
     }
 }

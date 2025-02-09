@@ -5,6 +5,7 @@ using MinecraftLaunch.Base.Models.Network;
 using MinecraftLaunch.Components.Downloader;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
+using MinecraftLaunch.Utilities;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -27,7 +28,7 @@ public sealed class FabricInstaller : InstallerBase {
     }
 
     public static async IAsyncEnumerable<FabricInstallEntry> EnumerableFabricAsync(string mcVersion, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
-        string json = await $"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}"
+        string json = await HttpUtil.FlurlClient.Request($"https://meta.fabricmc.net/v2/versions/loader/{mcVersion}")
             .GetStringAsync(cancellationToken: cancellationToken);
 
         var entries = json.Deserialize(FabricInstallEntryContext.Default.IEnumerableFabricInstallEntry)
@@ -41,12 +42,11 @@ public sealed class FabricInstaller : InstallerBase {
 
     public override async Task<MinecraftEntry> InstallAsync(CancellationToken cancellationToken = default) {
         ModifiedMinecraftEntry entry = default;
-        MinecraftEntry inheritedEntry = default;
 
         ReportProgress(InstallStep.Started, 0.0d, TaskStatus.WaitingToRun, 1, 1);
 
         try {
-            inheritedEntry = ParseMinecraft(cancellationToken);
+            var inheritedEntry = ParseMinecraft(cancellationToken);
 
             var jsonFile = await DownloadVersionJsonAsync(inheritedEntry, cancellationToken);
             entry = ParseModifiedMinecraft(jsonFile, cancellationToken);
@@ -84,7 +84,9 @@ public sealed class FabricInstaller : InstallerBase {
 
         string requestUrl = $"https://meta.fabricmc.net/v2/versions/loader/{Entry.McVersion}/{Entry.BuildVersion}/profile/json";
         requestUrl = DownloadMirrorManager.BmclApi.TryFindUrl(requestUrl);
-        var json = await requestUrl.GetStringAsync(HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+        var json = await HttpUtil.FlurlClient.Request(requestUrl)
+            .GetStringAsync(HttpCompletionOption.ResponseContentRead, cancellationToken);
 
         string instanceId = CustomId ??
             json.AsNode().GetString("id") ??

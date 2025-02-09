@@ -44,7 +44,6 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
             cancellationToken.ThrowIfCancellationRequested();
 
             (bool isPrimary, string id) = (loader.GetBool("primary"), loader.GetString("id"));
-
             var idDatas = id.Split('-');
 
             var loaderVersion = idDatas.Last();
@@ -113,11 +112,11 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         throw new NotSupportedException("Your entry is incorrect or does not exist");
     }
 
-    private async IAsyncEnumerable<(string url, ModpackFileEntry invalidMod)> ParseModFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken) {
+    private async IAsyncEnumerable<(string url, CurseforgeModpackFileEntry invalidMod)> ParseModFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken) {
         int count = 0;
         int totalCount = Entry.ModFiles.Count();
         List<Task> requestTasks = [];
-        List<(string, ModpackFileEntry)> downloadInfoGroup = [];
+        List<(string, CurseforgeModpackFileEntry)> downloadInfoGroup = [];
         SemaphoreSlim semaphoreSlim = new(256, 256);
 
         ReportProgress(InstallStep.ParseDownloadUrls, 0.1d, TaskStatus.Running, totalCount, count);
@@ -149,7 +148,7 @@ public sealed class CurseforgeModpackInstaller : InstallerBase {
         }
     }
 
-    private async IAsyncEnumerable<string> RedirectInvalidModsAsync(IEnumerable<ModpackFileEntry> modpacks, [EnumeratorCancellation] CancellationToken cancellationToken) {
+    private async IAsyncEnumerable<string> RedirectInvalidModsAsync(IEnumerable<CurseforgeModpackFileEntry> modpacks, [EnumeratorCancellation] CancellationToken cancellationToken) {
         ReportProgress(InstallStep.RedirectInvalidMod, 0.5d, TaskStatus.Running, modpacks.Count(), 0);
 
         int count = 0;
