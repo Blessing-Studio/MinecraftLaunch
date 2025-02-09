@@ -21,15 +21,15 @@ HttpUtil.Initialize();
 
 #region 原版安装器
 
-//var entry = await VanillaInstaller.EnumerableMinecraftAsync()
-//    .FirstAsync(x => x.Id == "1.20.1");
+var entry = await VanillaInstaller.EnumerableMinecraftAsync()
+    .FirstAsync(x => x.Id == "1.20.1");
 
-//var installer = VanillaInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", entry);
-//installer.ProgressChanged += (_, arg) =>
-//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+var installer = VanillaInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\DaiYu\\.minecraft", entry);
+installer.ProgressChanged += (_, arg) =>
+    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
-//var minecraft = await installer.InstallAsync();
-//Console.WriteLine(minecraft.Id);
+var minecraft = await installer.InstallAsync();
+Console.WriteLine(minecraft.Id);
 
 #endregion
 
@@ -105,17 +105,18 @@ HttpUtil.Initialize();
 
 #region Modrinth 整合包安装器
 
-var modpackEntry1 = ModrinthModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack");
-//var installerEntry1 = await ModrinthModpackInstaller.ParseModLoaderEntryAsync(modpackEntry1);
+//var modpackEntry1 = ModrinthModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack");
+////var installerEntry1 = await ModrinthModpackInstaller.ParseModLoaderEntryAsync(modpackEntry1);
 
-var mdModpackInstaller = ModrinthModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack", modpackEntry1, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
-mdModpackInstaller.ProgressChanged += (_, arg) =>
-    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+//var mdModpackInstaller = ModrinthModpackInstaller.Create("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", @"C:\Users\wxysd\Desktop\temp\Fabulously.Optimized-v6.5.0-beta.4.mrpack", modpackEntry1, new MinecraftParser("C:\\Users\\wxysd\\Desktop\\temp\\.minecraft").GetMinecraft("Fabulously Optimized"));
+//mdModpackInstaller.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
 
-var minecraft6 = await mdModpackInstaller.InstallAsync();
-Console.WriteLine(minecraft6.Id);
+//var minecraft6 = await mdModpackInstaller.InstallAsync();
+//Console.WriteLine(minecraft6.Id);
 
 #endregion
+
 #region 微软验证
 
 //MicrosoftAuthenticator authenticator = new("Your client ID");

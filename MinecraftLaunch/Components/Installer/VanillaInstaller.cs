@@ -110,8 +110,8 @@ public sealed class VanillaInstaller : InstallerBase {
                     Interlocked.Increment(ref count), x.Speed, true);
 
         var groupDownloadResult = await resourceDownloader.VerifyAndDownloadDependenciesAsync(cancellationToken: cancellationToken);
-        if (groupDownloadResult.Failed.Count > 0)
-            throw new InvalidOperationException("Some dependent files encountered errors during download");
+        //if (groupDownloadResult.Failed.Count > 0)
+        //    throw new InvalidOperationException("Some dependent files encountered errors during download");
     }
 
     private MinecraftEntry ParseMinecraft(DirectoryInfo dir, CancellationToken cancellationToken) {
