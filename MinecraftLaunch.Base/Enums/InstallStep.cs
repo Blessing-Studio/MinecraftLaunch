@@ -21,6 +21,15 @@ public enum InstallStep {
     ExtractModpack,
     RedirectInvalidMod,
 
+    //Composite
+    ParseInstaller,
+    InstallVanilla,
+    InstallPrimaryModLoader,
+    InstallSecondaryModLoader,
+
     //Error handle
-    Interrupted = -1
+    Interrupted = -1,
+
+    //undefined
+    Undefined = -2
 }

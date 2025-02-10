@@ -17,6 +17,7 @@ public sealed class OptifineInstaller : InstallerBase {
     public OptifineInstallEntry Entry { get; init; }
     public override string MinecraftFolder { get; init; }
     public MinecraftEntry InheritedMinecraft { get; init; }
+    public MinecraftEntry Minecraft { get; set; }
 
     public static OptifineInstaller Create(string mcFolder, string javaPath, OptifineInstallEntry optifineInstallEntry, string customId = default) {
         return new OptifineInstaller {
@@ -24,6 +25,14 @@ public sealed class OptifineInstaller : InstallerBase {
             Entry = optifineInstallEntry,
             CustomId = customId,
             JavaPath = javaPath,
+        };
+    }
+
+    public static OptifineInstaller Create(string mcFolder, OptifineInstallEntry optifineInstallEntry, MinecraftEntry minecraft) {
+        return new OptifineInstaller {
+            MinecraftFolder = mcFolder,
+            Entry = optifineInstallEntry,
+            Minecraft = minecraft,
         };
     }
 
@@ -50,18 +59,28 @@ public sealed class OptifineInstaller : InstallerBase {
         try {
             inheritedEntry = ParseMinecraft(cancellationToken);
             optifinePackageFile = await DownloadOptifinePackageAsync(cancellationToken);
+            if (Minecraft is ModifiedMinecraftEntry modifiedMinecraft) {
+                CopyToMods(optifinePackageFile);
+
+                ReportProgress(InstallStep.RanToCompletion, 1.0d, TaskStatus.RanToCompletion, 1, 1);
+                ReportCompleted();
+
+                return modifiedMinecraft;
+            }
+
             var (package, launchwrapperVersion, launchwrapperName) = ParseOptifinePackage(optifinePackageFile.FullName, cancellationToken);
 
             var optifineVersionJsonPath = await WriteVersionJsonAndSomeDependenciesAsync(inheritedEntry, launchwrapperVersion, launchwrapperName, package, cancellationToken);
             entry = ParseModifiedMinecraft(optifineVersionJsonPath, cancellationToken);
             await RunInstallProcessorAsync(optifinePackageFile.FullName, inheritedEntry, cancellationToken);
+
+            ReportProgress(InstallStep.RanToCompletion, 1.0d, TaskStatus.RanToCompletion, 1, 1);
+            ReportCompleted();
         } catch (Exception) {
             ReportProgress(InstallStep.Interrupted, 1.0d, TaskStatus.Canceled, 1, 1);
             ReportCompleted();
         }
 
-        ReportProgress(InstallStep.RanToCompletion, 1.0d, TaskStatus.RanToCompletion, 1, 1);
-        ReportCompleted();
         return entry ?? throw new ArgumentNullException(nameof(entry), "Unexpected null reference to variable");
     }
 
@@ -97,6 +116,15 @@ public sealed class OptifineInstaller : InstallerBase {
 
         ReportProgress(InstallStep.DownloadPackage, 0.3d, TaskStatus.Running, 1, 1);
         return packageFile;
+    }
+
+    private void CopyToMods(FileInfo packageInfo) {
+        var fileInfo = new FileInfo(Path.Combine(Minecraft.ToWorkingPath(true), "mods", packageInfo.Name));
+
+        if (!fileInfo.Directory.Exists)
+            fileInfo.Directory.Create();
+
+        packageInfo.MoveTo(fileInfo.FullName, true);
     }
 
     private (ZipArchive package, string launchwrapperVersion, string launchwrapperName) ParseOptifinePackage(string packageFilePath, CancellationToken cancellationToken) {

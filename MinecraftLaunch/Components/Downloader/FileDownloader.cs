@@ -4,6 +4,7 @@ using MinecraftLaunch.Base.Enums;
 using MinecraftLaunch.Base.Models.Network;
 using MinecraftLaunch.Utilities;
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using Timer = System.Timers.Timer;
 
@@ -96,7 +97,7 @@ public sealed class FileDownloader {
     public async Task<GroupDownloadResult> DownloadFilesAsync(GroupDownloadRequest request, CancellationToken cancellationToken = default) {
         Timer timer = new(TimeSpan.FromSeconds(1));
         List<Task> downloadTasks = [];
-        Dictionary<DownloadRequest, DownloadResult> failed = [];
+        ConcurrentDictionary<DownloadRequest, DownloadResult> failed = [];
         long bytesReceived = 0;
         long previousBytesReceived = 0;
 
@@ -260,11 +261,10 @@ public sealed class FileDownloader {
         ArrayPool<byte>.Shared.Return(downloadBufferArr);
     }
 
-    private async Task DownloadFileInGroupAsync(DownloadRequest request, GroupDownloadRequest groupRequest, Dictionary<DownloadRequest, DownloadResult> failed, CancellationToken cancellationToken) {
+    private async Task DownloadFileInGroupAsync(DownloadRequest request, GroupDownloadRequest groupRequest, ConcurrentDictionary<DownloadRequest, DownloadResult> failed, CancellationToken cancellationToken) {
         DownloadResult result = await DownloadFileAsync(request, cancellationToken);
-        if (result.Type == DownloadResultType.Failed) {
-            failed.Add(request, result);
-        }
+        if (result.Type == DownloadResultType.Failed)
+            failed.TryAdd(request, result);
 
         groupRequest.SingleRequestCompleted?.Invoke(request, result);
     }

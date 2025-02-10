@@ -1,6 +1,7 @@
 ﻿using Flurl.Http;
 using Flurl.Http.Configuration;
 using MinecraftLaunch;
+using MinecraftLaunch.Base.Enums;
 using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Downloader;
@@ -14,7 +15,7 @@ using MinecraftLaunch.Utilities;
 using System.Net;
 
 DownloadMirrorManager.MaxThread = 256;
-DownloadMirrorManager.IsEnableMirror = true;
+DownloadMirrorManager.IsEnableMirror = false;
 CurseforgeProvider.CurseforgeApiKey = "Your Api Key";
 
 HttpUtil.Initialize();
@@ -90,6 +91,22 @@ HttpUtil.Initialize();
 #endregion
 
 #region 复合安装器
+
+//var mc = await VanillaInstaller.EnumerableMinecraftAsync()
+//    .FirstAsync(x => x.McVersion.Equals("1.12.2"));
+
+//var forgeEntry = await ForgeInstaller.EnumerableForgeAsync("1.12.2")
+//    .FirstOrDefaultAsync();
+
+//var ofEntry = await OptifineInstaller.EnumerableOptifineAsync("1.12.2")
+//    .FirstOrDefaultAsync();
+
+//var installer5 = CompositeInstaller.Create([mc, forgeEntry, ofEntry], "C:\\Users\\wxysd\\Desktop\\temp\\.minecraft", "C:\\Program Files\\Java\\latest\\jre-1.8\\bin\\java.exe", "ForgeMC_Optifne");
+//installer5.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{(arg.PrimaryStepName is InstallStep.Undefined ? "" : $"{arg.PrimaryStepName} - ")}{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+
+//var minecraft5 = await installer5.InstallAsync();
+//Console.WriteLine(minecraft5.Id);
 
 #endregion
 
@@ -190,13 +207,13 @@ MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
 
 //MinecraftRunner runner = new(new LaunchConfig {
 //    Account = new OfflineAuthenticator().Authenticate("Yang114"),
-//    JavaPath = minecraft1.GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
+//    JavaPath = minecraft5.GetAppropriateJava((await JavaUtil.EnumerableJavaAsync().ToListAsync())),
 //    MaxMemorySize = 2048,
 //    MinMemorySize = 512,
 //    LauncherName = "MinecraftLaunch"
 //}, minecraftParser);
 
-//var process = await runner.RunAsync(minecraft1);
+//var process = await runner.RunAsync(minecraft5);
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
 //process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
 //process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));

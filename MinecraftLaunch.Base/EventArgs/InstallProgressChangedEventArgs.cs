@@ -2,7 +2,7 @@
 
 namespace MinecraftLaunch.Base.EventArgs;
 
-public sealed class InstallProgressChangedEventArgs : System.EventArgs {
+public class InstallProgressChangedEventArgs : System.EventArgs {
     public double Speed { get; set; }
     public required double Progress { get; set; }
 
@@ -15,4 +15,8 @@ public sealed class InstallProgressChangedEventArgs : System.EventArgs {
 
     [Obsolete($"Replaced by {nameof(StepName)}")]
     public string ProgressStatus { get; set; }
+}
+
+public sealed class CompositeInstallProgressChangedEventArgs : InstallProgressChangedEventArgs {
+    public InstallStep PrimaryStepName { get; set; }
 }
