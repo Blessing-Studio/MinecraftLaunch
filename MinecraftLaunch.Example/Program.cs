@@ -138,6 +138,18 @@ HttpUtil.Initialize();
 
 #endregion
 
+#region Mcbbs 整合包安装器
+
+//var modpackEntry2 = McbbsModpackInstaller.ParseModpackInstallEntry(@"C:\Users\wxysd\Desktop\temp\mcbbs_test.zip");
+//var mcbbsModpackInstaller = McbbsModpackInstaller.Create(@"C:\Users\wxysd\Desktop\temp\DaiYu\.minecraft", @"C:\Users\wxysd\Desktop\temp\mcbbs_test.zip", modpackEntry2, new MinecraftParser(@"C:\Users\wxysd\Desktop\temp\DaiYu\.minecraft").GetMinecraft("1.12.2"));
+//mcbbsModpackInstaller.ProgressChanged += (_, arg) =>
+//    Console.WriteLine($"{arg.StepName} - {arg.FinishedStepTaskCount}/{arg.TotalStepTaskCount} - {(arg.IsStepSupportSpeed ? $"{FileDownloader.GetSpeedText(arg.Speed)} - {arg.Progress * 100:0.00}%" : $"{arg.Progress * 100:0.00}%")}");
+
+//var minecraft7 = await mcbbsModpackInstaller.InstallAsync();
+//Console.WriteLine(minecraft7.Id);
+
+#endregion
+
 #region 微软验证
 
 //MicrosoftAuthenticator authenticator = new("Your client ID");

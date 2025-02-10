@@ -124,6 +124,7 @@ public sealed class ModrinthModpackInstaller : InstallerBase {
         ReportProgress(InstallStep.ExtractModpack, 0.85d, TaskStatus.Running, entries.Count, 0);
 
         const string decompressPrefix = "overrides";
+        string woringPath = Minecraft.ToWorkingPath(true);
 
         int count = 0;
         var tasks = entries.Select(x => Task.Run(() => {
@@ -139,9 +140,9 @@ public sealed class ModrinthModpackInstaller : InstallerBase {
                 if (string.IsNullOrEmpty(subPath))
                     return;
 
-                var filePath = new FileInfo(Path.Combine(Path.GetFullPath(Minecraft.ToWorkingPath(true)), subPath));
+                var filePath = new FileInfo(Path.Combine(woringPath, subPath));
                 if (x.FullName.EndsWith('/')) {
-                    Directory.CreateDirectory(filePath.FullName);
+                    filePath.Directory.Create();
                     return;
                 }
 

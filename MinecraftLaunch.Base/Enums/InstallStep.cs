@@ -16,6 +16,7 @@ public enum InstallStep {
     RunInstallProcessor,
 
     //Modpack
+    ParseFiles,
     ParseDownloadUrls,
     DownloadMods,
     ExtractModpack,
