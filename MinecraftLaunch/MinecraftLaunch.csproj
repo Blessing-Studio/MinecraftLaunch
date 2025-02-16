@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Version>4.0.0-preview08</Version>
+		<Version>4.0.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -45,10 +45,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MinecraftLaunch.Base\MinecraftLaunch.Base.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Logging\" />
   </ItemGroup>
 
   <ItemGroup>

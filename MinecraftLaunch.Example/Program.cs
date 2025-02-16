@@ -7,6 +7,7 @@ using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Components.Downloader;
 using MinecraftLaunch.Components.Installer;
 using MinecraftLaunch.Components.Installer.Modpack;
+using MinecraftLaunch.Components.Logging;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Components.Provider;
 using MinecraftLaunch.Extensions;
@@ -181,7 +182,8 @@ HttpUtil.Initialize();
 
 #region 本地游戏读取
 
-MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
+//C:\Users\wxysd\Desktop\总整包\MC\mc启动器\LauncherX\.minecraft - C:\Users\wxysd\Desktop\temp\.minecraft
+MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\总整包\MC\mc启动器\LauncherX\.minecraft";
 
 //minecraftParser.GetMinecrafts().ForEach(x => {
 //    Console.WriteLine(x.Id);
@@ -229,6 +231,16 @@ MinecraftParser minecraftParser = @"C:\Users\wxysd\Desktop\temp\.minecraft";
 //process.Started += (_, _) => Console.WriteLine("Launch successful!");
 //process.OutputLogReceived += (_, arg) => Console.WriteLine(arg.Data);
 //process.Exited += (_, _) => Console.WriteLine(string.Join("\n", process.ArgumentList));
+
+#endregion
+
+#region 错误分析
+
+LogAnalyzer analyzer = new(minecraftParser.GetMinecraft("1.20.1"));
+var result = analyzer.Analyze();
+foreach (var item in result.CrashReasons) {
+    Console.WriteLine(item);
+}
 
 #endregion
 

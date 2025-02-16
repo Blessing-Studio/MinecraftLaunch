@@ -21,7 +21,10 @@ public static class PathExtension {
     public static string ToNativesPath(this MinecraftEntry entry) =>
         Path.Combine(entry.MinecraftFolderPath, "versions", entry.Id, "natives");
 
-    public static string ToWorkingPath(this MinecraftEntry entry, bool isEnableIndependencyCore) => isEnableIndependencyCore
+    public static string ToWorkingPath(this MinecraftEntry entry, bool isEnableIndependency) => isEnableIndependency
         ? Path.Combine(entry.MinecraftFolderPath, "versions", entry.Id)
         : entry.MinecraftFolderPath;
+
+    public static string ToLogsPath(this MinecraftEntry entry, bool isEnableIndependency) =>
+        Path.Combine(entry.ToWorkingPath(isEnableIndependency), "logs");
 }
